@@ -11,7 +11,15 @@ export default function Home() {
           width={180}
           height={38}
           priority
-        />
+        />import React from 'react'
+        
+        const page = () => {
+          return (
+            <div>page</div>
+          )
+        }
+        
+        export default page
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
             Get started by editing{" "}
