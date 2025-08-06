@@ -7,6 +7,7 @@ const STAGGER = 0.025
 interface FlipLinkProps {
   children: string
   href: string
+  className?: string
 }
 
 const FlipLink: React.FC<FlipLinkProps> = ({ children, href }) => {
