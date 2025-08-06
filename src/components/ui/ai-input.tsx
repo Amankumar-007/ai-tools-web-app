@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
 import { Globe, Paperclip, Plus, Send } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
@@ -83,6 +84,7 @@ export default function AiInput() {
   const [showSearch, setShowSearch] = useState(true)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+const router = useRouter()
 
   const handelClose = (e: any) => {
     e.preventDefault()
@@ -101,9 +103,16 @@ export default function AiInput() {
   }
 
   const handleSubmit = () => {
-    setValue("")
-    adjustHeight(true)
-  }
+  if (!value.trim()) return
+
+  // Redirect to /search?q=your_query
+  router.push(`/search?q=${encodeURIComponent(value.trim())}`)
+
+  // Clear the input and reset height
+  setValue("")
+  adjustHeight(true)
+}
+
 
   useEffect(() => {
     return () => {
