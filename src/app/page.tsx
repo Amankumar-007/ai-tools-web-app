@@ -9,8 +9,55 @@ import Link from "next/link";
 import AIToolsGrid from '../components/AIToolsGrid';
 import { TextScroll } from '@/components/ui/text-scroll'
 import AiInput from '@/components/ui/ai-input'
+import HoverExpand from "@/components/ui/hover-expand";
+import VideoSection from "@/components/videoCardComp";
+import Categories from "@/components/Categories";
 
 export default function Home() {
+  const images = [
+  "https://images.pexels.com/photos/30082445/pexels-photo-30082445.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
+  "https://images.unsplash.com/photo-1692606743169-e1ae2f0a960f?q=80&w=3560&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  "https://assets.lummi.ai/assets/QmQLSBeCFHUwCv7WBpGr7T3P67UXaAw8B2vvmtKimyinrL?auto=format&w=1500",
+  "https://assets.lummi.ai/assets/QmXe6v7jBF5L2R7FCio8KQdXwTX2uqzRycUJapyjoXaTqd?auto=format&w=1500",
+  "https://assets.lummi.ai/assets/QmNfwUDpehZyLWzE8to7QzgbJ164S6fQy8JyUWemHtmShj?auto=format&w=1500",
+  "https://images.unsplash.com/photo-1706049379414-437ec3a54e93?q=80&w=1200&auto=format",
+  "https://assets.lummi.ai/assets/Qmb2P6tF2qUaFXnXpnnp2sk9HdVHNYXUv6MtoiSq7jjVhQ?auto=format&w=1500",
+  "https://www.youtube.com/watch?v=6P0BpzUpZhc",
+]
+const video = [
+    {
+      "title": "I Tested Every AI That Edits Videos For You",
+      "description": "Overview of many AI tools that automatically edit videos for you.",
+      "url": "https://www.youtube.com/watch?v=ZMEFCbokVcY",
+      "thumbnail": null
+    },
+    {
+      "title": "6 AI Tools for Video Editing that Saved Me HOURS",
+      "description": "The six ride‑or‑die AI tools that save me hours in every edit...",
+      "url": "https://www.youtube.com/watch?v=P6pQKw0J1ic",
+      "thumbnail": null
+    },
+    {
+      "title": "6 AI Video Editing Apps You Won’t Believe Exist in 2025!",
+      "description": "Only six best AI video editing apps that you need in 2025 to save time...",
+      "url": "https://www.youtube.com/watch?v=okQtZRBuRGg",
+      "thumbnail": null
+    },
+    {
+      "title": "This NEW AI Video Editor Saves 100+ Hours! (Best Editing …)",
+      "description": "AI‑powered editors to cut your editing time in half…",
+      "url": "https://www.youtube.com/watch?v=RAvlE-G6wSo",
+      "thumbnail": null
+    },
+    {
+      "title": "Stop Wasting Time - My Favorite AI Tools for 2025",
+      "description": "Includes some video editing tools as part of AI toolkit for creators...",
+      "url": "https://www.youtube.com/watch?v=qX3Cn83S-Uw",
+      "thumbnail": null
+    }
+  ]
+
+
   return (
     <div className="min-h-screen">
       {/* Navbar */}
@@ -94,7 +141,9 @@ export default function Home() {
       text="Discover AI Tools "
       default_velocity={2}
     />
-      </main>
+    <VideoSection/>
+    <Categories />
+     </main>
 
     </div>
   );
