@@ -65,31 +65,31 @@ const FeatureCard = ({
 
   return (
     <motion.div
-      whileHover={{ scale: 1.03, boxShadow: "0 15px 35px rgba(0,0,0,0.2)" }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`${bgColor} relative rounded-2xl shadow-xl cursor-pointer group min-h-[170px] h-full overflow-hidden`}
+      whileHover={{ scale: 1.03, boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)' }}
+      transition={{ duration: 0.2, ease: 'easeOut' }}
+      className={`${bgColor} relative rounded-2xl overflow-hidden shadow-lg cursor-pointer group h-full min-h-[180px]`}
     >
       <Link href={link} className="block h-full w-full">
-        {/* Background Image */}
-        <div className="absolute inset-0 scale-95">
+        {/* Background image */}
+        <div className="absolute inset-0">
           <Image
             src={imageSrc}
             alt={title}
             fill
-            className="object-cover opacity-15 group-hover:opacity-25 transition-opacity duration-300"
+            className="object-cover opacity-20 group-hover:opacity-30 transition-opacity duration-300"
             priority={index < 3}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>
 
-        {/* Content Overlay */}
-        <div className="relative z-10 p-5 flex flex-col justify-between h-full">
-          <h4 className="text-white font-bold text-lg sm:text-xl drop-shadow-md">
+        {/* Overlay content */}
+        <div className="relative z-10 p-4 sm:p-5 flex flex-col justify-between h-full">
+          <h4 className="text-white font-bold text-lg sm:text-xl leading-tight drop-shadow-md">
             {title}
           </h4>
           <button
             onClick={(e) => handleButtonClick(e, link)}
-            className="mt-3 text-sm sm:text-base text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-1.5 rounded-full transition-all duration-200 transform hover:scale-105 w-fit"
+            className="mt-3 sm:mt-4 text-sm sm:text-base text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-1.5 rounded-full transition-all duration-200 transform hover:scale-105 w-fit"
           >
             Get Started
           </button>
@@ -101,18 +101,16 @@ const FeatureCard = ({
 
 export default function FeatureList() {
   return (
-    <section className="w-full px-4 sm:px-6 py-16 bg-white dark:bg-black">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">
-          Explore <span className="text-blue-600">AI Tools</span>
-        </h2>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <h2 className="text-3xl font-bold mb-10 text-gray-900 dark:text-white text-center">
+        Explore AI Tools
+      </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <FeatureCard key={index} {...feature} index={index} />
-          ))}
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {features.map((feature, index) => (
+          <FeatureCard key={index} {...feature} index={index} />
+        ))}
       </div>
-    </section>
+    </div>
   );
 }
