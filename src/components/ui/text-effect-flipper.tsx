@@ -1,5 +1,7 @@
 import React, { ReactNode } from "react"
 import { motion } from "framer-motion"
+import styles from './FlipLink.module.css'
+
 
 const DURATION = 0.25
 const STAGGER = 0.025
@@ -17,7 +19,7 @@ const FlipLink: React.FC<FlipLinkProps> = ({ children, href }) => {
       whileHover="hovered"
       target="_blank"
       href={href}
-      className="relative block overflow-hidden whitespace-nowrap text-4xl font-semibold uppercase dark:text-white/90 sm:text-7xl md:text-8xl "
+      className={`${styles.link} relative block overflow-hidden whitespace-nowrap text-4xl font-semibold uppercase dark:text-white/90 sm:text-7xl md:text-8xl`}
       style={{
         lineHeight: 0.75,
       }}
@@ -61,7 +63,7 @@ const FlipLink: React.FC<FlipLinkProps> = ({ children, href }) => {
               ease: "easeInOut",
               delay: STAGGER * i,
             }}
-            className="inline-block"
+            className={`${styles.bottomLayer} inline-block`}
             key={i}
           >
             {l}

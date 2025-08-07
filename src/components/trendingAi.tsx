@@ -1,0 +1,290 @@
+import { useState, useEffect, useRef } from 'react';
+
+const TrendingTools = () => {
+  const tools = [
+    {
+      name: "ChatGPT",
+      rating: 5,
+      reviews: 9,
+      pricing: "Freemium",
+      users: "5606",
+      description: "Revolutionize interaction, creativity, and innovation with...",
+      tags: ["#ai chatbots", "#education"],
+      category: "Writing generators",
+      featured: true,
+      logo: "🤖",
+      color: "bg-green-100"
+    },
+    {
+      name: "Runway",
+      rating: 5,
+      reviews: 0,
+      pricing: "Freemium",
+      users: "769",
+      description: "AI-driven platform for high-fidelity, controllable video...",
+      tags: ["#text to video", "#video editing"],
+      category: "Video generators",
+      logo: "🎬",
+      color: "bg-black"
+    },
+    {
+      name: "Gamma",
+      rating: 5,
+      reviews: 17,
+      pricing: "Free Trial",
+      users: "518",
+      description: "Write beautiful, engaging content with none of the...",
+      tags: ["#presentations", "#copywriting", "#startup tools"],
+      category: "Writing generators",
+      logo: "💎",
+      color: "bg-purple-500"
+    },
+    {
+      name: "Midjourney",
+      rating: 4,
+      reviews: 23,
+      pricing: "Freemium",
+      users: "3421",
+      description: "Create stunning AI-generated artwork with simple text prompts...",
+      tags: ["#ai art", "#image generation"],
+      category: "Image generators",
+      logo: "🎨",
+      color: "bg-blue-500"
+    }
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const intervalRef = useRef(null);
+
+  const getVisibleCards = () => {
+    if (typeof window !== 'undefined') {
+      if (window.innerWidth < 640) return 1;
+      if (window.innerWidth < 1024) return 2;
+      return 3;
+    }
+    return 3;
+  };
+
+  const [visibleCards, setVisibleCards] = useState(3);
+  const totalSlides = Math.ceil(tools.length / visibleCards);
+
+  const nextSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % totalSlides);
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prevIndex) => (prevIndex - 1 + totalSlides) % totalSlides);
+  };
+
+  const goToSlide = (index) => {
+    setCurrentIndex(index);
+  };
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e) => {
+    touchEndX.current = e.changedTouches[0].clientX;
+    handleSwipe();
+  };
+
+  const handleSwipe = () => {
+    if (touchStartX.current - touchEndX.current > 50) {
+      nextSlide();
+    } else if (touchEndX.current - touchStartX.current > 50) {
+      prevSlide();
+    }
+  };
+
+  useEffect(() => {
+    if (isAutoPlaying) {
+      intervalRef.current = setInterval(() => {
+        nextSlide();
+      }, 5000);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [isAutoPlaying, currentIndex, totalSlides]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const newVisibleCards = getVisibleCards();
+      setVisibleCards(newVisibleCards);
+      setCurrentIndex(0);
+    };
+    
+    handleResize(); // Set initial value
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  return (
+    <section className="max-w-7xl mx-auto px-6 py-16 min-h-screen">
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-bold text-orange-500 mb-4">Trending AI Tools</h2>
+        <p className=" text-lg">Discover the most popular AI tools loved by creators worldwide</p>
+      </div>
+
+      <div className="flex justify-center items-center space-x-6 mb-8">
+        <button 
+          onClick={prevSlide} 
+          className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:shadow-xl transition-all duration-200 hover:scale-105"
+          aria-label="Previous slide"
+        >
+          <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        
+        <div className="flex space-x-3">
+          {Array.from({ length: totalSlides }).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                index === currentIndex 
+                  ? 'bg-blue-500 w-8' 
+                  : 'bg-gray-300 hover:bg-gray-400'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+        
+        <button 
+          onClick={nextSlide} 
+          className="w-12 h-12 rounded-full bg-white shadow-lg flex items-center justify-center hover:shadow-xl transition-all duration-200 hover:scale-105"
+          aria-label="Next slide"
+        >
+          <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      <div 
+        className="relative overflow-hidden"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div 
+          className="flex transition-transform duration-700 ease-in-out"
+          style={{
+            transform: `translateX(-${currentIndex * (100 / visibleCards)}%)`,
+            width: `${(tools.length / visibleCards) * 100}%`
+          }}
+        >
+          {tools.map((tool, index) => (
+            <div 
+              key={tool.name} 
+              className="flex-shrink-0 px-4"
+              style={{ width: `${100 / tools.length}%` }}
+            >
+              <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 overflow-hidden border border-gray-100 h-full">
+                {/* Header with logo and verified badge */}
+                <div className="p-6 pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-14 h-14 ${tool.color} rounded-xl flex items-center justify-center text-2xl ${tool.name === 'Runway' ? 'text-white' : ''}`}>
+                        {tool.logo}
+                      </div>
+                      <div>
+                        <div className="flex items-center space-x-2">
+                          <h3 className="text-xl font-bold text-gray-900">{tool.name}</h3>
+                          <div className="w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <div className="flex items-center">
+                            {[...Array(5)].map((_, i) => (
+                              <span key={i} className={`text-sm ${i < tool.rating ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
+                            ))}
+                          </div>
+                          <span className="text-sm text-gray-500">({tool.reviews})</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pricing and users */}
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-lg font-semibold text-gray-900">{tool.pricing}</span>
+                    <div className="flex items-center space-x-1 text-gray-500">
+                      <span className="text-xl font-bold">{tool.users}</span>
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <p className="text-gray-600 text-sm leading-relaxed mb-4">{tool.description}</p>
+
+                  {/* Category */}
+                  <div className="mb-4">
+                    <span className="text-sm font-medium text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
+                      {tool.category}
+                    </span>
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {tool.tags.map(tag => (
+                      <span key={tag} className="text-xs text-blue-600 font-medium">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="px-6 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50">
+                  {tool.featured && (
+                    <div className="flex items-center space-x-2">
+                      <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <span className="text-sm text-gray-700 font-medium">Editor's Pick</span>
+                    </div>
+                  )}
+                  {!tool.featured && <div></div>}
+                  
+                  <button className="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2.5 px-6 rounded-lg transition-colors duration-200 flex items-center space-x-2 hover:shadow-lg">
+                    <span>Visit</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Auto-play toggle */}
+      <div className="flex justify-center mt-8">
+        <button
+          onClick={() => setIsAutoPlaying(!isAutoPlaying)}
+          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
+            isAutoPlaying 
+              ? 'bg-blue-500 text-white hover:bg-orange-600' 
+              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+        >
+          {isAutoPlaying ? 'Pause Auto-play' : 'Resume Auto-play'}
+        </button>
+      </div>
+    </section>
+  );
+};
+
+export default TrendingTools;

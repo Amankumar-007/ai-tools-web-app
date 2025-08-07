@@ -17,8 +17,8 @@ const categories = [
 export default function Categories() {
   return (
     <div className="max-w-7xl mx-auto py-8 px-4">
-      <h2 className="text-3xl font-bold text-gray-900 text-center mb-6">AI Tool Categories</h2>
-      <p className="text-center text-gray-600 mb-8">We've categorized 2461 AI tools into 10 categories.</p>
+      <h2 className="text-3xl font-bold text-center mb-6">AI Tool Categories</h2>
+      <p className="text-center  mb-8">We've categorized 2461 AI tools into 10 categories.</p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {categories.map((category) => (
           <Link

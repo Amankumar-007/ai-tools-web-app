@@ -1,9 +1,9 @@
 'use client';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useState } from 'react';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 // Define AI tools with added category field
 const aiTools = [
@@ -111,10 +111,12 @@ export default function AIToolsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <motion.div
-        initial={{ x: -100, opacity: 0 }}
+
+      <ProtectedRoute>
+      <div className="min-h-screen bg-gray-50 flex">
+        {/* Sidebar */}
+        <motion.div
+          initial={{ x: -100, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
         transition={{ duration: 0.5 }}
         className="w-64 bg-white shadow-lg p-6 fixed h-full overflow-y-auto"
@@ -208,5 +210,7 @@ export default function AIToolsPage() {
         </div>
       </div>
     </div>
+
+    </ProtectedRoute>
   );
 }
