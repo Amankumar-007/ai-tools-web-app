@@ -1,34 +1,31 @@
 import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@supabase/supabase-js";
 
-export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const supabase = createMiddlewareClient({ req, res });
+export async function middleware(req: any) {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const token = req.cookies.get("sb-access-token")?.value;
+  if (!token) return NextResponse.redirect(new URL("/login", req.url));
 
-  const pathname = req.nextUrl.pathname;
+  const { data: { user } } = await supabase.auth.getUser(token);
+  if (!user) return NextResponse.redirect(new URL("/login", req.url));
 
-  // Publicly accessible routes
-  const PUBLIC_ROUTES = ["/", "/login", "/register", "/favicon.ico", "/_next", "/api"];
+  const { data } = await supabase
+    .from("users")
+    .select("has_paid")
+    .eq("id", user.id)
+    .single();
 
-  if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
-    return res;
+  if (!data?.has_paid) {
+    return NextResponse.redirect(new URL("/checkout", req.url));
   }
 
-  if (!user) {
-    const redirectUrl = req.nextUrl.clone();
-    redirectUrl.pathname = "/login";
-    redirectUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(redirectUrl);
-  }
-
-  return res;
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/((?!_next|favicon.ico|api|login|register).*)"],
+  matcher: ["/locked-page"],
 };
