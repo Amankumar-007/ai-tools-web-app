@@ -110,16 +110,12 @@ export default function VideoSection() {
             >
               <div className="aspect-video bg-gray-900 relative">
                 <iframe
-                  src={video.url}
+                  src={`${video.url}?modestbranding=1&rel=0&showinfo=0`}
                   title={video.title}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   className="w-full h-full group-hover:opacity-90 transition-opacity"
-                  // HD quality parameters
-                  modestbranding="1"
-                  rel="0"
-                  showinfo="0"
                   loading="lazy"
                 />
               </div>

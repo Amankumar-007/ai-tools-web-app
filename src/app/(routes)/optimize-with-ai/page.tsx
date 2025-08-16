@@ -12,9 +12,15 @@ export default function OptimizeWithAI() {
   const handleOptimize = async () => {
     if (!input.trim()) return;
     setLoading(true);
-    const output = await optimizeTextWithGemini(input);
-    setResult(output);
-    setLoading(false);
+    try {
+      const output = await optimizeTextWithGemini(input) as { improved?: string; text?: string };
+      // Prefer improved text; fallback to generic text or stringify for visibility
+      setResult(output.improved ?? output.text ?? JSON.stringify(output));
+    } catch (err) {
+      setResult("Failed to optimize. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

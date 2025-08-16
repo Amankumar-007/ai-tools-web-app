@@ -354,7 +354,6 @@ export const resumePrompts = {
 export const selectPromptStrategy = (data: ResumeData): string => {
   const yearsOfExperience = data.experience.length;
   const hasEducation = data.education.length > 0;
-  const hasSkills = data.skills.length > 0;
 
   let strategy = '';
 

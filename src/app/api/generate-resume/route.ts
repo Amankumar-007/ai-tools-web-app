@@ -1,7 +1,7 @@
 // src/app/api/generate-resume/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { generateResumeTemplate, type ResumeData } from '@/lib/resume-templates';
-import { createResumePrompt } from '@/lib/resume-prompts';
+import { createResumePrompt } from '../../../lib/resume-prompts';
 
 export const dynamic = 'force-dynamic';
 

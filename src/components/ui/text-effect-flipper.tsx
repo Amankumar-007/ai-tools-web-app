@@ -1,4 +1,4 @@
-import React, { ReactNode } from "react"
+import React from "react"
 import { motion } from "framer-motion"
 import styles from './FlipLink.module.css'
 

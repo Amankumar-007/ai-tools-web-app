@@ -123,20 +123,3 @@ export const createSubscriptionRecord = async (subscriptionData: {
     throw error;
   }
 };
-
-export const updateSubscriptionRecord = async (subscriptionId: string, updates: any) => {
-  try {
-    const { data, error } = await supabase
-      .from('subscriptions')
-      .update({ ...updates, updated_at: new Date().toISOString() })
-      .eq('stripe_subscription_id', subscriptionId)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Error updating subscription record:', error);
-    throw error;
-  }
-};

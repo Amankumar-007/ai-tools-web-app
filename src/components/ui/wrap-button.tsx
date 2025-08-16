@@ -8,17 +8,19 @@ interface WrapButtonProps {
   className?: string
   children: React.ReactNode
   href?: string
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement | HTMLDivElement>) => void
 }
 
 const WrapButton: React.FC<WrapButtonProps> = ({
   className,
   children,
   href,
+  onClick,
 }) => {
   return (
     <div className="flex items-center justify-center">
       {href ? (
-        <Link href={href}>
+        <Link href={href} onClick={onClick}>
           <div
             className={cn(
               "group cursor-pointer border group border-[#3B3A3A] gap-2  h-[64px] flex items-center p-[11px] rounded-full",
@@ -40,6 +42,7 @@ const WrapButton: React.FC<WrapButtonProps> = ({
         </Link>
       ) : (
         <div
+          onClick={onClick}
           className={cn(
             "group cursor-pointer border group border-[#3B3A3A] bg-[#151515] gap-2  h-[64px] flex items-center p-[11px] rounded-full",
             className

@@ -1,26 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/supabase";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
+interface AuthError {
+  message: string;
+}
+
 export default function RegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
-  const handleRegister = async (e) => {
+  const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
 
     const { data, error } = await signUp(email, password);
 
     if (error) {
-      setError(error.message);
-    } else if (data.user) {
+           setError((error as AuthError).message);
+    } else if (data?.user) {
       router.push("/ai-tools");
     }
   };

@@ -3,22 +3,40 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { optimizeTextWithGemini, generateContent, analyzeText } from '@/lib/gemini';
 
-const OutlierAI = () => {
-  const [activeTab, setActiveTab] = useState('optimize');
-  const [inputText, setInputText] = useState('');
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const textareaRef = useRef(null);
-  const [contentType, setContentType] = useState('blog');
+type TabId = 'optimize' | 'generate' | 'analyze';
+type ContentType = 'blog' | 'social' | 'email' | 'marketing';
+type OptimizeResult = {
+  improved: string;
+  explanation?: string;
+  tip?: string;
+  analysis?: {
+    readabilityScore?: number;
+    keyChanges?: string[];
+  };
+};
+type AnalyzeResult = {
+  sentiment?: string;
+  wordCount?: number;
+  keyTopics?: string[];
+  suggestions?: string[];
+};
 
-  const tabs = [
+const OutlierAI = () => {
+  const [activeTab, setActiveTab] = useState<TabId>('optimize');
+  const [inputText, setInputText] = useState<string>('');
+  const [result, setResult] = useState<OptimizeResult | AnalyzeResult | string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [contentType, setContentType] = useState<ContentType>('blog');
+
+  const tabs: { id: TabId; label: string; icon: string }[] = [
     { id: 'optimize', label: 'Text Optimizer', icon: '✨' },
     { id: 'generate', label: 'Content Generator', icon: '🚀' },
     { id: 'analyze', label: 'Content Analyzer', icon: '🔍' }
   ];
 
-  const contentTypes = [
+  const contentTypes: { value: ContentType; label: string; color: string }[] = [
     { value: 'blog', label: 'Blog Post', color: 'bg-orange-500' },
     { value: 'social', label: 'Social Media', color: 'bg-orange-400' },
     { value: 'email', label: 'Email', color: 'bg-orange-600' },
@@ -35,14 +53,16 @@ const OutlierAI = () => {
     setError('');
     
     try {
-      let response;
+      let response: OptimizeResult | AnalyzeResult | string = '';
       
       if (activeTab === 'optimize') {
-        response = await optimizeTextWithGemini(inputText);
+        response = await optimizeTextWithGemini(inputText) as OptimizeResult;
       } else if (activeTab === 'generate') {
-        response = await generateContent(inputText, contentType);
+        response = await generateContent(inputText, contentType) as string;
       } else if (activeTab === 'analyze') {
-        response = await analyzeText(inputText);
+        response = await analyzeText(inputText) as AnalyzeResult;
+      } else {
+        response = '';
       }
       
       setResult(response);
@@ -54,7 +74,7 @@ const OutlierAI = () => {
     }
   };
 
-  const copyToClipboard = (text) => {
+  const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
   };
 
@@ -102,7 +122,7 @@ const OutlierAI = () => {
             variants={itemVariants}
             className="text-xl text-gray-700 max-w-2xl mx-auto"
           >
-            Transform your content with cutting-edge AI powered by Google's Gemini Flash
+            Transform your content with cutting-edge AI powered by Google&apos;s Gemini Flash
           </motion.p>
         </motion.div>
 
@@ -283,7 +303,7 @@ const OutlierAI = () => {
                     <div className="flex justify-between items-center mb-2">
                       <h4 className="font-semibold text-orange-600">Improved Version</h4>
                       <motion.button
-                        onClick={() => copyToClipboard(result.improved)}
+                        onClick={() => copyToClipboard((result as OptimizeResult).improved)}
                         className="text-gray-500 hover:text-orange-600 transition-colors"
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
@@ -291,31 +311,31 @@ const OutlierAI = () => {
                         📋
                       </motion.button>
                     </div>
-                    <p className="text-gray-700 leading-relaxed">{result.improved}</p>
+                    <p className="text-gray-700 leading-relaxed">{(result as OptimizeResult).improved}</p>
                   </div>
 
                   <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4">
                     <h4 className="font-semibold text-blue-600 mb-2">What Was Improved</h4>
-                    <p className="text-gray-700">{result.explanation}</p>
+                    <p className="text-gray-700">{(result as OptimizeResult).explanation}</p>
                   </div>
 
                   <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border border-orange-200 rounded-2xl p-4">
                     <h4 className="font-semibold text-orange-700 mb-2">💡 Pro Tip</h4>
-                    <p className="text-gray-700">{result.tip}</p>
+                    <p className="text-gray-700">{(result as OptimizeResult).tip}</p>
                   </div>
 
-                  {result.analysis && (
+                  {Boolean((result as OptimizeResult)?.analysis) && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
                         <div className="text-2xl font-bold text-green-600">
-                          {result.analysis.readabilityScore}%
+                          {(result as OptimizeResult).analysis?.readabilityScore}%
                         </div>
                         <div className="text-sm text-gray-600">Readability Score</div>
                       </div>
                       <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
                         <div className="text-sm text-gray-600 mb-2">Key Changes</div>
                         <div className="flex flex-wrap gap-1">
-                          {result.analysis.keyChanges?.map((change, idx) => (
+                          {(result as OptimizeResult).analysis?.keyChanges?.map((change: string, idx: number) => (
                             <span
                               key={idx}
                               className="px-2 py-1 bg-orange-200 rounded text-xs text-orange-700"
@@ -340,7 +360,7 @@ const OutlierAI = () => {
                   <div className="flex justify-between items-center mb-4">
                     <h4 className="font-semibold text-orange-600">Generated Content</h4>
                     <motion.button
-                      onClick={() => copyToClipboard(result)}
+                      onClick={() => copyToClipboard(typeof result === 'string' ? result : '')}
                       className="text-gray-500 hover:text-orange-600 transition-colors"
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
@@ -349,7 +369,7 @@ const OutlierAI = () => {
                     </motion.button>
                   </div>
                   <div className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                    {result}
+                    {typeof result === 'string' ? result : ''}
                   </div>
                 </motion.div>
               )}
@@ -364,23 +384,23 @@ const OutlierAI = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
                       <div className="text-lg font-bold text-blue-600">
-                        {result.sentiment || 'N/A'}
+                        {(result as AnalyzeResult).sentiment || 'N/A'}
                       </div>
                       <div className="text-xs text-gray-600">Sentiment</div>
                     </div>
                     <div className="bg-green-50 border border-green-200 rounded-xl p-4 text-center">
                       <div className="text-lg font-bold text-green-600">
-                        {result.wordCount || 'N/A'}
+                        {(result as AnalyzeResult).wordCount || 'N/A'}
                       </div>
                       <div className="text-xs text-gray-600">Words</div>
                     </div>
                   </div>
 
-                  {result.keyTopics && (
+                  {(result as AnalyzeResult).keyTopics && (
                     <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
                       <h4 className="font-semibold text-orange-600 mb-2">Key Topics</h4>
                       <div className="flex flex-wrap gap-2">
-                        {result.keyTopics.map((topic, idx) => (
+                        {(result as AnalyzeResult).keyTopics!.map((topic: string, idx: number) => (
                           <span
                             key={idx}
                             className="px-3 py-1 bg-orange-200 rounded-full text-sm text-orange-700"
@@ -392,11 +412,11 @@ const OutlierAI = () => {
                     </div>
                   )}
 
-                  {result.suggestions && (
+                  {(result as AnalyzeResult).suggestions && (
                     <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
                       <h4 className="font-semibold text-yellow-700 mb-2">Suggestions</h4>
                       <ul className="space-y-1 text-gray-700 text-sm">
-                        {result.suggestions.map((suggestion, idx) => (
+                        {(result as AnalyzeResult).suggestions!.map((suggestion: string, idx: number) => (
                           <li key={idx}>• {suggestion}</li>
                         ))}
                       </ul>

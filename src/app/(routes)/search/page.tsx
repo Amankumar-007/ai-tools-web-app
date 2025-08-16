@@ -1,14 +1,24 @@
 "use client"
+
+import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
-export default function SearchPage() {
+type ResultType = "web" | "news" | "images"
+type SearchResult = {
+  type?: ResultType | string
+  link?: string
+  title?: string
+  snippet?: string
+  thumbnail?: string
+}
+
+function SearchContent() {
   const searchParams = useSearchParams()
-  const query = searchParams.get("q") || ""
-  const [results, setResults] = useState([])
+  const query = searchParams?.get("q") ?? ""
+  const [results, setResults] = useState<SearchResult[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!query) {
@@ -40,8 +50,10 @@ export default function SearchPage() {
   }, [query])
 
   // Group results by type
-  const groupedResults = results.reduce((acc, result) => {
-    const type = result.type || "web"
+  const groupedResults = results.reduce<Record<ResultType, SearchResult[]>>((acc, result) => {
+    const type = (result.type === "news" || result.type === "images" || result.type === "web")
+      ? (result.type as ResultType)
+      : "web"
     acc[type] = acc[type] || []
     acc[type].push(result)
     return acc
@@ -58,7 +70,7 @@ export default function SearchPage() {
           className="mb-8"
         >
           <h1 className="text-3xl font-bold text-gray-900">
-            Search Results for <span className="text-indigo-600">"{query || "No query"}"</span>
+            Search Results for <span className="text-indigo-600">&quot;{query || "No query"}&quot;</span>
           </h1>
           <p className="mt-2 text-gray-600">
             {isLoading ? "Searching..." : results.length > 0 ? `${results.length} results found` : "No results found"}
@@ -197,5 +209,13 @@ export default function SearchPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SearchContent />
+    </Suspense>
   )
 }

@@ -86,13 +86,18 @@ const Switch = ({ checked, onCheckedChange, disabled = false, id }: {
 };
 
 // PDF Download Function
-const downloadAsPDF = async (html: string, filename: string) => {
+const downloadAsPDF = async (html: string, filename?: string) => {
   try {
     const printWindow = window.open('', '_blank');
     if (!printWindow) {
       throw new Error('Please allow popups to download PDF');
     }
     
+    // Set a meaningful title so some browsers use it as a suggested filename
+    if (filename) {
+      try { printWindow.document.title = filename; } catch {}
+    }
+
     printWindow.document.open();
     printWindow.document.write(html);
     printWindow.document.close();
@@ -716,7 +721,7 @@ export default function ResumeGenerator() {
               ))}
               {additionalSections.length === 0 && (
                 <p className="text-gray-500 text-center py-8 italic">
-                  No additional sections added. Click "Add Section" to include certifications, awards, projects, etc.
+                  No additional sections added. Click &quot;Add Section&quot; to include certifications, awards, projects, etc.
                 </p>
               )}
               <div className="flex gap-2 pt-4">

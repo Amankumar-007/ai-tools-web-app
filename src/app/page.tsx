@@ -164,10 +164,15 @@ export default function Home() {
     fetchUser();
   }, []);
 
-  const handleProtectedLink = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+  const handleProtectedLink = (
+    e: React.MouseEvent<HTMLAnchorElement | HTMLDivElement>, 
+    href: string
+  ) => {
+    e.preventDefault();
     if (!user) {
-      e.preventDefault();
       router.push(`/login?redirect=${encodeURIComponent(href)}`);
+    } else {
+      router.push(href);
     }
   };
 
@@ -221,10 +226,25 @@ export default function Home() {
     },
   ];
 
+  // Update the sectionVariants object
   const sectionVariants = {
-    hidden: { opacity: 0, scale: 0.95 },
-    visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: "easeOut" } },
-  };
+    hidden: { 
+      opacity: 0, 
+      scale: 0.95 
+    },
+    visible: { 
+      opacity: 1, 
+      scale: 1, 
+      transition: { 
+        duration: 0.5, 
+        ease: [0.4, 0, 0.2, 1] // Using a cubic-bezier easing
+        // Alternatively, you can use predefined easings:
+        // ease: "easeOut"
+        // ease: "easeInOut"
+        // ease: "linear"
+      } 
+    }
+  } as const;
 
   return (
     <div className="min-h-screen">

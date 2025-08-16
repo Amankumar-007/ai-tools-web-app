@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import type { TouchEvent } from 'react';
 
 const TrendingTools = () => {
   const tools = [
@@ -57,7 +58,7 @@ const TrendingTools = () => {
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
-  const intervalRef = useRef(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   const getVisibleCards = () => {
     if (typeof window !== 'undefined') {
@@ -79,15 +80,15 @@ const TrendingTools = () => {
     setCurrentIndex((prevIndex) => (prevIndex - 1 + totalSlides) % totalSlides);
   };
 
-  const goToSlide = (index) => {
+  const goToSlide = (index: number) => {
     setCurrentIndex(index);
   };
 
-  const handleTouchStart = (e) => {
+  const handleTouchStart = (e: TouchEvent<HTMLDivElement>) => {
     touchStartX.current = e.touches[0].clientX;
   };
 
-  const handleTouchEnd = (e) => {
+  const handleTouchEnd = (e: TouchEvent<HTMLDivElement>) => {
     touchEndX.current = e.changedTouches[0].clientX;
     handleSwipe();
   };
@@ -107,7 +108,9 @@ const TrendingTools = () => {
       }, 5000);
     }
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
     };
   }, [isAutoPlaying, currentIndex, totalSlides]);
 
@@ -252,7 +255,7 @@ const TrendingTools = () => {
                       <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                       </svg>
-                      <span className="text-sm text-gray-700 font-medium">Editor's Pick</span>
+                      <span className="text-sm text-gray-700 font-medium">Editors Pick</span>
                     </div>
                   )}
                   {!tool.featured && <div></div>}

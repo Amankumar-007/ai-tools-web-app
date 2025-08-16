@@ -334,7 +334,7 @@ export const generateResumeTemplate = (data: ResumeData): string => {
 };
 
 // src/lib/pdf-utils.ts
-export const downloadAsPDF = async (html: string, filename: string) => {
+export const downloadAsPDF = async (html: string) => {
   try {
     // Create a new window for printing
     const printWindow = window.open('', '_blank');
@@ -419,7 +419,7 @@ SKILLS:
 ${skills.length > 0 ? skills.join(', ') : 'Please suggest relevant skills based on the experience and education provided.'}
 
 ADDITIONAL SECTIONS:
-${additionalSections.length > 0 ? additionalSections.map((section, index) => `
+${additionalSections.length > 0 ? additionalSections.map((section) => `
 ${section.title}: ${section.content}
 `).join('\n') : 'No additional sections provided.'}
 
