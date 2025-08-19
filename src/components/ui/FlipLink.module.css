@@ -9,6 +9,9 @@
   color: #333;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
 }
 
 .topLayer {
@@ -18,7 +21,7 @@
 
 .bottomLayer {
   font-weight: 800;
-  color: #666;
+  color: #FF6B00; /* or any highlight color you prefer */
 }
 
 /* Thin underline animation */
@@ -38,6 +41,10 @@
 .link:hover::after {
   transform: scaleX(1);
   transform-origin: left;
+}
+
+.link:active {
+  transform: scale(0.98);
 }
 
 /* Dark mode styles */
@@ -62,4 +69,11 @@
 .bottomLayer {
   display: inline-block;
   transition: all 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+@media (hover: none) {
+  .link {
+    /* Optional: Add touch-specific styles */
+    transition: transform 0.2s ease;
+  }
 }

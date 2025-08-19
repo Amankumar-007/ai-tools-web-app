@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
-import { supabase } from "@/lib/supabase"; // your existing file
+import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
 const tools =  [
@@ -258,8 +258,7 @@ const categories = ["All", ...Array.from(new Set(tools.map(tool => tool.category
 export default function AiToolsPage() {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
- 
-
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   const filteredTools = useMemo(() => {
     return tools.filter(tool => {
@@ -269,61 +268,123 @@ export default function AiToolsPage() {
     });
   }, [search, filter]);
 
-
   return (
-    <div className="min-h-screen flex bg-gradient-to-br from-slate-50 to-white text-gray-800">
-      {/* Sidebar */}
-      <aside className="w-64 p-6 border-r border-gray-200">
-        <h2 className="text-xl font-bold mb-4">Categories</h2>
-        {categories.map(cat => (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white text-gray-800">
+      {/* Mobile Header */}
+      <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-gray-200 p-4">
+        <div className="flex items-center justify-between">
           <button
-            key={cat}
-            onClick={() => setFilter(cat)}
-            className={`block w-full text-left px-3 py-2 rounded-lg mb-2 transition 
-              ${filter === cat ? "bg-blue-600 text-white" : "hover:bg-blue-100"}`}
+            onClick={() => setSidebarOpen(!isSidebarOpen)}
+            className="p-2 rounded-lg hover:bg-gray-100"
+            aria-label="Toggle categories"
           >
-            {cat}
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d={isSidebarOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+              />
+            </svg>
           </button>
-        ))}
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-8">
-        <div className="mb-6">
           <input
             type="text"
             placeholder="Search AI tools..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 mx-4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+      </div>
 
-        <motion.div 
-          layout
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      <div className="flex flex-col lg:flex-row">
+        {/* Sidebar */}
+        <aside 
+          className={`
+            ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
+            lg:translate-x-0
+            fixed lg:sticky
+            top-[65px] lg:top-0
+            left-0
+            h-[calc(100vh-65px)] lg:h-screen
+            w-64
+            bg-white
+            border-r border-gray-200
+            p-6
+            overflow-y-auto
+            transition-transform duration-300
+            z-40
+            lg:block
+          `}
         >
-          {filteredTools.map((tool, index) => (
-            <motion.a
-              key={tool.title}
-              href={tool.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              initial={{ opacity: 0, scale: 0.98 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, ease: "easeOut", delay: index * 0.03 }}
-              whileHover={{ scale: 1.03, transition: { duration: 0.2 } }}
-              className="p-6 rounded-xl shadow-md border border-gray-200 hover:shadow-lg hover:border-blue-500 transition bg-white"
+          <h2 className="text-xl font-bold mb-4">Categories</h2>
+          {categories.map(cat => (
+            <button
+              key={cat}
+              onClick={() => {
+                setFilter(cat);
+                setSidebarOpen(false);
+              }}
+              className={`block w-full text-left px-3 py-2 rounded-lg mb-2 transition 
+                ${filter === cat ? "bg-blue-600 text-white" : "hover:bg-blue-100"}`}
             >
-              <h3 className="text-lg font-semibold mb-2">{tool.title}</h3>
-              <p className="text-gray-600 text-sm mb-3 line-clamp-3">{tool.description}</p>
-              <span className="inline-block text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">
-                {tool.category}
-              </span>
-            </motion.a>
+              {cat}
+            </button>
           ))}
-        </motion.div>
-      </main>
+        </aside>
+
+        {/* Backdrop */}
+        {isSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        {/* Main Content */}
+        <main className="flex-1 p-4 lg:p-8 mt-[65px] lg:mt-0">
+          {/* Desktop Search */}
+          <div className="mb-6 hidden lg:block">
+            <input
+              type="text"
+              placeholder="Search AI tools..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <motion.div 
+            layout
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6"
+          >
+            {filteredTools.map((tool, index) => (
+              <motion.a
+                key={tool.title}
+                href={tool.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4, ease: "easeOut", delay: index * 0.03 }}
+                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
+                className="p-4 lg:p-6 rounded-xl shadow-md border border-gray-200 hover:shadow-lg hover:border-blue-500 transition bg-white"
+              >
+                <h3 className="text-base lg:text-lg font-semibold mb-2">{tool.title}</h3>
+                <p className="text-gray-600 text-xs lg:text-sm mb-3 line-clamp-3">{tool.description}</p>
+                <span className="inline-block text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-700">
+                  {tool.category}
+                </span>
+              </motion.a>
+            ))}
+          </motion.div>
+        </main>
+      </div>
     </div>
   );
 }
