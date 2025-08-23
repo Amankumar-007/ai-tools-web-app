@@ -18,6 +18,7 @@ import { getCurrentUser, signOut } from "@/lib/supabase";
 import TrendingTools from "@/components/trendingAi";
 import { Badge } from "@/components/ui/badge";
 import Chatbot from "../components/chatBot";
+import Image from "next/image";
 
 // Define types for user and video
 interface User {
@@ -275,14 +276,21 @@ export default function Home() {
             />
           </svg>
         </button>
-        {/* Links */}
+        {/* Logo and Links */}
         <div
           className={`flex-col md:flex-row md:flex items-center space-x-0 md:space-x-4 absolute md:static top-full left-0 w-full md:w-auto bg-white dark:bg-neutral-900 md:bg-transparent z-20 transition-all duration-300 ${
             navOpen ? "flex" : "hidden"
           } md:flex`}
         >
-          <span className="text-2xl font-bold text-purple-600 px-6 py-2 md:p-0">
-            QuickAI
+          <span className="px-6 py-2 md:p-0">
+            <Image
+              src="/logo.png"
+              alt="QuickAI Logo"
+              width={40}
+              height={40}
+              priority
+              className="inline-block"
+            />
           </span>
           <span className="text-sm bg-orange-500 text-white px-2 py-1 rounded mx-6 md:mx-0">
             Beta
@@ -307,11 +315,11 @@ export default function Home() {
             Trending
           </a>
           <Link
-            href="/resources"
-            onClick={(e) => handleProtectedLink(e, "/resources")}
+            href="/About"
+            onClick={(e) => handleProtectedLink(e, "/about")}
             className="text-gray-600 hover:text-black dark:hover:text-white px-6 py-2 md:p-0"
           >
-            Resources
+            About
           </Link>
           <Link
             href="/pricing"

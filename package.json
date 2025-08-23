@@ -16,6 +16,7 @@
     "@radix-ui/react-slot": "^1.2.3",
     "@radix-ui/react-toast": "^1.2.14",
     "@stripe/stripe-js": "^7.8.0",
+    "@studio-freight/lenis": "^1.0.42",
     "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/supabase-js": "^2.53.0",
     "axios": "^1.11.0",
@@ -34,6 +35,8 @@
     "react-markdown": "^10.1.0",
     "remark-gfm": "^4.0.1",
     "replicate": "^1.0.1",
+    "sass": "^1.90.0",
+    "styled-components": "^6.1.19",
     "tailwind-merge": "^3.3.1"
   },
   "devDependencies": {
