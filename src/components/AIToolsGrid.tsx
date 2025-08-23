@@ -14,10 +14,10 @@ interface Feature {
 
 const features: Feature[] = [
   {
-    title: "Thumbnail Generator",
+    title: "summarization",
     bgColor: "bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500",
     imageSrc: "/feature1.png",
-    link: "/thumbnail-generator",
+    link: "/summarization",
   },
   {
     title: "Search Thumbnail",

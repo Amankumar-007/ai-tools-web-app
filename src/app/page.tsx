@@ -17,6 +17,7 @@ import Footer from "@/components/footer";
 import { getCurrentUser, signOut } from "@/lib/supabase";
 import TrendingTools from "@/components/trendingAi";
 import { Badge } from "@/components/ui/badge";
+import Chatbot from "../components/chatBot";
 
 // Define types for user and video
 interface User {
@@ -483,6 +484,14 @@ export default function Home() {
           </div>
         </motion.h1>
         <Footer />
+        <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="fixed bottom-6 right-6"
+      >
+        <Chatbot />
+      </motion.div>
       </main>
     </div>
   );
