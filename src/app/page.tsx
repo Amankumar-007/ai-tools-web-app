@@ -15,7 +15,6 @@ import VideoSection from "@/components/videoCardComp";
 import Categories from "@/components/Categories";
 import Footer from "@/components/footer";
 import { getCurrentUser, signOut } from "@/lib/supabase";
-import TrendingTools from "@/components/trendingAi";
 import { Badge } from "@/components/ui/badge";
 import Chatbot from "../components/chatBot";
 import Image from "next/image";
@@ -276,64 +275,64 @@ export default function Home() {
             />
           </svg>
         </button>
-        {/* Logo and Links */}
+        {/* Logo */}
+        <span className="px-2 py-2 md:p-0 flex items-center">
+          <Image
+            src="/logo.png"
+            alt="QuickAI Logo"
+            width={40}
+            height={40}
+            priority
+            className="inline-block"
+          />
+        </span>
+        {/* Centered Nav Links */}
         <div
-          className={`flex-col md:flex-row md:flex items-center space-x-0 md:space-x-4 absolute md:static top-full left-0 w-full md:w-auto bg-white dark:bg-neutral-900 md:bg-transparent z-20 transition-all duration-300 ${
+          className={`absolute left-1/2 top-full md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-20 transition-all duration-300 ${
             navOpen ? "flex" : "hidden"
           } md:flex`}
         >
-          <span className="px-6 py-2 md:p-0">
-            <Image
-              src="/logo.png"
-              alt="QuickAI Logo"
-              width={40}
-              height={40}
-              priority
-              className="inline-block"
-            />
-          </span>
-          <span className="text-sm bg-orange-500 text-white px-2 py-1 rounded mx-6 md:mx-0">
-            Beta
-          </span>
-          <Link
-            href="/ai-tools"
-            onClick={(e) => handleProtectedLink(e, "/ai-tools")}
-            className="text-gray-600 hover:text-black dark:hover:text-white px-6 py-2 md:p-0"
-          >
-            AI Tools
-          </Link>
-          <a
-            href="#categories"
-            className="text-gray-600 hover:text-black dark:hover:text-white px-6 py-2 md:p-0"
-          >
-            Categories
-          </a>
-          <a
-            href="#trending"
-            className="text-gray-600 hover:text-black dark:hover:text-white px-6 py-2 md:p-0"
-          >
-            Trending
-          </a>
-          <Link
-            href="/About"
-            onClick={(e) => handleProtectedLink(e, "/about")}
-            className="text-gray-600 hover:text-black dark:hover:text-white px-6 py-2 md:p-0"
-          >
-            About
-          </Link>
-          <Link
-            href="/pricing"
-            className="text-gray-600 hover:text-black dark:hover:text-white px-6 py-2 md:p-0"
-          >
-            Pricing
-          </Link>
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 bg-white/80 dark:bg-neutral-900/80 rounded-full px-4 py-2 shadow-lg border border-black/10 dark:border-white/10">
+            <span className="text-sm bg-orange-500 text-white px-2 py-1 rounded-full mx-0">
+              Beta
+            </span>
+            <Link
+              href="/ai-tools"
+              onClick={(e) => handleProtectedLink(e, "/ai-tools")}
+              className="text-gray-600 hover:text-black dark:hover:text-white px-4 py-2 rounded-full transition-colors duration-200 hover:bg-orange-100 dark:hover:bg-neutral-800"
+            >
+              AI Tools
+            </Link>
+            <a
+              href="#categories"
+              className="text-gray-600 hover:text-black dark:hover:text-white px-4 py-2 rounded-full transition-colors duration-200 hover:bg-orange-100 dark:hover:bg-neutral-800"
+            >
+              Categories
+            </a>
+            <a
+              href="#trending"
+              className="text-gray-600 hover:text-black dark:hover:text-white px-4 py-2 rounded-full transition-colors duration-200 hover:bg-orange-100 dark:hover:bg-neutral-800"
+            >
+              Trending
+            </a>
+            <Link
+              href="/About"
+              onClick={(e) => handleProtectedLink(e, "/about")}
+              className="text-gray-600 hover:text-black dark:hover:text-white px-4 py-2 rounded-full transition-colors duration-200 hover:bg-orange-100 dark:hover:bg-neutral-800"
+            >
+              About
+            </Link>
+            <Link
+              href="/pricing"
+              className="text-gray-600 hover:text-black dark:hover:text-white px-4 py-2 rounded-full transition-colors duration-200 hover:bg-orange-100 dark:hover:bg-neutral-800"
+            >
+              Pricing
+            </Link>
+          </div>
         </div>
         {/* Right side */}
         <div className="flex items-center space-x-2 ml-auto">
-          <ThemeToggleButton
-            variant="gif"
-            url="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExMWI1ZmNvMGZyemhpN3VsdWp4azYzcWUxcXIzNGF0enp0eW1ybjF0ZyZlcD12MV9zdGlja2Vyc19zZWFyY2gmY3Q9cw/Fa6uUw8jgJHFVS6x1t/giphy.gif"
-          />
+          <ThemeToggleButton showLabel variant="circle-blur" start="top-right" />
           {user ? (
             <div className="flex items-center space-x-2">
               <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
@@ -425,24 +424,7 @@ export default function Home() {
           <path d="M30.5625 27.3357C29.9525 30.7343 29.3425 34.133 28.704 37.5284C29.1225 37.4018 29.5411 37.2751 29.9882 37.1516C28.6034 35.0617 27.2504 32.9465 25.8655 30.8565C25.6406 30.5425 25.1523 30.517 24.8669 30.7451C24.5497 30.9987 24.5305 31.4299 24.7555 31.7439C26.1403 33.8338 27.4933 35.9491 28.8781 38.039C29.2489 38.6003 30.0417 38.2265 30.1624 37.6621C30.7724 34.2635 31.3824 30.8648 32.0209 27.4694C32.0908 27.1016 31.758 26.7178 31.3871 26.6765C30.9559 26.6573 30.6324 26.9679 30.5625 27.3357Z" />
         </svg>
         <VideoSection />
-        <motion.div
-          id="trending"
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-        >
-          {user ? (
-            <TrendingTools />
-          ) : (
-            <div className="text-center py-10">
-              <p className="text-gray-600 dark:text-gray-400">Please log in to view trending AI tools.</p>
-              <Link href="/login" className="text-purple-600 hover:text-purple-800 dark:hover:text-purple-400">
-                Log in
-              </Link>
-            </div>
-          )}
-        </motion.div>
+       
         <motion.div
           id="categories"
           variants={sectionVariants}

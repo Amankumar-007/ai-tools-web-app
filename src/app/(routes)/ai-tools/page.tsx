@@ -4,6 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
+import Logo from "@/components/Logo";
 
 const tools =  [
   {
@@ -269,6 +270,7 @@ export default function AiToolsPage() {
   }, [search, filter]);
 
   return (
+    <><Logo />
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-white text-gray-800">
       {/* Mobile Header */}
       <div className="lg:hidden sticky top-0 z-50 bg-white border-b border-gray-200 p-4">
@@ -386,5 +388,6 @@ export default function AiToolsPage() {
         </main>
       </div>
     </div>
+    </>
   );
 }

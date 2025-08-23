@@ -38,13 +38,13 @@ const features: Feature[] = [
     link: "/outlier",
   },
   {
-    title: "Content Generator 2",
+    title: "Resume Builder",
     bgColor: "bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-700",
     imageSrc: "/feature5.png",
-    link: "/content-generator-2",
+    link: "/resume-generator",
   },
   {
-    title: "Optimize Video",
+    title: "Optimize prompt",
     bgColor: "bg-gradient-to-r from-red-600 via-pink-600 to-purple-700",
     imageSrc: "/feature6.png",
     link: "/optimize-with-ai",

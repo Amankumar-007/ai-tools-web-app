@@ -27,7 +27,6 @@ const FlipLink: React.FC<FlipLinkProps> = ({ children, href }) => {
         text-2xl       /* Mobile base size */
         font-semibold 
         uppercase 
-        dark:text-white/90 
         sm:text-4xl    /* Tablet size */
         md:text-6xl    /* Desktop size */
         lg:text-7xl    /* Large desktop size */

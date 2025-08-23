@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion, useScroll, useSpring, useTransform } from "framer-motion";
 import { useRef, memo } from "react";
 import styles from "./page.module.scss";
+import Logo from '../../../components/Logo';
 
 // Use string paths for public images with next/image
 const Pic1 = "/images/1.jpeg";
@@ -112,6 +113,9 @@ export default function About() {
   ];
 
   return (
+    <>
+    <Logo/>
+    
     <main className={styles.page} style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
       <style>{`
         ::-webkit-scrollbar { display: none; }
@@ -248,5 +252,6 @@ export default function About() {
         </div>
       </section>
     </main>
+    </>
   );
 }

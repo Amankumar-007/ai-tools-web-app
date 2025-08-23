@@ -4,6 +4,7 @@ import { generateContentWithGemini } from "@/lib/contentGenerator"
 import AiInput from "@/components/ui/ai-input" // Assuming you saved that component separately
 import { Loader2, Plus, MessageSquare, History, X } from "lucide-react"
 import { motion } from "framer-motion"
+import Logo from "@/components/Logo"
 
 interface HistoryItem {
   id: string
@@ -66,6 +67,7 @@ export default function ContentGeneratorPage() {
 
   return (
     <div className="min-h-screen bg-neutral-100 dark:bg-black flex relative">
+      <Logo />
       {/* Sidebar */}
       <motion.div 
         initial={false}
@@ -385,5 +387,6 @@ function AiInputWrapper({
         </div>
       </motion.div>
     </div>
+    
   )
 }

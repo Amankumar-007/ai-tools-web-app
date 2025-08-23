@@ -6,7 +6,6 @@
   text-transform: uppercase;
   position: relative;
   display: inline-block;
-  color: #333;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-user-select: none;
@@ -16,7 +15,6 @@
 
 .topLayer {
   font-weight: 800;
-  color: #333;
 }
 
 .bottomLayer {
@@ -57,7 +55,6 @@
 }
 
 .dark .bottomLayer {
-  color: #aaa;
 }
 
 .dark .link::after {

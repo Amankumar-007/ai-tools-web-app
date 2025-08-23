@@ -103,6 +103,7 @@ const downloadAsPDF = async (html: string, filename?: string) => {
     printWindow.document.close();
     
     await new Promise((resolve) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       printWindow.onload = resolve as any;
       setTimeout(resolve, 1000);
     });

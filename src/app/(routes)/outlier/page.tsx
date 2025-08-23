@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { optimizeTextWithGemini, generateContent, analyzeText } from '@/lib/gemini';
+import Logo from '@/components/Logo';
 
 type TabId = 'optimize' | 'generate' | 'analyze';
 type ContentType = 'blog' | 'social' | 'email' | 'marketing';
@@ -97,6 +98,7 @@ const OutlierAI = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4">
+      <Logo />
       <motion.div
         initial="hidden"
         animate="visible"
