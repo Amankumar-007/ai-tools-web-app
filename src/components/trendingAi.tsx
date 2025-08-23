@@ -60,20 +60,24 @@ const TrendingTools = () => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const [visibleCards, setVisibleCards] = useState(3); // Default for SSR
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const getVisibleCards = () => {
-    if (typeof window !== 'undefined') {
+  // Only run on client
+  useEffect(() => {
+    const getVisibleCards = () => {
       if (window.innerWidth < 640) return 1;
       if (window.innerWidth < 1024) return 2;
       return 3;
-    }
-    return 3;
-  };
+    };
+    setVisibleCards(getVisibleCards());
+    const handleResize = () => setVisibleCards(getVisibleCards());
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-  const [visibleCards, setVisibleCards] = useState(3);
   const totalSlides = Math.ceil(tools.length / visibleCards);
 
   const nextSlide = () => {
@@ -117,17 +121,6 @@ const TrendingTools = () => {
       }
     };
   }, [isAutoPlaying, currentIndex, totalSlides]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const newVisibleCards = getVisibleCards();
-      setVisibleCards(newVisibleCards);
-      setCurrentIndex(0);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   return (
     <section className="max-w-7xl mx-auto px-2 sm:px-6 py-10 sm:py-16 min-h-screen">
