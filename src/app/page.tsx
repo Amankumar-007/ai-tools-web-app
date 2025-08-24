@@ -286,6 +286,21 @@ export default function Home() {
             className="inline-block"
           />
         </span>
+        <span
+        style={{
+          marginLeft: '14px',
+          fontWeight: 700,
+          fontSize: '1.5rem',
+          letterSpacing: '0.05em',
+          background: 'linear-gradient(90deg, #ff512f 0%, #dd2476 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          textShadow: '0 2px 8px rgba(255, 81, 47, 0.15)',
+          fontFamily: 'Montserrat, sans-serif',
+        }}
+      >
+        tomato<span style={{ fontWeight: 300 }}>Tool</span>
+      </span>
         {/* Centered Nav Links */}
         <div
           className={`absolute left-1/2 top-full md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-20 transition-all duration-300 ${
@@ -377,9 +392,9 @@ export default function Home() {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.8 }}
         >
-          <FlipLink href="">Discover-the-Best</FlipLink>
+          <FlipLink href="">The fresh way to</FlipLink>
           <br />
-          <FlipLink href="">AI-Tools</FlipLink>
+          <FlipLink href="">work with AI</FlipLink>
         </motion.h1>
         <motion.div
           initial={{ opacity: 0, y: 50 }}

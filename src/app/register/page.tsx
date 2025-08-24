@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useState, useMemo, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/supabase";
 import Link from "next/link";
@@ -23,25 +23,95 @@ export default function RegisterPage() {
     const { data, error } = await signUp(email, password);
 
     if (error) {
-           setError((error as AuthError).message);
+      setError((error as AuthError).message);
     } else if (data?.user) {
       router.push("/ai-tools");
     }
   };
 
+  // 🍅 Generate tomato positions only once
+  const tomatoPositions = useMemo(
+    () =>
+      [...Array(10)].map(() => ({
+        left: `${Math.random() * 100}%`,
+        delay: Math.random() * 5,
+        duration: 15 + Math.random() * 10,
+      })),
+    []
+  );
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-red-100 via-yellow-50 to-white">
+      {/* Floating Tomatoes Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {tomatoPositions.map((pos, i) => (
+          <motion.img
+            key={i}
+            src="/logo.png"
+            alt="tomato"
+            initial={{ y: "120vh" }}
+            animate={{
+              y: ["120vh", "-20vh"],
+              rotate: [0, 360],
+            }}
+            transition={{
+              duration: pos.duration,
+              repeat: Infinity,
+              ease: "linear",
+              delay: pos.delay,
+            }}
+            className="absolute w-12 h-12 opacity-70"
+            style={{ left: pos.left }}
+          />
+        ))}
+
+        {/* Extra Tomato for Left Side */}
+        <motion.img
+          src="/logo.png"
+          alt="tomato"
+          initial={{ y: "120vh" }}
+          animate={{
+            y: ["120vh", "-20vh"],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 18,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="absolute w-14 h-14 opacity-80 left-4 md:left-10"
+        />
+
+        {/* Extra Tomato for Mobile View */}
+        <motion.img
+          src="/logo.png"
+          alt="tomato"
+          initial={{ y: "120vh" }}
+          animate={{
+            y: ["120vh", "-20vh"],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="absolute w-12 h-12 opacity-80 block md:hidden right-8"
+        />
+      </div>
+
+      {/* Register Card */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="bg-gray-800/80 p-8 rounded-lg shadow-lg w-full max-w-sm"
+        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative z-10 bg-white/90 backdrop-blur-md p-10 rounded-2xl shadow-xl w-full max-w-sm border border-red-200"
       >
         <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-3xl font-light text-gray-100 mb-8 text-center tracking-wide"
+          className="text-3xl font-extrabold text-red-600 mb-8 text-center tracking-wide"
         >
           Create Account
         </motion.h1>
@@ -49,7 +119,7 @@ export default function RegisterPage() {
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-gray-400"
+              className="block text-sm font-semibold text-gray-700"
             >
               Email
             </label>
@@ -59,7 +129,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="mt-1 w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-md text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
+              className="mt-1 w-full px-4 py-3 bg-white border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-200"
               placeholder="Enter your email"
               whileFocus={{ scale: 1.02 }}
             />
@@ -67,7 +137,7 @@ export default function RegisterPage() {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-400"
+              className="block text-sm font-semibold text-gray-700"
             >
               Password
             </label>
@@ -77,7 +147,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="mt-1 w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-md text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 transition duration-200"
+              className="mt-1 w-full px-4 py-3 bg-white border border-gray-300 rounded-md text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-400 transition duration-200"
               placeholder="Enter your password"
               whileFocus={{ scale: 1.02 }}
             />
@@ -86,7 +156,7 @@ export default function RegisterPage() {
             <motion.p
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-red-400 text-sm text-center"
+              className="text-red-500 text-sm text-center font-medium"
             >
               {error}
             </motion.p>
@@ -95,7 +165,7 @@ export default function RegisterPage() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             type="submit"
-            className="w-full bg-teal-600 text-gray-100 py-3 rounded-md hover:bg-teal-700 transition duration-200 font-medium tracking-wide"
+            className="w-full bg-red-500 text-white py-3 rounded-lg hover:bg-red-600 transition duration-200 font-semibold shadow-md"
           >
             Sign Up
           </motion.button>
@@ -104,12 +174,12 @@ export default function RegisterPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
-          className="mt-6 text-center text-sm text-gray-400"
+          className="mt-6 text-center text-sm text-gray-600"
         >
           Already have an account?{" "}
           <Link
             href="/login"
-            className="text-teal-400 hover:text-teal-300 transition duration-200"
+            className="text-green-600 hover:text-green-500 font-semibold transition duration-200"
           >
             Login
           </Link>

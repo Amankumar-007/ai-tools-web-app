@@ -1,0 +1,209 @@
+// app/page.tsx
+"use client"
+
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { ProjectCard } from "@/components/project-card";
+import Logo from "@/components/Logo";
+import Navbar from "@/components/navbar";
+
+const projects = [
+  {
+    title: "AI Tools Web App",
+    description: "A platform to explore and use AI tools.",
+    video: "/videos/project1.mp4",
+    dates: "2024",
+    tags: ["AI", "Web App"],
+  },
+  {
+    title: "E-commerce Store",
+    description: "Full MERN stack e-commerce project with Redux.",
+    video: "/videos/project2.mp4",
+    dates: "2024",
+    tags: ["E-commerce", "MERN", "Redux"],
+  },
+];
+
+export default function Home() {
+  return (
+    <main className="max-w-4xl mx-auto px-6 py-16 space-y-20">
+      <Logo />
+      {/* Hero Section */}
+    <section className="flex flex-col md:flex-row items-center justify-between mb-12">
+  <div>
+    <h1 className="text-5xl font-extrabold mb-4 leading-tight">
+      Hi, I'm <span className="text-blue-600">Aman</span> 👋
+    </h1>
+    <p className="text-xl text-gray-700 dark:text-gray-300 max-w-xl">
+      MERN Stack Developer with a passion for building products that solve
+      real problems. I enjoy turning ideas into interactive applications
+      and sharing what I learn along the way.
+    </p>
+  </div>
+  <Image
+    src="/about.png"
+    alt="Profile"
+    width={140}
+    height={140}
+    className="rounded-full border-4 border-blue-500 shadow-lg mt-6 md:mt-0"
+  />
+</section>
+
+{/* About */}
+<motion.section
+  initial={{ opacity: 0, y: 40 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+  viewport={{ once: true }}
+  className="mb-12"
+>
+  <h2 className="text-3xl font-bold mb-4">About Me</h2>
+  <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed max-w-3xl">
+    I'm a curious developer who thrives on solving problems with code. 
+    My main focus is the <span className="font-semibold">MERN stack</span>,
+    where I build full-stack applications that are fast, reliable, and user-friendly.  
+    Beyond coding, I love exploring new tools, contributing to open source, and
+    engaging with other developers on platforms like LinkedIn.  
+    My goal is to keep growing as a developer while helping others learn along the way.
+  </p>
+</motion.section>
+
+{/* Education */}
+<motion.section
+  initial={{ opacity: 0, y: 40 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+  viewport={{ once: true }}
+  className="mb-12"
+>
+  <h2 className="text-3xl font-bold mb-6">Education</h2>
+  <div className="space-y-6">
+    <div className="flex items-start space-x-4">
+      <span className="text-2xl">🎓</span>
+      <div>
+        <h3 className="text-xl font-semibold">
+          Bachelors in Computer Science
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400">
+          Ongoing — Building a strong foundation in algorithms, databases, and software engineering.
+        </p>
+      </div>
+    </div>
+    <div className="flex items-start space-x-4">
+      <span className="text-2xl">📚</span>
+      <div>
+        <h3 className="text-xl font-semibold">
+          MERN Stack Development — Learn to Earn Program
+        </h3>
+        <p className="text-gray-600 dark:text-gray-400">
+          Hands-on program focused on modern web technologies like MongoDB, Express, React, and Node.js.
+          Developed real-world projects that strengthened my backend and frontend expertise.
+        </p>
+      </div>
+    </div>
+  </div>
+</motion.section>
+
+
+      {/* LinkedIn Posts */}
+     {/* LinkedIn Section */}
+<motion.section
+  initial={{ opacity: 0, y: 40 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+  viewport={{ once: true }}
+>
+  <h2 className="text-2xl font-bold mb-4">My LinkedIn</h2>
+
+  <a
+    href="https://www.linkedin.com/in/amankumarweb/"
+    target="_blank"
+    rel="noopener noreferrer"
+    className="block"
+  >
+    <img
+      src="/screenshot-of-linkidin.png" // <- save your screenshot in /public folder
+      alt="Aman Kumar LinkedIn Profile"
+      className="rounded-xl shadow-lg hover:opacity-90 transition"
+    />
+  </a>
+</motion.section>
+
+{/* Skills Section */}
+<motion.section
+  initial={{ opacity: 0, y: 40 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+  viewport={{ once: true }}
+  className="mb-10"
+>
+  <h2 className="text-2xl font-bold mb-6">Skills</h2>
+  <div className="flex flex-wrap gap-3">
+    {[
+      "React",
+      "Next.js",
+      "Typescript",
+      "Node.js",
+      "Python",
+      "Go",
+      "Postgres",
+      "Docker",
+      "Kubernetes",
+      "Java",
+      "C++"
+    ].map((skill, i) => (
+      <span
+        key={i}
+        className="bg-black text-white px-4 py-2 rounded-lg text-base font-semibold shadow hover:scale-110 transition"
+      >
+        {skill}
+      </span>
+    ))}
+  </div>
+</motion.section>
+
+{/* Projects Intro Section */}
+<motion.section
+  initial={{ opacity: 0, y: 40 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.6 }}
+  viewport={{ once: true }}
+  className="text-center py-12 mb-8"
+>
+  <span className="bg-black text-white px-5 py-2 rounded-lg text-base font-semibold">
+    My Projects
+  </span>
+  <h2 className="text-4xl md:text-5xl font-bold mt-6 mb-3">
+    Check out my latest work
+  </h2>
+  <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-lg">
+    I've worked on a variety of projects, from simple websites to complex web
+    applications. Here are a few of my favorites.
+  </p>
+</motion.section>
+
+      {/* Projects */}
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        viewport={{ once: true }}
+      >
+        <h2 className="text-2xl font-bold mb-4">Projects</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {projects.map((project, idx) => (
+            <ProjectCard
+              key={idx}
+              title={project.title}
+              description={project.description}
+              dates={project.dates}
+              tags={project.tags}
+              video={project.video}
+            />
+          ))}
+        </div>
+      </motion.section>
+      <Navbar/>
+    </main>
+  );
+}
