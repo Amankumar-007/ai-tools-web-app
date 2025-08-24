@@ -283,31 +283,19 @@ export default function Home() {
             width={40}
             height={40}
             priority
-            className="inline-block"
+            className="inline-block w-8 h-8 md:w-10 md:h-10"
           />
         </span>
-        <span
-        style={{
-          marginLeft: '14px',
-          fontWeight: 700,
-          fontSize: '1.5rem',
-          letterSpacing: '0.05em',
-          background: 'linear-gradient(90deg, #ff512f 0%, #dd2476 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          textShadow: '0 2px 8px rgba(255, 81, 47, 0.15)',
-          fontFamily: 'Montserrat, sans-serif',
-        }}
-      >
-        tomato<span style={{ fontWeight: 300 }}>Tool</span>
-      </span>
+        <span className="ml-3 font-bold tracking-wide bg-gradient-to-r from-[#ff512f] to-[#dd2476] bg-clip-text text-transparent drop-shadow-sm font-[Montserrat] text-base sm:text-lg md:text-2xl">
+          tomato<span className="font-light">Tool</span>
+        </span>
         {/* Centered Nav Links */}
         <div
-          className={`absolute left-1/2 top-full md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-20 transition-all duration-300 ${
+          className={`absolute inset-x-0 top-full md:top-1/2 md:left-1/2 md:inset-x-auto md:-translate-x-1/2 md:-translate-y-1/2 z-20 transition-all duration-300 ${
             navOpen ? "flex" : "hidden"
           } md:flex`}
         >
-          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 bg-white/80 dark:bg-neutral-900/80 rounded-full px-4 py-2 shadow-lg border border-black/10 dark:border-white/10">
+          <div className="w-full md:w-auto mx-4 md:mx-0 flex flex-col md:flex-row items-center gap-2 md:gap-4 bg-white dark:bg-neutral-900 md:bg-white/80 md:dark:bg-neutral-900/80 rounded-2xl md:rounded-full px-4 py-2 shadow-lg border border-black/10 dark:border-white/10">
             <span className="text-sm bg-orange-500 text-white px-2 py-1 rounded-full mx-0">
               Beta
             </span>
@@ -343,13 +331,44 @@ export default function Home() {
             >
               Pricing
             </Link>
+            {/* Auth actions for mobile inside dropdown */}
+            {user ? (
+              <div className="md:hidden w-full flex items-center justify-center gap-3 pt-2 border-t border-black/10 dark:border-white/10 mt-1">
+                <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
+                  {user.subscription_tier}
+                </span>
+                <button
+                  onClick={() => { setNavOpen(false); handleSignOut(); }}
+                  className="text-gray-700 dark:text-gray-200 px-3 py-1 rounded-full hover:bg-orange-100 dark:hover:bg-neutral-800"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <div className="md:hidden w-full flex items-center justify-center gap-3 pt-2 border-t border-black/10 dark:border-white/10 mt-1">
+                <Link
+                  href="/login"
+                  className="text-gray-700 dark:text-gray-200 px-3 py-1 rounded-full hover:bg-orange-100 dark:hover:bg-neutral-800"
+                  onClick={() => setNavOpen(false)}
+                >
+                  Login
+                </Link>
+                <Link
+                  href="/register"
+                  className="text-gray-700 dark:text-gray-200 px-3 py-1 rounded-full hover:bg-orange-100 dark:hover:bg-neutral-800"
+                  onClick={() => setNavOpen(false)}
+                >
+                  Register
+                </Link>
+              </div>
+            )}
           </div>
         </div>
         {/* Right side */}
         <div className="flex items-center space-x-2 ml-auto">
           <ThemeToggleButton showLabel variant="circle-blur" start="top-right" />
           {user ? (
-            <div className="flex items-center space-x-2">
+            <div className="hidden md:flex items-center space-x-2">
               <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded">
                 {user.subscription_tier}
               </span>
@@ -361,7 +380,7 @@ export default function Home() {
               </button>
             </div>
           ) : (
-            <>
+            <div className="hidden md:flex items-center space-x-2">
               <Link
                 href="/login"
                 className="text-gray-600 hover:text-black dark:hover:text-white"
@@ -374,7 +393,7 @@ export default function Home() {
               >
                 Register
               </Link>
-            </>
+            </div>
           )}
         </div>
       </nav>
