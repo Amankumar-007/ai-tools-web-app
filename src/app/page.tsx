@@ -440,7 +440,7 @@ export default function Home() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-10 w-full max-w-3xl mx-auto px-4"
+          className="mt-5 w-full max-w-3xl mx-auto px-4"
         >
           <AiInput />
         </motion.div>
