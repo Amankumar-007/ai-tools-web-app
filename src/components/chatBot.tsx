@@ -102,7 +102,7 @@ export default function Chatbot() {
           }
         }
       `}</style>
-      <div className="fixed bottom-6 right-6 z-50 chatbot-fab">
+      <div className="fixed bottom-6 right-6 z-[2147483647] chatbot-fab">
         {/* Toggle Button */}
         <button
           className="bg-white hover:bg-orange-400 p-3 rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition"
@@ -128,7 +128,7 @@ export default function Chatbot() {
             style={{
               background: "#fff",
               boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
-              zIndex: 100,
+              zIndex: 2147483647,
               display: "flex",
             }}
           >
