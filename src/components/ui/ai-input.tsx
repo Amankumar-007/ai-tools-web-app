@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
 import { Globe, Paperclip, Plus, Send } from "lucide-react"
-import { useRouter } from "next/navigation"
+// removed next/navigation router usage
 
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
@@ -70,21 +70,28 @@ const AnimatedPlaceholder = ({ showSearch }: { showSearch: boolean }) => (
       transition={{ duration: 0.1 }}
       className="pointer-events-none w-[150px] text-sm absolute text-black/70 dark:text-white/70"
     >
-      {showSearch ? "Search the web..." : "Ask Skiper Ai..."}
+      {showSearch ? "Search the web..." : "Ask tomatoChat..."}
     </motion.p>
   </AnimatePresence>
 )
 
-export default function AiInput() {
+type AiInputProps = {
+  onSubmit?: (text: string) => void
+  placeholder?: string
+  submitting?: boolean
+  disabled?: boolean
+}
+
+export default function AiInput({ onSubmit, placeholder, submitting, disabled }: AiInputProps) {
   const [value, setValue] = useState("")
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: MIN_HEIGHT,
     maxHeight: MAX_HEIGHT,
   })
-  const [showSearch, setShowSearch] = useState(true)
+  const [showSearch, setShowSearch] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-const router = useRouter()
+// router not used after refactor
 
   const handelClose = (e: any) => {
     e.preventDefault()
@@ -103,15 +110,14 @@ const router = useRouter()
   }
 
   const handleSubmit = () => {
-  if (!value.trim()) return
-
-  // Redirect to /search?q=your_query
-  router.push(`/search?q=${encodeURIComponent(value.trim())}`)
-
-  // Clear the input and reset height
-  setValue("")
-  adjustHeight(true)
-}
+    if (!value.trim() || submitting || disabled) return
+    if (onSubmit) {
+      onSubmit(value.trim())
+    }
+    // Clear the input and reset height
+    setValue("")
+    adjustHeight(true)
+  }
 
 
   useEffect(() => {
@@ -133,7 +139,7 @@ const router = useRouter()
               <Textarea
                 id="ai-input-04"
                 value={value}
-                placeholder=""
+                placeholder={placeholder || ""}
                 className="w-full rounded-2xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white resize-none focus-visible:ring-0 leading-[1.2]"
                 ref={textareaRef}
                 onKeyDown={(e) => {
@@ -146,6 +152,7 @@ const router = useRouter()
                   setValue(e.target.value)
                   adjustHeight()
                 }}
+                disabled={submitting || disabled}
               />
               {!value && (
                 <div className="absolute left-4 top-3">
@@ -264,6 +271,7 @@ const router = useRouter()
                     ? "bg-[#ff3f17]/15 text-[#ff3f17]"
                     : "bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white"
                 )}
+                disabled={submitting || disabled}
               >
                 <Send className="w-4 h-4" />
               </button>
