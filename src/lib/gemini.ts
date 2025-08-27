@@ -192,3 +192,72 @@ export const generateContent = (prompt: string, type?: 'blog' | 'social' | 'emai
 
 export const analyzeText = (text: string) => 
   geminiAPI.analyzeContent(text);
+
+export interface GeneratedImageResult {
+  imageBase64: string;
+  mimeType: string;
+  safetyAttributes?: unknown;
+}
+
+export async function generateImage(prompt: string, size: string = '1024x1024'): Promise<GeneratedImageResult> {
+  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+  if (!apiKey) throw new Error('Gemini API key is required. Please set NEXT_PUBLIC_GEMINI_API_KEY');
+
+  // The public image generation endpoint (Imagen 3). See Google AI Studio docs.
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/imagegeneration:generate?key=${apiKey}`;
+
+  // Attempt to parse size like "W x H"
+  const match = size.match(/^(\d+)x(\d+)$/i);
+  const width = match ? Number(match[1]) : 1024;
+  const height = match ? Number(match[2]) : 1024;
+
+  const body = {
+    // prompt specification
+    prompt: {
+      text: prompt,
+    },
+    // optional parameters
+    // Supported sizes typically include 512/768/1024 (square or portrait/landscape variants)
+    // We pass width/height hints via aspectRatio / imageDimensions if supported by backend.
+    // Many backends accept just "image" config with dimensions; here we provide a generic shape.
+    // If the service ignores these fields, it will default to a square image.
+    image: {
+      width,
+      height,
+    },
+    // safety and quality knobs can be extended here if needed
+  } as any;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(`Image API failed: ${res.status} ${res.statusText} ${errText}`);
+  }
+
+  const data = await res.json();
+
+  // Try multiple likely response shapes for robustness
+  // 1) { images: [ { content: { mimeType, data } } ] }
+  const img1 = data?.images?.[0]?.content;
+  if (img1?.data) {
+    return { imageBase64: img1.data, mimeType: img1.mimeType || 'image/png', safetyAttributes: data?.safetyRatings };
+  }
+
+  // 2) { candidates: [ { content: { parts: [ { inlineData: { mimeType, data } } ] } } ] }
+  const inline = data?.candidates?.[0]?.content?.parts?.find?.((p: any) => p?.inlineData?.data)?.inlineData;
+  if (inline?.data) {
+    return { imageBase64: inline.data, mimeType: inline.mimeType || 'image/png', safetyAttributes: data?.candidates?.[0]?.safetyRatings };
+  }
+
+  throw new Error('Unexpected image API response format');
+}
+
+export const generateImageWithGemini = generateImage;

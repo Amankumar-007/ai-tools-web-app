@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
 import { Globe, Paperclip, Plus, Send } from "lucide-react"
-// removed next/navigation router usage
+import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
@@ -70,7 +70,7 @@ const AnimatedPlaceholder = ({ showSearch }: { showSearch: boolean }) => (
       transition={{ duration: 0.1 }}
       className="pointer-events-none w-[150px] text-sm absolute text-black/70 dark:text-white/70"
     >
-      {showSearch ? "Search the web..." : "Ask tomatoChat..."}
+      {showSearch ? "Search the web..." : "Ask Tomato Ai..."}
     </motion.p>
   </AnimatePresence>
 )
@@ -88,10 +88,10 @@ export default function AiInput({ onSubmit, placeholder, submitting, disabled }:
     minHeight: MIN_HEIGHT,
     maxHeight: MAX_HEIGHT,
   })
-  const [showSearch, setShowSearch] = useState(false)
+  const [showSearch, setShowSearch] = useState(true)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-// router not used after refactor
+const router = useRouter()
 
   const handelClose = (e: any) => {
     e.preventDefault()
@@ -113,6 +113,14 @@ export default function AiInput({ onSubmit, placeholder, submitting, disabled }:
     if (!value.trim() || submitting || disabled) return
     if (onSubmit) {
       onSubmit(value.trim())
+    } else {
+      // Default behavior: route based on toggle
+      const q = encodeURIComponent(value.trim())
+      if (showSearch) {
+        router.push(`/search?q=${q}`)
+      } else {
+        router.push(`/chatgpt?q=${q}`)
+      }
     }
     // Clear the input and reset height
     setValue("")

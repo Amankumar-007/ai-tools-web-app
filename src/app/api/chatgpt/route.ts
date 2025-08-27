@@ -1,6 +1,8 @@
 import type { NextRequest } from "next/server";
 import OpenAI from "openai";
 
+export const runtime = "nodejs";
+
 export async function POST(req: NextRequest) {
   try {
     const { messages, model, temperature } = await req.json();
@@ -33,7 +35,7 @@ export async function POST(req: NextRequest) {
     });
 
     const completion = await openai.chat.completions.create({
-      model: model || "openai/gpt-4o-mini",
+      model: "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
       messages: messages,
       temperature: temperature ?? 0.7,
     });
