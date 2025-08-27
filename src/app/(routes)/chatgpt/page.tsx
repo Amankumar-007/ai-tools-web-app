@@ -1,8 +1,16 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { supabase } from "@/lib/supabase-browser";
+import { highlight } from 'sugar-high';
+import Modal from 'react-modal';
+
+// Set modal app element for accessibility
+if (typeof window !== 'undefined') {
+  Modal.setAppElement('body');
+}
 
 type Role = "user" | "assistant" | "system";
 
@@ -29,31 +37,141 @@ function formatTitleFromPrompt(text: string) {
   return (text || "New chat").split("\n")[0].slice(0, 40) || "New chat";
 }
 
+// Login Popup Component
+function LoginPopup({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const router = useRouter();
+  
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      className="fixed inset-0 flex items-center justify-center p-4 z-50"
+      overlayClassName="fixed inset-0 bg-black bg-opacity-50 z-50"
+    >
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-8 w-full max-w-md shadow-2xl border border-gray-200 dark:border-gray-700">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+            Welcome to TomatoAI
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400">
+            Please login or create an account to continue
+          </p>
+        </div>
+        
+        <div className="space-y-4">
+          <button
+            onClick={() => router.push('/login')}
+            className="w-full bg-gray-900 dark:bg-gray-700 text-white py-3 px-4 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-all duration-200 font-medium"
+          >
+            Login
+          </button>
+          
+          <button
+            onClick={() => router.push('/register')}
+            className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-all duration-200 font-medium"
+          >
+            Sign Up
+          </button>
+        </div>
+        
+        <button
+          onClick={onClose}
+          className="w-full mt-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors text-sm"
+        >
+          Cancel
+        </button>
+      </div>
+    </Modal>
+  );
+}
+
 export default function ChatGPTPage() {
   const [convos, setConvos] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hasStartedChat, setHasStartedChat] = useState(false);
+  const [inputFocused, setInputFocused] = useState(false);
+  const [messageAnimations, setMessageAnimations] = useState<Set<string>>(new Set());
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
+  const [copiedCode, setCopiedCode] = useState<string>("");
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const router = useRouter();
 
-  // load from localStorage
-  useEffect(() => {
+  // Copy code to clipboard function
+  const copyToClipboard = async (code: string, codeId: string) => {
     try {
-      const raw = localStorage.getItem("chatgpt_convos_v1");
+      await navigator.clipboard.writeText(code);
+      setCopiedCode(codeId);
+      setTimeout(() => setCopiedCode(""), 2000);
+    } catch (err) {
+      console.error('Failed to copy code:', err);
+    }
+  };
+
+  // Authentication check - Allow interface to load first
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setIsAuthChecking(false);
+    };
+
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Dark mode initialization and persistence
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldUseDark = savedTheme === "dark" || (!savedTheme && prefersDark);
+    
+    setIsDarkMode(shouldUseDark);
+    document.documentElement.classList.toggle("dark", shouldUseDark);
+  }, []);
+
+  // Update dark mode
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDarkMode);
+    localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+  }, [isDarkMode]);
+
+  // Load from localStorage with user-specific keys
+  useEffect(() => {
+    if (!user) return;
+    
+    try {
+      const raw = localStorage.getItem(`chatgpt_convos_v1_${user.id}`);
       if (raw) {
         const parsed = JSON.parse(raw) as Conversation[];
         setConvos(parsed);
-        if (parsed.length) setActiveId(parsed[0].id);
+        if (parsed.length) {
+          setActiveId(parsed[0].id);
+          setHasStartedChat(true);
+        }
       }
     } catch {}
-  }, []);
+  }, [user]);
 
-  // persist to localStorage
+  // Persist to localStorage with user-specific keys
   useEffect(() => {
+    if (!user) return;
+    
     try {
-      localStorage.setItem("chatgpt_convos_v1", JSON.stringify(convos));
+      localStorage.setItem(`chatgpt_convos_v1_${user.id}`, JSON.stringify(convos));
     } catch {}
-  }, [convos]);
+  }, [convos, user]);
 
   const active = useMemo(
     () => convos.find((c) => c.id === activeId) || null,
@@ -61,8 +179,20 @@ export default function ChatGPTPage() {
   );
 
   useEffect(() => {
-    listRef.current?.scrollTo({ top: 999999, behavior: "smooth" });
+    if (listRef.current) {
+      listRef.current.scrollTo({ 
+        top: listRef.current.scrollHeight, 
+        behavior: "smooth" 
+      });
+    }
   }, [active?.messages.length]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setConvos([]);
+    setActiveId(null);
+    setHasStartedChat(false);
+  };
 
   function createNewChat(seed?: string) {
     const id = uid();
@@ -85,6 +215,8 @@ export default function ChatGPTPage() {
     };
     setConvos((prev) => [convo, ...prev]);
     setActiveId(id);
+    setSidebarOpen(false);
+    if (!hasStartedChat) setHasStartedChat(true);
     return convo;
   }
 
@@ -93,8 +225,15 @@ export default function ChatGPTPage() {
     const text = input.trim();
     if (!text) return;
 
+    // Check if user is authenticated - if not, show login popup
+    if (!user) {
+      setShowLoginPopup(true);
+      return;
+    }
+
     setLoading(true);
     setInput("");
+    if (!hasStartedChat) setHasStartedChat(true);
 
     // ensure active convo
     let convo = active;
@@ -103,6 +242,8 @@ export default function ChatGPTPage() {
     }
 
     const userMsg: Message = { id: uid(), role: "user", content: text, createdAt: Date.now() };
+    
+    setMessageAnimations(prev => new Set([...prev, userMsg.id]));
 
     setConvos((prev) =>
       prev.map((c) =>
@@ -120,7 +261,7 @@ export default function ChatGPTPage() {
     try {
       const payload = {
         messages: [
-          { role: "system", content: "You are a helpful, concise AI assistant." },
+          { role: "system", content: "You are TomatoAI, a helpful and professional AI assistant." },
           ...convo!.messages.map((m) => ({ role: m.role, content: m.content })),
           { role: "user", content: text },
         ],
@@ -140,12 +281,15 @@ export default function ChatGPTPage() {
       }
 
       const data = (await res.json()) as { reply: string };
+      
       const assistantMsg: Message = {
         id: uid(),
         role: "assistant",
         content: data.reply || "",
         createdAt: Date.now(),
       };
+
+      setMessageAnimations(prev => new Set([...prev, assistantMsg.id]));
 
       setConvos((prev) =>
         prev.map((c) =>
@@ -173,249 +317,662 @@ export default function ChatGPTPage() {
     }
   }
 
+  // Enhanced delete function that updates localStorage immediately
   function deleteConvo(id: string) {
-    setConvos((prev) => prev.filter((c) => c.id !== id));
-    if (activeId === id) setActiveId(convos.find((c) => c.id !== id)?.id || null);
+    setConvos((prevConvos) => {
+      const updatedConvos = prevConvos.filter((c) => c.id !== id);
+      
+      // Update localStorage immediately
+      if (user) {
+        if (updatedConvos.length === 0) {
+          localStorage.removeItem(`chatgpt_convos_v1_${user.id}`);
+        } else {
+          localStorage.setItem(`chatgpt_convos_v1_${user.id}`, JSON.stringify(updatedConvos));
+        }
+      }
+      
+      // Update active conversation
+      if (activeId === id) {
+        setActiveId(updatedConvos.length > 0 ? updatedConvos[0].id : null);
+        setHasStartedChat(updatedConvos.length > 0);
+      }
+      
+      return updatedConvos;
+    });
   }
 
+  // Enhanced clear all function that permanently removes from localStorage
   function clearAll() {
     setConvos([]);
     setActiveId(null);
+    setHasStartedChat(false);
+    
+    // Permanently remove from localStorage
+    if (user) {
+      localStorage.removeItem(`chatgpt_convos_v1_${user.id}`);
+    }
   }
 
-  // Function to format code blocks in messages
-  const formatMessage = (content: string) => {
-    const codeBlockRegex = /```(\w+)?\s*([\s\S]*?)```/g;
+  function startNewConversation() {
+    setActiveId(null);
+    setHasStartedChat(false);
+    setSidebarOpen(false);
+    setMessageAnimations(new Set());
+  }
+
+  // Enhanced format message with professional code blocks
+  function formatMessage(content: string) {
+    const codeBlockRegex = /``````/g;
+    const inlineCodeRegex = /`([^`]+)`/g;
     const parts = [];
     let lastIndex = 0;
     let match;
 
     while ((match = codeBlockRegex.exec(content)) !== null) {
-      // Add text before code block
       if (match.index > lastIndex) {
-        parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex, match.index)}</span>);
+        let textContent = content.slice(lastIndex, match.index);
+        
+        // Process inline code in the text content
+        textContent = textContent.replace(inlineCodeRegex, (_, code) => 
+          `<code class="inline-code">${code}</code>`
+        );
+        
+        parts.push(
+          <div 
+            key={`text-${lastIndex}`} 
+            className="prose prose-gray dark:prose-invert max-w-none mb-4"
+            dangerouslySetInnerHTML={{
+              __html: textContent.replace(/\n/g, '<br />')
+            }}
+          />
+        );
       }
 
-      // Add code block with syntax highlighting
-      const language = match[1] || 'text';
+      const language = match[1] || 'javascript';
       const code = match[2].trim();
+      const codeId = `code-${match.index}-${Date.now()}`;
+      const highlightedCode = highlight(code);
+      
       parts.push(
-        <pre key={`code-${match.index}`} className="bg-gray-800 text-gray-100 p-3 rounded-lg overflow-x-auto my-2">
-          <code className={`language-${language}`}>{code}</code>
-        </pre>
+        <div key={codeId} className="my-6 group relative">
+          {/* Professional Code Block with Enhanced Styling */}
+          <div className="relative rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-lg bg-white dark:bg-gray-800 hover:shadow-xl transition-shadow duration-200">
+            {/* Header with macOS-style dots and enhanced design */}
+            <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800 border-b border-gray-200 dark:border-gray-600">
+              <div className="flex items-center gap-3">
+                <div className="flex gap-1.5">
+                  <div className="w-3 h-3 rounded-full bg-red-500 shadow-sm"></div>
+                  <div className="w-3 h-3 rounded-full bg-yellow-500 shadow-sm"></div>
+                  <div className="w-3 h-3 rounded-full bg-green-500 shadow-sm"></div>
+                </div>
+                <div className="h-4 w-px bg-gray-300 dark:bg-gray-600 mx-2"></div>
+                <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider bg-gray-200 dark:bg-gray-600 px-3 py-1 rounded-md font-mono shadow-sm">
+                  {language}
+                </span>
+              </div>
+              
+              {/* Enhanced Copy Button */}
+              <button
+                onClick={() => copyToClipboard(code, codeId)}
+                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 bg-white dark:bg-gray-600 hover:bg-gray-100 dark:hover:bg-gray-500 border border-gray-200 dark:border-gray-500 rounded-md transition-all duration-200 hover:shadow-md transform hover:scale-105"
+              >
+                {copiedCode === codeId ? (
+                  <>
+                    <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Copied!
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Copy
+                  </>
+                )}
+              </button>
+            </div>
+            
+            {/* Enhanced Code Content */}
+            <div className="relative">
+              <pre className="p-6 overflow-x-auto text-sm leading-6 bg-gray-900 dark:bg-gray-950">
+                <code 
+                  className="font-['SF_Mono','Monaco','Inconsolata','Roboto_Mono','Consolas','monospace'] text-[13px] block"
+                  dangerouslySetInnerHTML={{ __html: highlightedCode }}
+                />
+              </pre>
+              
+              {/* Subtle gradient overlay */}
+              <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-gray-900 dark:from-gray-950 to-transparent pointer-events-none opacity-30"></div>
+            </div>
+          </div>
+        </div>
       );
 
       lastIndex = match.index + match[0].length;
     }
 
-    // Add remaining text
     if (lastIndex < content.length) {
-      parts.push(<span key={`text-${lastIndex}`}>{content.slice(lastIndex)}</span>);
+      let textContent = content.slice(lastIndex);
+      
+      // Process inline code in the remaining text content
+      textContent = textContent.replace(inlineCodeRegex, (_, code) => 
+        `<code class="inline-code">${code}</code>`
+      );
+      
+      parts.push(
+        <div 
+          key={`text-${lastIndex}`} 
+          className="prose prose-gray dark:prose-invert max-w-none"
+          dangerouslySetInnerHTML={{
+            __html: textContent.replace(/\n/g, '<br />')
+          }}
+        />
+      );
     }
 
-    return parts.length > 0 ? parts : content;
-  };
+    return parts.length > 0 ? parts : (
+      <div className="prose prose-gray dark:prose-invert max-w-none">
+        <div className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap font-['SF_Pro_Display','system-ui','-apple-system','BlinkMacSystemFont','Segoe_UI','Roboto','sans-serif'] text-[15px] font-normal">
+          {content}
+        </div>
+      </div>
+    );
+  }
+
+  if (isAuthChecking) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900">
+        <div className="flex flex-col items-center gap-4">
+          <Image src="/logo.png" alt="TomatoAI" width={64} height={64} className="animate-pulse" />
+          <div className="text-lg font-medium text-gray-600 dark:text-gray-400">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex h-[calc(100dvh-4rem)] md:h-[calc(100dvh-0rem)] bg-gray-50">
-      {/* Sidebar */}
-      <aside className="hidden md:flex w-80 shrink-0 flex-col border-r border-gray-200 bg-white">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
-          <div className="flex items-center gap-3 min-w-0">
-            <Image src="/logo.png" alt="tomatoChat logo" width={28} height={28} className="rounded-sm" />
-            <div className="truncate">
-              <h2 className="text-base font-semibold text-gray-900 leading-5">tomatoChat</h2>
-              <span className="text-[11px] text-gray-500">by aman kumar</span>
-            </div>
-          </div>
-          <button
-            className="px-3 py-2 rounded-md bg-gray-900 text-white text-xs font-medium hover:bg-black transition-colors"
-            onClick={() => createNewChat()}
-          >
-            + New
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-3">
-          {convos.length === 0 ? (
-            <div className="p-4 text-center text-gray-500 flex flex-col items-center justify-center h-full">
-              <div className="w-16 h-16 bg-gray-200 rounded-full mb-4 flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
-              <p className="text-sm">No conversations yet</p>
-              <p className="text-xs mt-1">Start a new chat to begin</p>
-            </div>
-          ) : (
-            <ul className="space-y-2">
-              {convos.map((c) => (
-                <li key={c.id} className="group">
-                  <button
-                    onClick={() => setActiveId(c.id)}
-                    className={`w-full flex items-center justify-between gap-2 rounded-xl px-4 py-3 text-left text-sm transition-all duration-200 ${
-                      activeId === c.id 
-                        ? "bg-gradient-to-r from-red-50 to-orange-50 border border-red-100 shadow-sm" 
-                        : "bg-white border border-gray-100 hover:border-red-100 hover:shadow-sm"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-3 h-3 rounded-full ${activeId === c.id ? "bg-red-500" : "bg-gray-300"}`}></div>
-                      <span className="font-medium text-gray-800 truncate">{c.title}</span>
-                    </div>
-                    <button
-                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded-full"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteConvo(c.id);
-                      }}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-        {convos.length > 0 && (
-          <div className="p-4 border-t border-gray-200">
-            <button
-              className="w-full py-2 px-4 text-sm text-gray-500 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors flex items-center justify-center gap-2"
-              onClick={clearAll}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Clear all conversations
-            </button>
-          </div>
-        )}
-      </aside>
+    <div className="flex h-screen bg-white dark:bg-gray-900 font-['SF_Pro_Display','system-ui','-apple-system','BlinkMacSystemFont','Segoe_UI','Roboto','sans-serif'] relative overflow-hidden antialiased transition-colors duration-200">
+      {/* Enhanced Custom Styles */}
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        .inline-code {
+          background-color: rgba(156, 163, 175, 0.1);
+          border: 1px solid rgba(156, 163, 175, 0.2);
+          border-radius: 4px;
+          padding: 2px 6px;
+          font-family: 'SF Mono', 'Monaco', 'Consolas', 'Roboto Mono', monospace;
+          font-size: 0.875em;
+          color: #ef4444;
+        }
+        
+        .dark .inline-code {
+          background-color: rgba(75, 85, 99, 0.3);
+          border-color: rgba(75, 85, 99, 0.5);
+          color: #fbbf24;
+        }
 
-      {/* Mobile sidebar toggle */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-10 bg-white/80 backdrop-blur border-b border-gray-200 p-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="tomatoChat logo" width={24} height={24} className="rounded-sm" />
-          <div className="leading-4">
-            <div className="text-sm font-semibold text-gray-900">tomatoChat</div>
-            <div className="text-[10px] text-gray-500">by aman kumar</div>
+        /* Enhanced syntax highlighting styles */
+        .sh__token--string { color: #a8cc8c; }
+        .sh__token--keyword { color: #c792ea; }
+        .sh__token--comment { color: #637777; font-style: italic; }
+        .sh__token--punctuation { color: #89ddff; }
+        .sh__token--number { color: #f78c6c; }
+        .sh__token--function { color: #82aaff; }
+        .sh__token--constant { color: #ffcb6b; }
+        .sh__token--class-name { color: #ffcb6b; }
+        .sh__token--operator { color: #89ddff; }
+        .sh__token--boolean { color: #ff5874; }
+        .sh__token--property { color: #80cbc4; }
+        .sh__token--tag { color: #f07178; }
+        .sh__token--attr-name { color: #ffcb6b; }
+        .sh__token--attr-value { color: #c3e88d; }
+
+        .dark .sh__token--string { color: #c3e88d; }
+        .dark .sh__token--keyword { color: #c792ea; }
+        .dark .sh__token--comment { color: #546e7a; }
+        .dark .sh__token--function { color: #82aaff; }
+        .dark .sh__token--number { color: #f78c6c; }
+        
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes slideInLeft {
+          from {
+            opacity: 0;
+            transform: translateX(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        
+        @keyframes scaleIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .message-enter {
+          animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .sidebar-enter {
+          animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .input-focused {
+          transform: scale(1.02);
+        }
+        
+        .bounce-in {
+          animation: scaleIn 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+      `}</style>
+
+      {/* Login Popup */}
+      <LoginPopup 
+        isOpen={showLoginPopup} 
+        onClose={() => setShowLoginPopup(false)}
+      />
+
+      {/* Top Header */}
+      <div className="fixed top-0 left-0 right-0 z-30 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-4 py-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors md:hidden"
+          >
+            <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          
+          <div className="flex items-center gap-2">
+            <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-lg" />
+            <span className="font-bold text-gray-900 dark:text-gray-100">TomatoAI</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDarkMode ? (
+                <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clipRule="evenodd" />
+                </svg>
+              )}
+            </button>
+            
+            {user ? (
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                Sign Out
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowLoginPopup(true)}
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-900 dark:bg-gray-700 hover:bg-gray-800 dark:hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                Login
+              </button>
+            )}
           </div>
         </div>
-        <Link href="/" className="text-sm text-gray-600 hover:text-gray-900">
-          Home
-        </Link>
       </div>
 
-      {/* Main Chat */}
-      <main className="flex-1 flex flex-col md:rounded-l-2xl bg-white shadow-sm overflow-hidden mt-14 md:mt-0">
-        {/* Header */}
-        <div className="border-b border-gray-200 p-4 flex items-center justify-between bg-white">
-          <div className="flex items-center gap-3 min-w-0">
-            <Image src="/logo.png" alt="tomatoChat logo" width={32} height={32} className="rounded-sm" />
-            <div className="min-w-0">
-              <div className="font-semibold text-gray-900 leading-5">tomatoChat</div>
-              <div className="text-xs text-gray-500">by aman kumar · Powered by OpenAI API</div>
+      {/* Sidebar Toggle Button */}
+      <button
+        onClick={() => setSidebarOpen(true)}
+        className={`hidden md:block fixed top-20 left-5 z-40 p-3 rounded-xl bg-white dark:bg-gray-800 shadow-lg border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 hover:shadow-xl transition-all duration-300 transform hover:scale-105 group ${
+          sidebarOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
+      >
+        <svg className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+
+      {/* Enhanced Professional Sidebar */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50">
+          <div 
+            className="absolute inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm transition-all duration-300" 
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="absolute left-0 top-0 bottom-0 w-80 bg-white/95 dark:bg-gray-800/95 backdrop-blur-xl border-r border-gray-200 dark:border-gray-600 shadow-2xl transform transition-all duration-300 ease-out">
+            <div className="flex flex-col h-full">
+              {/* Enhanced Sidebar Header */}
+              <div className="p-6 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <Image src="/logo.png" alt="TomatoAI" width={40} height={40} className="rounded-xl shadow-lg" />
+                    <div>
+                      <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 font-['SF_Pro_Display','system-ui','-apple-system','sans-serif']">TomatoAI</h1>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']">Professional AI Assistant</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSidebarOpen(false)}
+                    className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110"
+                  >
+                    <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+                <button
+                  onClick={startNewConversation}
+                  className="w-full px-4 py-3 bg-gray-900 dark:bg-gray-600 text-white rounded-xl hover:bg-gray-800 dark:hover:bg-gray-500 transition-all duration-200 text-sm font-semibold transform hover:scale-105 shadow-lg hover:shadow-xl font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                    New Conversation
+                  </div>
+                </button>
+              </div>
+
+              {/* Enhanced Conversations List */}
+              <div className="flex-1 overflow-y-auto p-4">
+                {convos.length === 0 ? (
+                  <div className="text-center text-gray-500 dark:text-gray-400 py-12 fade-in">
+                    <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-2xl mx-auto mb-6 flex items-center justify-center bounce-in">
+                      <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">No conversations yet</h3>
+                    <p className="text-sm font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']">Start your first conversation with TomatoAI</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']">
+                      Recent Conversations
+                    </h3>
+                    {convos.map((c, index) => (
+                      <div key={c.id} className="group sidebar-enter relative" style={{ animationDelay: `${index * 50}ms` }}>
+                        <button
+                          onClick={() => {
+                            setActiveId(c.id);
+                            setHasStartedChat(true);
+                            setSidebarOpen(false);
+                          }}
+                          className={`w-full text-left p-4 rounded-xl transition-all duration-200 transform hover:scale-102 hover:shadow-sm border ${
+                            activeId === c.id 
+                              ? "bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-600 dark:to-gray-700 text-gray-900 dark:text-gray-100 shadow-md border-gray-200 dark:border-gray-500" 
+                              : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 border-transparent hover:border-gray-200 dark:hover:border-gray-600"
+                          }`}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-500 mt-2 flex-shrink-0"></div>
+                            <div className="flex-1 min-w-0">
+                              <div className="truncate pr-8 text-sm font-semibold font-['SF_Pro_Text','system-ui','-apple-system','sans-serif'] mb-1">
+                                {c.title}
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']">
+                                <span>{c.messages.length} messages</span>
+                                <span>•</span>
+                                <span>{new Date(c.updatedAt).toLocaleDateString()}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteConvo(c.id);
+                          }}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 transform hover:scale-110"
+                        >
+                          <svg className="w-4 h-4 text-red-400 hover:text-red-600 dark:hover:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Enhanced Sidebar Footer */}
+              {convos.length > 0 && (
+                <div className="p-4 border-t border-gray-100 dark:border-gray-700 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+                  <button
+                    onClick={clearAll}
+                    className="w-full text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 py-3 px-4 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 transition-all duration-200 transform hover:scale-105 font-semibold font-['SF_Pro_Text','system-ui','-apple-system','sans-serif'] flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Clear All Conversations
+                  </button>
+                </div>
+              )}
             </div>
           </div>
-          <Link href="/" className="text-sm text-gray-600 hover:text-gray-900 hidden md:block">
-            ← Back to Home
-          </Link>
         </div>
+      )}
 
-        {/* Messages */}
-        <div ref={listRef} className="flex-1 overflow-y-auto p-4 md:p-6 space-y-6 bg-gray-50">
-          {(!active || active.messages.length === 0) && (
-            <div className="mx-auto max-w-2xl text-center text-gray-500 pt-12">
-              <div className="w-24 h-24 mx-auto bg-gray-200 rounded-full flex items-center justify-center mb-6">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-2">Start a conversation</h3>
-              <p className="text-sm text-gray-600">Type a message below to begin chatting with tomatoChat. Your conversations are saved locally in your browser.</p>
-            </div>
-          )}
+      {/* Main Content */}
+      <main className="flex-1 flex flex-col relative pt-16">
+        <div ref={listRef} className="flex-1 overflow-y-auto">
+          {(!hasStartedChat || (!active && !loading)) ? (
+            /* Enhanced Welcome Screen */
+            <div className="flex flex-col items-center justify-center h-full px-4 relative">
+              <div className="max-w-2xl w-full text-center mb-12">
+                <div className="mb-8 bounce-in">
+                  <Image 
+                    src="/logo.png" 
+                    alt="TomatoAI" 
+                    width={64} 
+                    height={64} 
+                    className="mx-auto mb-6 rounded-2xl shadow-xl transform hover:scale-105 transition-transform duration-200" 
+                  />
+                  <h1 className="text-5xl font-bold mb-4 text-gray-900 dark:text-gray-100 fade-in font-['SF_Pro_Display','system-ui','-apple-system','BlinkMacSystemFont','Segoe_UI','Roboto','sans-serif'] tracking-tight">
+                    Hi, I'm TomatoAI
+                  </h1>
+                  <p className="text-xl text-gray-600 dark:text-gray-400 font-light fade-in font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']" style={{ animationDelay: '200ms' }}>How can I help you today?</p>
+                </div>
 
-          {active?.messages.map((m) => (
-            <div key={m.id} className={`w-full flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-[90%] md:max-w-[85%] rounded-2xl px-5 py-4 text-sm whitespace-pre-wrap leading-relaxed shadow-sm ${
-                  m.role === "user"
-                    ? "bg-gradient-to-r from-red-500 to-orange-500 text-white"
-                    : "bg-white text-gray-800 border border-gray-200"
-                }`}
-              >
-                {m.role === "assistant" ? formatMessage(m.content) : m.content}
-              </div>
-            </div>
-          ))}
-
-          {loading && (
-            <div className="w-full flex justify-start">
-              <div className="max-w-[85%] rounded-2xl px-5 py-4 bg-white border border-gray-200 text-sm text-gray-800 shadow-sm">
-                <div className="flex items-center gap-2">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
-                    <div className="w-2 h-2 bg-red-400 rounded-full animate-bounce" style={{ animationDelay: "0.4s" }}></div>
+                {/* Enhanced Input Form */}
+                <form onSubmit={sendMessage} className="relative mb-8">
+                  <div className="relative group">
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      onFocus={() => setInputFocused(true)}
+                      onBlur={() => setInputFocused(false)}
+                      placeholder="Ask me anything..."
+                      className={`w-full px-6 py-4 pr-14 text-lg border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 focus:border-gray-400 dark:focus:border-gray-500 transition-all duration-300 shadow-lg hover:shadow-xl bg-white dark:bg-gray-800 placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-gray-100 font-['SF_Pro_Text','system-ui','-apple-system','sans-serif'] ${
+                        inputFocused ? 'input-focused' : ''
+                      }`}
+                    />
+                    <button
+                      type="submit"
+                      disabled={loading || !input.trim()}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-xl bg-gray-900 dark:bg-gray-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-800 dark:hover:bg-gray-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 group-hover:scale-110"
+                    >
+                      {loading ? (
+                        <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : (
+                        <svg className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      )}
+                    </button>
                   </div>
-                  <span className="text-gray-600">Generating response...</span>
+                </form>
+
+                {/* Enhanced Suggested Actions */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { icon: "📊", text: "Analyze data", delay: "0ms" },
+                    { icon: "💻", text: "Write code", delay: "100ms" },
+                    { icon: "✍️", text: "Write content", delay: "200ms" },
+                    { icon: "🔍", text: "Research topic", delay: "300ms" }
+                  ].map((prompt, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setInput(prompt.text);
+                        inputRef.current?.focus();
+                      }}
+                      className="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-lg transition-all duration-300 group transform hover:-translate-y-1 hover:scale-105 bounce-in"
+                      style={{ animationDelay: prompt.delay }}
+                    >
+                      <div className="text-xl mb-2 group-hover:scale-110 transition-transform duration-200">
+                        {prompt.icon}
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']">
+                        {prompt.text}
+                      </span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
+          ) : (
+            /* Enhanced Chat Messages */
+            <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+              {active?.messages.map((m) => (
+                <div 
+                  key={m.id} 
+                  className={`space-y-4 ${messageAnimations.has(m.id) ? 'message-enter' : ''}`}
+                >
+                  {m.role === "user" ? (
+                    <div className="flex justify-end">
+                      <div className="bg-gray-900 dark:bg-gray-600 text-white px-6 py-4 rounded-2xl max-w-[85%] shadow-lg transform hover:scale-102 transition-transform duration-200">
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap font-['SF_Pro_Text','system-ui','-apple-system','sans-serif'] font-normal">
+                          {m.content}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-full shadow-sm" />
+                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']">TomatoAI</span>
+                      </div>
+                      <div className="ml-11">
+                        {formatMessage(m.content)}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {loading && (
+                <div className="space-y-3 message-enter">
+                  <div className="flex items-center gap-3">
+                    <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-full shadow-sm" />
+                    <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']">TomatoAI</span>
+                  </div>
+                  <div className="ml-11 flex items-center gap-2">
+                    <div className="flex space-x-1">
+                      <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
+                      <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
+                    </div>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-2 font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']">Thinking...</span>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
 
-        {/* Input */}
-        <form onSubmit={sendMessage} className="p-4 border-t border-gray-200 bg-white">
-          <div className="mx-auto max-w-3xl flex flex-col gap-3">
-            <div className="relative flex gap-2">
-              <textarea
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Message tomatoChat..."
-                rows={1}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    if (!loading && input.trim()) {
-                      void sendMessage();
-                    }
-                  }
-                }}
-                className="flex-1 rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-gray-900 resize-none"
-                style={{ minHeight: "44px", maxHeight: "150px" }}
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                className="self-end rounded-xl bg-gray-900 px-4 py-3 text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-black transition-colors"
-              >
-                {loading ? (
-                  <div className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Sending
-                  </div>
-                ) : (
-                  <div className="flex items-center">
-                    Send
-                    <svg xmlns="http://www.w3.org/2000/svg" className="ml-2 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                    </svg>
-                  </div>
-                )}
-              </button>
-            </div>
-            <div className="text-xs text-gray-500 text-center">
-              Enter to send, Shift+Enter for new line
+        {/* Enhanced Bottom Input */}
+        {hasStartedChat && (
+          <div className="border-t border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm">
+            <div className="max-w-4xl mx-auto p-4">
+              <form onSubmit={sendMessage} className="relative">
+                <div className="relative group">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onFocus={() => setInputFocused(true)}
+                    onBlur={() => setInputFocused(false)}
+                    placeholder="Continue the conversation..."
+                    className={`w-full px-6 py-4 pr-14 border-2 border-gray-200 dark:border-gray-600 rounded-2xl focus:outline-none focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 focus:border-gray-400 dark:focus:border-gray-500 transition-all duration-300 shadow-lg hover:shadow-xl bg-white dark:bg-gray-800 text-sm placeholder-gray-400 dark:placeholder-gray-500 text-gray-900 dark:text-gray-100 font-['SF_Pro_Text','system-ui','-apple-system','sans-serif'] ${
+                      inputFocused ? 'transform scale-102' : ''
+                    }`}
+                  />
+                  <button
+                    type="submit"
+                    disabled={loading || !input.trim()}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-xl bg-gray-900 dark:bg-gray-600 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-800 dark:hover:bg-gray-500 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    {loading ? (
+                      <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5 transition-transform duration-200 group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </form>
+              
+              {/* Footer Links */}
+              <div className="flex items-center justify-center mt-4 gap-6 text-xs text-gray-500 dark:text-gray-400 font-['SF_Pro_Text','system-ui','-apple-system','sans-serif']">
+                {["API", "Contact us", "Terms of Service", "Privacy Policy"].map((link, index) => (
+                  <span 
+                    key={link}
+                    className="hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer transition-all duration-200 transform hover:scale-105"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    {link}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
-        </form>
+        )}
       </main>
     </div>
   );
