@@ -24,7 +24,7 @@ export default function Login() {
     if (authError) {
       setError(authError.message);
     } else if (data.session) {
-      router.push("/ai-tools");
+      router.push("/chatgpt");
     }
   };
 
@@ -175,7 +175,7 @@ export default function Login() {
           transition={{ delay: 0.4, duration: 0.5 }}
           className="mt-6 text-center text-sm text-gray-600"
         >
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <Link
             href="/register"
             className="text-green-600 hover:text-green-500 font-semibold transition duration-200"

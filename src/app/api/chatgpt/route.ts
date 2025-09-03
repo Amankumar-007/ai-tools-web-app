@@ -35,14 +35,14 @@ export async function POST(req: NextRequest) {
     });
 
     const completion = await openai.chat.completions.create({
-      model: "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+      model: "mistralai/mistral-nemo:free",
       messages: messages,
       temperature: temperature ?? 0.7,
     });
 
     const reply = completion?.choices?.[0]?.message?.content ?? "";
     return new Response(JSON.stringify({ reply }), { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("/api/chatgpt error", err);
     return new Response(
       JSON.stringify({ error: "Unexpected server error.", details: err?.message }),

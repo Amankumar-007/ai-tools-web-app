@@ -77,18 +77,19 @@ const AnimatedPlaceholder = ({ showSearch }: { showSearch: boolean }) => (
 
 type AiInputProps = {
   onSubmit?: (text: string) => void
+  onSubmitWithMode?: (text: string, isSearch: boolean) => void
   placeholder?: string
   submitting?: boolean
   disabled?: boolean
 }
 
-export default function AiInput({ onSubmit, placeholder, submitting, disabled }: AiInputProps) {
+export default function AiInput({ onSubmit, onSubmitWithMode, placeholder, submitting, disabled }: AiInputProps) {
   const [value, setValue] = useState("")
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: MIN_HEIGHT,
     maxHeight: MAX_HEIGHT,
   })
-  const [showSearch, setShowSearch] = useState(true)
+  const [showSearch, setShowSearch] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 const router = useRouter()
@@ -111,7 +112,9 @@ const router = useRouter()
 
   const handleSubmit = () => {
     if (!value.trim() || submitting || disabled) return
-    if (onSubmit) {
+    if (onSubmitWithMode) {
+      onSubmitWithMode(value.trim(), showSearch)
+    } else if (onSubmit) {
       onSubmit(value.trim())
     } else {
       // Default behavior: route based on toggle
@@ -137,7 +140,7 @@ const router = useRouter()
   }, [imagePreview])
   return (
     <div className="w-full py-4">
-      <div className="relative max-w-xl border rounded-[22px] border-black/5 p-1 w-full mx-auto">
+      <div className="relative max-w-3xl border rounded-[22px] border-black/5 p-1 w-full mx-auto">
         <div className="relative rounded-2xl border border-black/5 bg-neutral-800/5 flex flex-col">
           <div
             className="overflow-y-auto"
