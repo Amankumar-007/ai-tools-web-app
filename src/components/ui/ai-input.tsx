@@ -57,7 +57,7 @@ function useAutoResizeTextarea({
   return { textareaRef, adjustHeight }
 }
 
-const MIN_HEIGHT = 48
+const MIN_HEIGHT = 65
 const MAX_HEIGHT = 164
 
 const AnimatedPlaceholder = ({ showSearch }: { showSearch: boolean }) => (
