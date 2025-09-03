@@ -239,7 +239,7 @@ export default function ChatGPTPage() {
 
     let convo = active;
     if (!convo) {
-      convo = createNewChat(text);
+      convo = createNewChat();
     }
 
     const userMsg: Message = { id: uid(), role: "user", content: text, createdAt: Date.now() };
@@ -334,7 +334,7 @@ export default function ChatGPTPage() {
 
     let convo = active;
     if (!convo) {
-      convo = createNewChat(trimmed);
+      convo = createNewChat();
     }
 
     const userMsg: Message = { id: uid(), role: "user", content: trimmed, createdAt: Date.now() };
@@ -520,14 +520,14 @@ export default function ChatGPTPage() {
             </div>
             
             <div className="relative">
-              <pre className="p-6 overflow-x-auto text-sm leading-6 bg-gray-900/90 dark:bg-gray-950/90 backdrop-blur-sm">
+              <pre className="p-6 overflow-x-auto text-sm leading-6 bg-gray-50 text-gray-800 dark:bg-gray-950/90 dark:text-gray-100 backdrop-blur-sm">
                 <code 
                   className="font-['SF_Mono','Monaco','Inconsolata','Roboto_Mono','Consolas','monospace'] text-[13px] block"
                   dangerouslySetInnerHTML={{ __html: highlightedCode }}
                 />
               </pre>
               
-              <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-gray-900/90 dark:from-gray-950/90 to-transparent pointer-events-none opacity-30"></div>
+              <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-gray-50 dark:from-gray-900/90 to-transparent pointer-events-none opacity-30"></div>
             </div>
           </div>
         </div>
@@ -919,28 +919,7 @@ export default function ChatGPTPage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {[
-                    { icon: "📊", text: "Analyze data", delay: "0ms" },
-                    { icon: "💻", text: "Write code", delay: "100ms" },
-                    { icon: "✍️", text: "Write content", delay: "200ms" },
-                    { icon: "🔍", text: "Research topic", delay: "300ms" }
-                  ].map((prompt, i) => (
-                    <button
-                      key={i}
-                      onClick={() => sendText(prompt.text)}
-                      className="p-4 bg-white/20 dark:bg-gray-800/20 rounded-xl border border-gray-200/30 dark:border-gray-600/30 hover:border-gray-300/50 dark:hover:border-gray-500/50 hover:shadow-lg transition-all duration-300 group transform hover:-translate-y-1 hover:scale-105 bounce-in backdrop-blur-md"
-                      style={{ animationDelay: prompt.delay }}
-                    >
-                      <div className="text-xl mb-2 group-hover:scale-110 transition-transform duration-300">
-                        {prompt.icon}
-                      </div>
-                      <span className="text-sm font-medium text-gray-700 dark:text-gray-300 font-['Inter','system-ui','-apple-system','sans-serif']">
-                        {prompt.text}
-                      </span>
-                    </button>
-                  ))}
-                </div>
+                {/* Quick prompts removed for a minimal layout */}
               </div>
             </div>
           ) : (
@@ -975,7 +954,7 @@ export default function ChatGPTPage() {
               {loading && (
                 <div className="space-y-3 message-enter">
                   <div className="flex items-center gap-3">
-                    <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-full shadow-sm" />
+                    <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-full" />
                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 font-['Inter','system-ui','-apple-system','sans-serif']">TomatoAI</span>
                   </div>
                   <div className="ml-11 flex items-center gap-2">
@@ -993,8 +972,8 @@ export default function ChatGPTPage() {
         </div>
 
         {hasStartedChat && (
-          <div className="border-t border-gray-200/50 dark:border-gray-700/50 bg-white/20 dark:bg-gray-900/20 backdrop-blur-md">
-            <div className="max-w-4xl mx-auto p-4">
+          <div className="border-gray-200/50 dark:border-gray-700/50 bg-white/20 dark:bg-gray-900/20 backdrop-blur-md">
+            <div className="max-w-4xl mx-auto ">
               <div className="relative">
                 <AiInput
                   onSubmitWithMode={(text, isSearch) => {
@@ -1009,17 +988,7 @@ export default function ChatGPTPage() {
                 />
               </div>
               
-              <div className="flex items-center justify-center mt-4 gap-6 text-xs text-gray-500 dark:text-gray-400 font-['Inter','system-ui','-apple-system','sans-serif']">
-                {["API", "Contact us", "Terms of Service", "Privacy Policy"].map((link, index) => (
-                  <span 
-                    key={link}
-                    className="hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer transition-all duration-300 transform hover:scale-105"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    {link}
-                  </span>
-                ))}
-              </div>
+              
             </div>
           </div>
         )}
