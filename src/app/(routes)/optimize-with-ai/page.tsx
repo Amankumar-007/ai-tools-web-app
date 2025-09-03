@@ -30,7 +30,34 @@ export default function OptimizeWithAI() {
   };
 
   return (
-    <div className="min-h-screen   flex flex-col items-center py-10 px-4">
+    <div className="relative min-h-screen flex flex-col items-center py-10 px-4">
+      {/* Fixed blurred background (light/dark) */}
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 dark:hidden"
+        style={{
+          backgroundImage: "url('/generated-image.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          filter: 'blur(2px)',
+          transform: 'scale(1.03)'
+        }}
+      />
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 hidden dark:block"
+        style={{
+          backgroundImage: "url(" + "'/generated-image (1).png'" + ")",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          filter: 'blur(2px)',
+          transform: 'scale(1.03)'
+        }}
+      />
       <h1 className="text-3xl font-bold mb-4 text-orange-400">AI Content Optimizer</h1>
       <p className="text-gray-400 mb-8 text-center max-w-xl">
         Paste your text and let AI make it more engaging & professional.

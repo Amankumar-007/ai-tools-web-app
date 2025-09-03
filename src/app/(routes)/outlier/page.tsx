@@ -97,7 +97,34 @@ const OutlierAI = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 p-4">
+    <div className="relative min-h-screen p-4">
+      {/* Fixed blurred background (light/dark) */}
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 dark:hidden"
+        style={{
+          backgroundImage: "url('/generated-image.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          filter: 'blur(2px)',
+          transform: 'scale(1.03)'
+        }}
+      />
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 hidden dark:block"
+        style={{
+          backgroundImage: "url(" + "'/generated-image (1).png'" + ")",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          filter: 'blur(2px)',
+          transform: 'scale(1.03)'
+        }}
+      />
       <Logo />
       <motion.div
         initial="hidden"

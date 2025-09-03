@@ -26,7 +26,7 @@ export default function Footer() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="px-6 py-10"
+      className="px-6 py-10 bt-black"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -48,7 +48,7 @@ export default function Footer() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          <h3 className="text-lg font-medium text-amber-500">Newsletter</h3>
+          <h3 className="text-2xl font-semibold text-amber-300">Newsletter</h3>
           <p className="text-sm  mt-1 mb-3">
             Subscribe for updates on web development trends.
           </p>
@@ -77,7 +77,7 @@ export default function Footer() {
           transition={{ delay: 0.4, duration: 0.5 }}
           className="flex flex-col items-center md:items-end"
         >
-          <h3 className="text-lg font-medium text-amber-300 mb-2">Connect</h3>
+          <h3 className="text-2xl font-semibold text-amber-300">Connect</h3>
           <div className="flex items-center gap-6">
             <motion.div variants={socialVariants} whileHover="hover" initial="initial">
               <Link href="mailto:your@email.com" className=" hover:text-amber-300 transition-all duration-200">
@@ -102,7 +102,7 @@ export default function Footer() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5, duration: 0.5 }}
-        className="mt-10 text-sm text-center text-neutral-400"
+        className="mt-10 text-sm text-center text-neutral-900"
       >
         © {new Date().getFullYear()} Aman Kumar. All Rights Reserved.
       </motion.div>

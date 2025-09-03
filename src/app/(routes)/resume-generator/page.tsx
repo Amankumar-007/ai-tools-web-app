@@ -331,11 +331,11 @@ export default function ResumeGenerator() {
   const renderStepContent = () => {
     if (currentStep === 1) {
       return (
-        <Card className="border-orange-200 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+        <Card className="border-gray-200 shadow-sm">
+          <CardHeader className="bg-gray-50 border-b border-gray-200">
             <CardTitle className="flex items-center gap-2">
-              <User className="w-5 h-5" />
-              Personal Information
+              <User className="w-5 h-5 text-gray-700" />
+              <span className="text-gray-900">Personal Information</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
@@ -346,61 +346,61 @@ export default function ResumeGenerator() {
                 </Label>
                 <Input
                   id="fullName"
-                  placeholder="John Doe"
+                  placeholder="your name"
                   value={personalInfo.fullName}
                   onChange={(e) => setPersonalInfo({...personalInfo, fullName: e.target.value})}
-                  className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                  className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                 />
               </div>
               <div>
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
                 <Input
                   id="email"
-                  placeholder="john@example.com"
+                  placeholder="user@example.com"
                   type="email"
                   value={personalInfo.email}
                   onChange={(e) => setPersonalInfo({...personalInfo, email: e.target.value})}
-                  className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                  className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                 />
               </div>
               <div>
                 <Label htmlFor="phone" className="text-sm font-medium text-gray-700">Phone</Label>
                 <Input
                   id="phone"
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="+91 xxxxxxxxx"
                   value={personalInfo.phone}
                   onChange={(e) => setPersonalInfo({...personalInfo, phone: e.target.value})}
-                  className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                  className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                 />
               </div>
               <div>
                 <Label htmlFor="location" className="text-sm font-medium text-gray-700">Location</Label>
                 <Input
                   id="location"
-                  placeholder="New York, NY"
+                  placeholder="Agra, India"
                   value={personalInfo.location}
                   onChange={(e) => setPersonalInfo({...personalInfo, location: e.target.value})}
-                  className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                  className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                 />
               </div>
               <div>
                 <Label htmlFor="linkedin" className="text-sm font-medium text-gray-700">LinkedIn</Label>
                 <Input
                   id="linkedin"
-                  placeholder="linkedin.com/in/johndoe"
+                  placeholder="linkedin.com/in/username"
                   value={personalInfo.linkedin}
                   onChange={(e) => setPersonalInfo({...personalInfo, linkedin: e.target.value})}
-                  className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                  className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                 />
               </div>
               <div>
                 <Label htmlFor="portfolio" className="text-sm font-medium text-gray-700">Portfolio</Label>
                 <Input
                   id="portfolio"
-                  placeholder="https://johndoe.dev"
+                  placeholder="https://username.dev"
                   value={personalInfo.portfolio}
                   onChange={(e) => setPersonalInfo({...personalInfo, portfolio: e.target.value})}
-                  className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                  className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                 />
               </div>
             </div>
@@ -413,13 +413,13 @@ export default function ResumeGenerator() {
                 placeholder={useAI ? "AI will generate if empty..." : "Write a compelling professional summary..."}
                 value={personalInfo.summary}
                 onChange={(e) => setPersonalInfo({...personalInfo, summary: e.target.value})}
-                className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                 rows={4}
               />
             </div>
             <div className="flex items-center justify-between pt-2">
               <div className="flex items-center space-x-3">
-                <Sparkles className="w-5 h-5 text-orange-500" />
+                <Sparkles className="w-5 h-5 text-gray-700" />
                 <div>
                   <Label htmlFor="ai-toggle" className="text-sm font-medium text-gray-900">
                     AI Enhancement
@@ -432,7 +432,7 @@ export default function ResumeGenerator() {
             <div className="flex gap-2 pt-4">
               <Button 
                 onClick={() => goToStep(2)}
-                className="flex-1 bg-orange-500 hover:bg-orange-600"
+                className="flex-1 bg-gray-900 hover:bg-black"
               >
                 Next: Add Experience
               </Button>
@@ -444,22 +444,22 @@ export default function ResumeGenerator() {
 
     if (currentStep === 2) {
       return (
-        <Card className="border-orange-200 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white flex flex-row items-center justify-between">
+        <Card className="border-gray-200 shadow-sm">
+          <CardHeader className="bg-gray-50 border-b border-gray-200 flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Briefcase className="w-5 h-5" />
-              Work Experience
+              <Briefcase className="w-5 h-5 text-gray-700" />
+              <span className="text-gray-900">Work Experience</span>
             </CardTitle>
-            <Button onClick={addExperience} size="sm" variant="secondary" className="bg-white text-orange-600 hover:bg-orange-50">
+            <Button onClick={addExperience} size="sm" variant="secondary" className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50">
               <Plus className="w-4 h-4 mr-1" />
               Add
             </Button>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             {experience.map((exp, index) => (
-              <div key={index} className="p-5 bg-gradient-to-br from-orange-50 to-white border border-orange-200 rounded-lg space-y-4 hover:shadow-md transition-shadow">
+              <div key={index} className="p-5 bg-white border border-gray-200 rounded-lg space-y-4">
                 <div className="flex justify-between items-center">
-                  <h4 className="font-semibold text-orange-700 flex items-center gap-2">
+                  <h4 className="font-semibold text-gray-900 flex items-center gap-2">
                     <Star className="w-4 h-4" />
                     Experience {index + 1}
                   </h4>
@@ -481,7 +481,7 @@ export default function ResumeGenerator() {
                       placeholder="Software Engineer"
                       value={exp.position}
                       onChange={(e) => updateExperience(index, 'position', e.target.value)}
-                      className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                     />
                   </div>
                   <div>
@@ -490,7 +490,7 @@ export default function ResumeGenerator() {
                       placeholder="Tech Company Inc."
                       value={exp.company}
                       onChange={(e) => updateExperience(index, 'company', e.target.value)}
-                      className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                     />
                   </div>
                 </div>
@@ -500,7 +500,7 @@ export default function ResumeGenerator() {
                     placeholder="Jan 2020 - Present"
                     value={exp.duration}
                     onChange={(e) => updateExperience(index, 'duration', e.target.value)}
-                    className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                    className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                   />
                 </div>
                 <div>
@@ -509,7 +509,7 @@ export default function ResumeGenerator() {
                     placeholder={useAI ? "Brief description (AI will enhance)..." : "Detailed job responsibilities and achievements..."}
                     value={exp.description}
                     onChange={(e) => updateExperience(index, 'description', e.target.value)}
-                    className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                    className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                     rows={3}
                   />
                 </div>
@@ -519,13 +519,13 @@ export default function ResumeGenerator() {
               <Button 
                 onClick={() => goToStep(1)}
                 variant="outline"
-                className="flex-1 border-orange-200 text-orange-600 hover:bg-orange-50"
+                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
               >
                 Previous
               </Button>
               <Button 
                 onClick={() => goToStep(3)}
-                className="flex-1 bg-orange-500 hover:bg-orange-600"
+                className="flex-1 bg-gray-900 hover:bg-black"
               >
                 Next: Add Education
               </Button>
@@ -537,22 +537,22 @@ export default function ResumeGenerator() {
 
     if (currentStep === 3) {
       return (
-        <Card className="border-orange-200 shadow-lg hover:shadow-xl transition-shadow">
-          <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white flex flex-row items-center justify-between">
+        <Card className="border-gray-200 shadow-sm">
+          <CardHeader className="bg-gray-50 border-b border-gray-200 flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <GraduationCap className="w-5 h-5" />
-              Education
+              <GraduationCap className="w-5 h-5 text-gray-700" />
+              <span className="text-gray-900">Education</span>
             </CardTitle>
-            <Button onClick={addEducation} size="sm" variant="secondary" className="bg-white text-orange-600 hover:bg-orange-50">
+            <Button onClick={addEducation} size="sm" variant="secondary" className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50">
               <Plus className="w-4 h-4 mr-1" />
               Add
             </Button>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
             {education.map((edu, index) => (
-              <div key={index} className="p-5 bg-gradient-to-br from-orange-50 to-white border border-orange-200 rounded-lg space-y-4 hover:shadow-md transition-shadow">
+              <div key={index} className="p-5 bg-white border border-gray-200 rounded-lg space-y-4">
                 <div className="flex justify-between items-center">
-                  <h4 className="font-semibold text-orange-700 flex items-center gap-2">
+                  <h4 className="font-semibold text-gray-900 flex items-center gap-2">
                     <GraduationCap className="w-4 h-4" />
                     Education {index + 1}
                   </h4>
@@ -574,7 +574,7 @@ export default function ResumeGenerator() {
                       placeholder="Bachelor of Science"
                       value={edu.degree}
                       onChange={(e) => updateEducation(index, 'degree', e.target.value)}
-                      className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                     />
                   </div>
                   <div>
@@ -583,7 +583,7 @@ export default function ResumeGenerator() {
                       placeholder="University Name"
                       value={edu.institution}
                       onChange={(e) => updateEducation(index, 'institution', e.target.value)}
-                      className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                     />
                   </div>
                   <div>
@@ -592,7 +592,7 @@ export default function ResumeGenerator() {
                       placeholder="2020"
                       value={edu.year}
                       onChange={(e) => updateEducation(index, 'year', e.target.value)}
-                      className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                     />
                   </div>
                   <div>
@@ -601,7 +601,7 @@ export default function ResumeGenerator() {
                       placeholder="3.8"
                       value={edu.gpa}
                       onChange={(e) => updateEducation(index, 'gpa', e.target.value)}
-                      className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                     />
                   </div>
                 </div>
@@ -611,13 +611,13 @@ export default function ResumeGenerator() {
               <Button 
                 onClick={() => goToStep(2)}
                 variant="outline"
-                className="flex-1 border-orange-200 text-orange-600 hover:bg-orange-50"
+                className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
               >
                 Previous
               </Button>
               <Button 
                 onClick={() => goToStep(4)}
-                className="flex-1 bg-orange-500 hover:bg-orange-600"
+                className="flex-1 bg-gray-900 hover:bg-black"
               >
                 Next: Add Skills
               </Button>
@@ -631,11 +631,11 @@ export default function ResumeGenerator() {
       return (
         <>
           {/* Skills */}
-          <Card className="border-orange-200 shadow-lg hover:shadow-xl transition-shadow">
-            <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+          <Card className="border-gray-200 shadow-sm">
+            <CardHeader className="bg-gray-50 border-b border-gray-200">
               <CardTitle className="flex items-center gap-2">
-                <Code className="w-5 h-5" />
-                Skills
+                <Code className="w-5 h-5 text-gray-700" />
+                <span className="text-gray-900">Skills</span>
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
@@ -645,9 +645,9 @@ export default function ResumeGenerator() {
                   value={skillInput}
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={handleSkillInputKeyDown}
-                  className="border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                  className="border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                 />
-                <Button onClick={addSkill} className="bg-orange-500 hover:bg-orange-600 px-6">
+                <Button onClick={addSkill} className="bg-gray-900 hover:bg-black px-6">
                   Add
                 </Button>
               </div>
@@ -655,7 +655,7 @@ export default function ResumeGenerator() {
                 {skills.map((skill) => (
                   <Badge 
                     key={skill} 
-                    className="px-3 py-1 bg-orange-100 text-orange-800 hover:bg-orange-200 cursor-pointer transition-colors"
+                    className="px-3 py-1 bg-gray-100 text-gray-800 hover:bg-gray-200 cursor-pointer transition-colors"
                     onClick={() => removeSkill(skill)}
                   >
                     {skill}
@@ -670,17 +670,17 @@ export default function ResumeGenerator() {
           </Card>
 
           {/* Additional Sections */}
-          <Card className="border-orange-200 shadow-lg hover:shadow-xl transition-shadow mt-6">
-            <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white flex flex-row items-center justify-between">
+          <Card className="border-gray-200 shadow-sm mt-6">
+            <CardHeader className="bg-gray-50 border-b border-gray-200 flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <Plus className="w-5 h-5" />
-                Additional Sections
+                <Plus className="w-5 h-5 text-gray-700" />
+                <span className="text-gray-900">Additional Sections</span>
               </CardTitle>
               <Button 
                 onClick={addAdditionalSection} 
                 size="sm" 
                 variant="secondary" 
-                className="bg-white text-orange-600 hover:bg-orange-50"
+                className="bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
               >
                 <Plus className="w-4 h-4 mr-1" />
                 Add Section
@@ -688,9 +688,9 @@ export default function ResumeGenerator() {
             </CardHeader>
             <CardContent className="p-6 space-y-6">
               {additionalSections.map((section, index) => (
-                <div key={index} className="p-5 bg-gradient-to-br from-orange-50 to-white border border-orange-200 rounded-lg space-y-4 hover:shadow-md transition-shadow">
+                <div key={index} className="p-5 bg-white border border-gray-200 rounded-lg space-y-4">
                   <div className="flex justify-between items-center">
-                    <h4 className="font-semibold text-orange-700">Section {index + 1}</h4>
+                    <h4 className="font-semibold text-gray-900">Section {index + 1}</h4>
                     <Button
                       onClick={() => removeAdditionalSection(index)}
                       size="sm"
@@ -706,7 +706,7 @@ export default function ResumeGenerator() {
                       placeholder="e.g., Certifications, Awards, Projects"
                       value={section.title}
                       onChange={(e) => updateAdditionalSection(index, 'title', e.target.value)}
-                      className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                     />
                   </div>
                   <div>
@@ -715,7 +715,7 @@ export default function ResumeGenerator() {
                       placeholder="Add content for this section..."
                       value={section.content}
                       onChange={(e) => updateAdditionalSection(index, 'content', e.target.value)}
-                      className="mt-1 border-orange-200 focus:border-orange-500 focus:ring-orange-500"
+                      className="mt-1 border-gray-300 focus:border-gray-900 focus:ring-gray-900/20"
                       rows={3}
                     />
                   </div>
@@ -730,13 +730,13 @@ export default function ResumeGenerator() {
                 <Button 
                   onClick={() => goToStep(3)}
                   variant="outline"
-                  className="flex-1 border-orange-200 text-orange-600 hover:bg-orange-50"
+                  className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
                 >
                   Previous
                 </Button>
                 <Button 
                   onClick={() => goToStep(5)}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600"
+                  className="flex-1 bg-gray-900 hover:bg-black"
                 >
                   Next: Generate Resume
                 </Button>
@@ -749,11 +749,11 @@ export default function ResumeGenerator() {
 
     // Step 5 (Generate)
     return (
-      <Card className="border-orange-200 shadow-lg hover:shadow-xl transition-shadow">
-        <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+      <Card className="border-gray-200 shadow-sm">
+        <CardHeader className="bg-gray-50 border-b border-gray-200">
           <CardTitle className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5" />
-            Generate Resume
+            <Sparkles className="w-5 h-5 text-gray-700" />
+            <span className="text-gray-900">Generate Resume</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="p-6 space-y-4">
@@ -764,14 +764,14 @@ export default function ResumeGenerator() {
             <Button 
               onClick={() => goToStep(4)}
               variant="outline"
-              className="flex-1 border-orange-200 text-orange-600 hover:bg-orange-50"
+              className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
             >
               Previous
             </Button>
             <Button
               onClick={generateResume}
               disabled={isGenerating || !personalInfo.fullName.trim()}
-              className="flex-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 rounded-lg shadow-lg transition-all"
+              className="flex-1 bg-gray-900 hover:bg-black text-white font-medium py-3 rounded-lg"
             >
               {isGenerating ? (
                 <>
@@ -792,7 +792,9 @@ export default function ResumeGenerator() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100">
+    <div className="relative min-h-screen">
+      {/* Fixed blurred background (light/dark) */}
+      
       {/* Notification */}
       {notification && (
         <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg flex items-center gap-2 ${
@@ -808,22 +810,22 @@ export default function ResumeGenerator() {
       )}
 
       {/* Header */}
-      <div className="bg-white shadow-sm border-b border-orange-200">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="text-center">
             <div className="flex items-center justify-center mb-4">
-              <div className="p-3 bg-orange-100 rounded-full">
-                <FileText className="w-8 h-8 text-orange-600" />
+              <div className="p-3 bg-gray-100 rounded-full">
+                <FileText className="w-8 h-8 text-gray-700" />
               </div>
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">AI Resume Generator</h1>
-            <p className="text-gray-600 max-w-2xl mx-auto text-lg">
-              Create professional, ATS-friendly resumes in minutes with AI assistance
+            <h1 className="text-3xl font-semibold text-gray-900 mb-2">Resume Generator</h1>
+            <p className="text-gray-500 max-w-2xl mx-auto text-base">
+              Minimal, distraction-free builder. Optimized for ATS parsing.
             </p>
             
             {/* Progress Steps */}
             <div className="flex justify-center mt-8 overflow-x-auto">
-              <div className="flex items-center space-x-4 bg-orange-50 p-4 rounded-full min-w-max">
+              <div className="flex items-center space-x-3 bg-white border border-gray-200 p-2 rounded-full min-w-max">
                 {steps.map((step, index) => {
                   const Icon = step.icon;
                   const isActive = currentStep === step.number;
@@ -832,26 +834,22 @@ export default function ResumeGenerator() {
                   return (
                     <div key={step.number} className="flex items-center">
                       <div 
-                        className={`flex flex-col items-center cursor-pointer transition-all ${
-                          isActive ? 'scale-110' : ''
-                        }`}
+                        className={`flex flex-col items-center cursor-pointer transition-all`}
                         onClick={() => goToStep(step.number)}
                       >
-                        <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
-                          isActive ? 'bg-orange-500 text-white shadow-lg' : 
-                          isCompleted ? 'bg-green-500 text-white' : 
-                          'bg-gray-200 text-gray-500 hover:bg-gray-300'
+                        <div className={`flex items-center justify-center w-9 h-9 rounded-full border ${
+                          isActive ? 'bg-gray-900 text-white border-gray-900' : 
+                          isCompleted ? 'bg-gray-800 text-white border-gray-800' : 
+                          'bg-white text-gray-600 border-gray-300'
                         }`}>
                           <Icon className="w-5 h-5" />
                         </div>
-                        <span className={`text-xs mt-1 font-medium ${
-                          isActive ? 'text-orange-600' : 'text-gray-500'
-                        }`}>
+                        <span className={`text-xs mt-1 font-medium text-gray-600`}>
                           {step.title}
                         </span>
                       </div>
                       {index < steps.length - 1 && (
-                        <div className={`w-8 h-0.5 mx-2 ${isCompleted ? 'bg-green-500' : 'bg-gray-200'}`} />
+                        <div className={`w-6 h-px mx-2 bg-gray-200`} />
                       )}
                     </div>
                   );
@@ -863,7 +861,7 @@ export default function ResumeGenerator() {
       </div>
 
       {/* Main */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Left: Steps */}
           <div className="lg:col-span-2 space-y-6">
@@ -873,17 +871,17 @@ export default function ResumeGenerator() {
             {/* Right: Actions + Tips */}
           <div className="lg:col-span-1 space-y-6">
             {/* Generate/Actions */}
-            <Card className="border-orange-200 shadow-lg sticky top-6">
-              <CardHeader className="bg-gradient-to-r from-orange-500 to-orange-600 text-white">
+            <Card className="border-gray-200 shadow-sm sticky top-6">
+              <CardHeader className="bg-gray-50 text-gray-900 border-b border-gray-200">
                 <CardTitle className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5" />
-                  Actions
+                  <Sparkles className="w-5 h-5 text-gray-700" />
+                  Actions & Export
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
                 <Button
                   onClick={() => goToStep(5)}
-                  className="w-full bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold py-3 rounded-lg shadow-lg transition-all"
+                  className="w-full bg-gray-900 hover:bg-black text-white font-medium py-3 rounded-lg"
                 >
                   Go to Generate
                 </Button>
@@ -893,7 +891,7 @@ export default function ResumeGenerator() {
                     <Button
                       onClick={() => setShowPreview(!showPreview)}
                       variant="outline"
-                      className="w-full border-orange-200 text-orange-600 hover:bg-orange-50"
+                      className="w-full border-gray-300 text-gray-700 hover:bg-gray-50"
                     >
                       {showPreview ? (
                         <>
@@ -912,7 +910,7 @@ export default function ResumeGenerator() {
                       <Button
                         onClick={handleDownloadPDF}
                         variant="outline"
-                        className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-50"
                       >
                         <Download className="w-4 h-4 mr-1" />
                         PDF
@@ -920,7 +918,7 @@ export default function ResumeGenerator() {
                       <Button
                         onClick={handleDownloadHTML}
                         variant="outline"
-                        className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                        className="border-gray-300 text-gray-700 hover:bg-gray-50"
                       >
                         <FileText className="w-4 h-4 mr-1" />
                         HTML
@@ -931,7 +929,7 @@ export default function ResumeGenerator() {
 
                 {/* Quick Actions */}
                 <div className="pt-4 border-t border-orange-200">
-                  <h4 className="text-sm font-semibold text-gray-700 mb-3">Quick Actions</h4>
+                  <h4 className="text-sm font-medium text-gray-800 mb-3">Quick Actions</h4>
                   <div className="space-y-2">
                     <Button
                       onClick={() => {
@@ -940,7 +938,7 @@ export default function ResumeGenerator() {
                       }}
                       size="sm"
                       variant="outline"
-                      className="w-full text-red-600 border-red-200 hover:bg-red-50"
+                      className="w-full text-red-600 border-red-300 hover:bg-red-50"
                     >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Clear All Data
@@ -961,7 +959,7 @@ export default function ResumeGenerator() {
                       }}
                       size="sm"
                       variant="outline"
-                      className="w-full text-green-600 border-green-200 hover:bg-green-50"
+                      className="w-full text-green-700 border-green-300 hover:bg-green-50"
                     >
                       <Save className="w-4 h-4 mr-2" />
                       Save Progress

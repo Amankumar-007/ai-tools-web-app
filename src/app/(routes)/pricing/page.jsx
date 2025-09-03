@@ -30,7 +30,34 @@ export default function PricingPage() {
   ];
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-red-100 to-red-200 dark:from-gray-900 dark:to-black p-8 transition-colors duration-500">
+    <div className="relative min-h-screen flex flex-col items-center justify-center p-8 transition-colors duration-500">
+      {/* Fixed blurred background (light/dark) */}
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 dark:hidden"
+        style={{
+          backgroundImage: "url('/generated-image.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          filter: 'blur(2px)',
+          transform: 'scale(1.03)'
+        }}
+      />
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 hidden dark:block"
+        style={{
+          backgroundImage: "url(" + "'/generated-image (1).png'" + ")",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          filter: 'blur(2px)',
+          transform: 'scale(1.03)'
+        }}
+      />
       {/* Floating Tomato Left */}
       <motion.div
         initial={{ y: -30 }}

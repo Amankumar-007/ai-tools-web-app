@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap');
 .link {
   font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 300;
@@ -72,5 +73,23 @@
   .link {
     /* Optional: Add touch-specific styles */
     transition: transform 0.2s ease;
+  }
+}
+
+/* Smartphone-focused enhancements */
+@media (max-width: 640px) {
+  .link {
+    /* Use a bolder, friendlier font on mobile and make it larger */
+    font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif !important;
+    font-weight: 600;
+    /* Ensure larger, responsive sizing on small screens */
+    font-size: clamp(28px, 10vw, 52px) !important;
+    line-height: 1.05;
+    letter-spacing: 0.03em;
+  }
+
+  .bottomLayer {
+    /* Slightly brighter accent on mobile for better contrast */
+    color: #ff7a1a;
   }
 }
