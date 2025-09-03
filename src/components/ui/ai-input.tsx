@@ -140,7 +140,7 @@ const router = useRouter()
   }, [imagePreview])
   return (
     <div className="w-full py-4">
-      <div className="relative max-w-3xl border rounded-[22px] border-black/5 p-1 w-full mx-auto">
+      <div className="relative bg-white dark:bg-neutral-900 max-w-3xl border rounded-[22px] border-black/5 p-1 w-full mx-auto">
         <div className="relative rounded-2xl border border-black/5 bg-neutral-800/5 flex flex-col">
           <div
             className="overflow-y-auto"
@@ -151,7 +151,7 @@ const router = useRouter()
                 id="ai-input-04"
                 value={value}
                 placeholder={placeholder || ""}
-                className="w-full rounded-2xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white resize-none focus-visible:ring-0 leading-[1.2]"
+                className=" w-full rounded-2xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white resize-none focus-visible:ring-0 leading-[1.2]"
                 ref={textareaRef}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {

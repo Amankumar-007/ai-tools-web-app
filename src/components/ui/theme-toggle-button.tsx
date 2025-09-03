@@ -34,9 +34,6 @@ export default function ThemeToggleButton({
 
     let styleElement = document.getElementById(styleId) as HTMLStyleElement
 
-    console.log("style ELement", styleElement)
-    console.log("name", name)
-
     if (!styleElement) {
       styleElement = document.createElement("style")
       styleElement.id = styleId
@@ -44,14 +41,30 @@ export default function ThemeToggleButton({
     }
 
     styleElement.textContent = css
-
-    console.log("content updated")
   }, [])
 
-  const toggleTheme = React.useCallback(() => {
-    const animation = createAnimation(variant, start, url)
+  const disableTransitionsTemporarily = React.useCallback(() => {
+    if (typeof document === "undefined") return
+    const css = document.createElement("style")
+    css.appendChild(document.createTextNode("*{transition:none !important}"))
+    document.head.appendChild(css)
+    // Force style flush
+    void document.body.offsetHeight
+    window.setTimeout(() => {
+      css.parentNode && css.parentNode.removeChild(css)
+    }, 120)
+  }, [])
 
+  const isTogglingRef = React.useRef(false)
+
+  const toggleTheme = React.useCallback(() => {
+    if (isTogglingRef.current) return
+    isTogglingRef.current = true
+
+    const prefersReduced = typeof window !== "undefined" && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const animation = createAnimation(variant, start, url)
     updateStyles(animation.css, animation.name)
+    disableTransitionsTemporarily()
 
     if (typeof window === "undefined") return
 
@@ -59,13 +72,18 @@ export default function ThemeToggleButton({
       setTheme(theme === "light" ? "dark" : "light")
     }
 
-    if (!document.startViewTransition) {
+    if (prefersReduced || !document.startViewTransition) {
       switchTheme()
+      isTogglingRef.current = false
       return
     }
 
-    document.startViewTransition(switchTheme)
-  }, [theme, setTheme])
+    document.startViewTransition(() => {
+      switchTheme()
+    }).finished.finally(() => {
+      isTogglingRef.current = false
+    })
+  }, [theme, setTheme, variant, start, url, updateStyles, disableTransitionsTemporarily])
 
   return (
     <Button

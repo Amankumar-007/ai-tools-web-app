@@ -101,7 +101,7 @@ const FeatureCard = ({
 
 export default function FeatureList() {
   return (
-    <section className="w-full px-4 sm:px-6 py-16 bg-white dark:bg-black">
+    <section className="w-full px-4 sm:px-6 py-16">
       <div className="max-w-6xl mx-auto">
         <h2 className="text-3xl sm:text-4xl font-bold text-center text-gray-900 dark:text-white mb-12">
           Explore <span className="text-blue-600">AI Tools</span>

@@ -36,15 +36,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-        >
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+          >
         <TooltipProvider delayDuration={0}>
             
               {children}
           </TooltipProvider>
-        </ThemeProvider>
+            
+          </ThemeProvider>
       </body>
     </html>
   );

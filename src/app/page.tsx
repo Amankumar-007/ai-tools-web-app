@@ -260,7 +260,30 @@ const [isScrolled, setIsScrolled] = useState(false);
   } as const;
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
+      {/* Fixed background images for light/dark modes */}
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 dark:hidden"
+        style={{
+          backgroundImage: "url('/generated-image.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+        }}
+      />
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 hidden dark:block"
+        style={{
+          backgroundImage: "url('/generated-image (1).png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+        }}
+      />
       {/* Navbar */}
    <motion.nav 
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out ${
@@ -518,7 +541,7 @@ const [isScrolled, setIsScrolled] = useState(false);
 
           {/* Right side */}
           <div className="flex items-center space-x-2 ml-auto z-30">
-            <ThemeToggleButton showLabel variant="circle-blur" start="top-right" />
+            <ThemeToggleButton variant="circle-blur" start="top-right" />
             {user ? (
               <div className="hidden md:flex items-center space-x-2">
                 <span className="text-xs bg-blue-500/20 backdrop-blur-sm text-blue-800 dark:text-blue-200 px-3 py-1.5 rounded-full border border-blue-500/30">

@@ -26,7 +26,7 @@ export default function Footer() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="bg-neutral-800 text-neutral-200 px-6 py-10"
+      className="px-6 py-10"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -37,7 +37,7 @@ export default function Footer() {
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           <h2 className="text-2xl font-semibold text-amber-300">Aman Kumar</h2>
-          <p className="text-sm text-neutral-400 mt-2 max-w-xs">
+          <p className="text-sm mt-2 max-w-xs">
             MERN Stack Developer delivering innovative and efficient web solutions.
           </p>
         </motion.div>
@@ -48,8 +48,8 @@ export default function Footer() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.5 }}
         >
-          <h3 className="text-lg font-medium text-amber-300">Newsletter</h3>
-          <p className="text-sm text-neutral-400 mt-1 mb-3">
+          <h3 className="text-lg font-medium text-amber-500">Newsletter</h3>
+          <p className="text-sm  mt-1 mb-3">
             Subscribe for updates on web development trends.
           </p>
           <div className="flex w-full max-w-sm">
@@ -58,12 +58,12 @@ export default function Footer() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Your email address"
-              className="flex-1 px-3 py-2 text-sm text-neutral-900 bg-neutral-100 rounded-l-md focus:outline-none focus:ring-1 focus:ring-amber-300 transition-all duration-200"
+              className="flex-1 px-3 py-2 text-sm  rounded-l-md focus:ring-1 focus:ring-amber-300 transition-all duration-200"
             />
             <motion.button
               animate={controls}
               onClick={handleSubmit}
-              className="px-4 py-2 bg-amber-300 text-neutral-900 rounded-r-md hover:bg-amber-400 transition-all duration-200"
+              className="px-4 py-2 bg-amber-300 rounded-r-md hover:bg-amber-400 transition-all duration-200"
             >
               <Send size={16} />
             </motion.button>
@@ -80,17 +80,17 @@ export default function Footer() {
           <h3 className="text-lg font-medium text-amber-300 mb-2">Connect</h3>
           <div className="flex items-center gap-6">
             <motion.div variants={socialVariants} whileHover="hover" initial="initial">
-              <Link href="mailto:your@email.com" className="text-neutral-400 hover:text-amber-300 transition-all duration-200">
+              <Link href="mailto:your@email.com" className=" hover:text-amber-300 transition-all duration-200">
                 <Mail size={20} />
               </Link>
             </motion.div>
             <motion.div variants={socialVariants} whileHover="hover" initial="initial">
-              <Link href="https://github.com/yourusername" target="_blank" className="text-neutral-400 hover:text-amber-300 transition-all duration-200">
+              <Link href="https://github.com/yourusername" target="_blank" className=" hover:text-amber-300 transition-all duration-200">
                 <Github size={20} />
               </Link>
             </motion.div>
             <motion.div variants={socialVariants} whileHover="hover" initial="initial">
-              <Link href="https://linkedin.com/in/yourusername" target="_blank" className="text-neutral-400 hover:text-amber-300 transition-all duration-200">
+              <Link href="https://linkedin.com/in/yourusername" target="_blank" className=" hover:text-amber-300 transition-all duration-200">
                 <Linkedin size={20} />
               </Link>
             </motion.div>

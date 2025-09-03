@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
   } catch (err: unknown) {
     console.error("/api/chatgpt error", err);
     return new Response(
-      JSON.stringify({ error: "Unexpected server error.", details: err?.message }),
+      JSON.stringify({ error: "Unexpected server error.",  }),
       { status: 500 }
     );
   }
