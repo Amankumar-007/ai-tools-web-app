@@ -596,7 +596,7 @@ const [isScrolled, setIsScrolled] = useState(false);
           transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
           className="mt-10 flex flex-col items-center"
         >
-          <WrapButton className="mt-5" href="/ai-tools" onClick={(e) => handleProtectedLink(e, "/ai-tools")}>
+          <WrapButton className="mt-5" href="/ai-tools" onClick={(e) => handleProtectedLink(e, "/tomato-ai")}>
             <Globe className="animate-spin" />
             Explore Tools
           </WrapButton>

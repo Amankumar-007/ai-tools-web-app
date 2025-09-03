@@ -122,7 +122,7 @@ const router = useRouter()
       if (showSearch) {
         router.push(`/search?q=${q}`)
       } else {
-        router.push(`/chatgpt?q=${q}`)
+        router.push(`/tomato-ai?q=${q}`)
       }
     }
     // Clear the input and reset height

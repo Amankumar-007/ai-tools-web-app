@@ -41,7 +41,34 @@ export default function RegisterPage() {
   );
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-red-100 via-yellow-50 to-white">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Fixed blurred background (light/dark) */}
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 dark:hidden"
+        style={{
+          backgroundImage: "url('/generated-image.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          filter: 'blur(2px)',
+          transform: 'scale(1.03)'
+        }}
+      />
+      <div
+        aria-hidden
+        className="fixed inset-0 -z-10 hidden dark:block"
+        style={{
+          backgroundImage: "url('/generated-image (1).png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          backgroundAttachment: 'fixed',
+          filter: 'blur(2px)',
+          transform: 'scale(1.03)'
+        }}
+      />
       {/* Floating Tomatoes Background */}
       <div className="absolute inset-0 overflow-hidden">
         {tomatoPositions.map((pos, i) => (
