@@ -35,9 +35,10 @@ export async function POST(req: NextRequest) {
     });
 
     const completion = await openai.chat.completions.create({
-      model: "mistralai/mistral-nemo:free",
+      model: "deepseek/deepseek-chat-v3.1:free",
       messages: messages,
       temperature: temperature ?? 0.7,
+      max_tokens: 4096,
     });
 
     const reply = completion?.choices?.[0]?.message?.content ?? "";

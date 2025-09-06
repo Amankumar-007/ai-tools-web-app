@@ -106,7 +106,7 @@ export async function generateImageWithOpenRouter(options: ORImageGenOptions): P
   if (!apiKey) throw new Error('Missing OPENROUTER_API_KEY');
 
   const referer = process.env.NEXT_PUBLIC_SITE_URL || '';
-  const title = process.env.NEXT_PUBLIC_SITE_NAME || 'AI Tools App';
+  const title = process.env.NEXT_PUBLIC_SITE_NAME || 'tomatoTool App';
 
   const res = await fetch(`${OPENROUTER_BASE}/images`, {
     method: 'POST',

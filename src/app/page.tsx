@@ -374,136 +374,147 @@ const [isScrolled, setIsScrolled] = useState(false);
             >
               {/* Logo inside nav for scrolled state */}
               <AnimatePresence>
-                {isScrolled && (
-                  <motion.div
-                    className="hidden md:flex items-center mr-2"
-                    initial={{ opacity: 0, scale: 0.8, x: -20 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, x: -20 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                  >
-                    <Image
-                      src="/logo.png"
-                      alt="QuickAI Logo"
-                      width={32}
-                      height={32}
-                      priority
-                      className="inline-block w-6 h-6 md:w-8 md:h-8"
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
+  {isScrolled && (
+    <motion.div
+      className="hidden md:flex items-center mr-2"
+      initial={{ opacity: 0, scale: 0.7, x: -16 }}
+      animate={{ opacity: 1, scale: 1, x: 0 }}
+      exit={{ opacity: 0, scale: 0.7, x: -16 }}
+      transition={{ 
+        duration: 0.35, 
+        ease: [0.23, 1, 0.32, 1], // Custom bezier curve for ultra smooth motion
+        type: "tween"
+      }}
+    >
+      <Image
+        src="/logo.png"
+        alt="QuickAI Logo"
+        width={32}
+        height={32}
+        priority
+        className="inline-block w-5 h-5 md:w-7 md:h-7"
+      />
+    </motion.div>
+  )}
+</AnimatePresence>
 
-              {/* Beta Badge */}
-              <motion.span 
-                className="text-sm bg-gradient-to-r from-orange-500 to-orange-600 
-                  text-white px-3 py-1.5 rounded-full mx-0 font-medium
-                  shadow-lg shadow-orange-500/30
-                  hover:shadow-orange-500/50 hover:scale-105
-                  transition-all duration-300 relative z-10"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Beta
-              </motion.span>
-              
-              {/* Navigation Links with Enhanced Glass Effect */}
-              <Link
-                href="/ai-tools"
-                onClick={(e) => handleProtectedLink(e, "/ai-tools")}
-                className="relative text-gray-700 dark:text-gray-300 
-                  hover:text-black dark:hover:text-white 
-                  px-4 py-2.5 rounded-full font-medium
-                  transition-all duration-300 ease-out
-                  hover:bg-white/20 hover:dark:bg-white/5
-                  hover:backdrop-blur-sm hover:scale-105
-                  active:scale-95
-                  before:absolute before:inset-0 before:rounded-full
-                  before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
-                  before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-300
-                  after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
-                  after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300
-                  z-10"
-              >
-                AI Tools
-              </Link>
-              
-              <a
-                href="#categories"
-                className="relative text-gray-700 dark:text-gray-300 
-                  hover:text-black dark:hover:text-white 
-                  px-4 py-2.5 rounded-full font-medium
-                  transition-all duration-300 ease-out
-                  hover:bg-white/20 hover:dark:bg-white/5
-                  hover:backdrop-blur-sm hover:scale-105
-                  active:scale-95
-                  before:absolute before:inset-0 before:rounded-full
-                  before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
-                  before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-300
-                  after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
-                  after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300
-                  z-10"
-              >
-                Categories
-              </a>
-              
-              <a
-                href="#trending"
-                className="relative text-gray-700 dark:text-gray-300 
-                  hover:text-black dark:hover:text-white 
-                  px-4 py-2.5 rounded-full font-medium
-                  transition-all duration-300 ease-out
-                  hover:bg-white/20 hover:dark:bg-white/5
-                  hover:backdrop-blur-sm hover:scale-105
-                  active:scale-95
-                  before:absolute before:inset-0 before:rounded-full
-                  before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
-                  before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-300
-                  after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
-                  after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300
-                  z-10"
-              >
-                Trending
-              </a>
-              
-              <Link
-                href="/About"
-                onClick={(e) => handleProtectedLink(e, "/about")}
-                className="relative text-gray-700 dark:text-gray-300 
-                  hover:text-black dark:hover:text-white 
-                  px-4 py-2.5 rounded-full font-medium
-                  transition-all duration-300 ease-out
-                  hover:bg-white/20 hover:dark:bg-white/5
-                  hover:backdrop-blur-sm hover:scale-105
-                  active:scale-95
-                  before:absolute before:inset-0 before:rounded-full
-                  before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
-                  before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-300
-                  after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
-                  after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300
-                  z-10"
-              >
-                About
-              </Link>
-              
-              <Link
-                href="/pricing"
-                className="relative text-gray-700 dark:text-gray-300 
-                  hover:text-black dark:hover:text-white 
-                  px-4 py-2.5 rounded-full font-medium
-                  transition-all duration-300 ease-out
-                  hover:bg-white/20 hover:dark:bg-white/5
-                  hover:backdrop-blur-sm hover:scale-105
-                  active:scale-95
-                  before:absolute before:inset-0 before:rounded-full
-                  before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
-                  before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-300
-                  after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
-                  after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-300
-                  z-10"
-              >
-                Pricing
-              </Link>
+{/* Beta Badge */}
+<motion.span 
+  className="text-xs bg-gradient-to-r from-orange-500 to-orange-600 
+    text-white px-2.5 py-1 rounded-full mx-0 font-medium
+    shadow-lg shadow-orange-500/30
+    hover:shadow-orange-500/50 hover:scale-105
+    transition-all duration-200 relative z-10"
+  whileHover={{ 
+    scale: 1.03,
+    transition: { duration: 0.15, ease: "easeOut" }
+  }}
+  whileTap={{ 
+    scale: 0.97,
+    transition: { duration: 0.1, ease: "easeInOut" }
+  }}
+>
+  Beta
+</motion.span>
+
+{/* Navigation Links with Enhanced Glass Effect */}
+<Link
+  href="/ai-tools"
+  onClick={(e) => handleProtectedLink(e, "/ai-tools")}
+  className="relative text-gray-700 dark:text-gray-300 
+    hover:text-black dark:hover:text-white 
+    px-3.5 py-2 rounded-full font-medium text-sm
+    transition-all duration-200 ease-out
+    hover:bg-white/20 hover:dark:bg-white/5
+    hover:backdrop-blur-sm hover:scale-102
+    active:scale-98
+    before:absolute before:inset-0 before:rounded-full
+    before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
+    before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-200
+    after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
+    after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-200
+    z-10"
+>
+  AI Tools
+</Link>
+
+<a
+  href="#categories"
+  className="relative text-gray-700 dark:text-gray-300 
+    hover:text-black dark:hover:text-white 
+    px-3.5 py-2 rounded-full font-medium text-sm
+    transition-all duration-200 ease-out
+    hover:bg-white/20 hover:dark:bg-white/5
+    hover:backdrop-blur-sm hover:scale-102
+    active:scale-98
+    before:absolute before:inset-0 before:rounded-full
+    before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
+    before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-200
+    after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
+    after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-200
+    z-10"
+>
+  Categories
+</a>
+
+<a
+  href="#trending"
+  className="relative text-gray-700 dark:text-gray-300 
+    hover:text-black dark:hover:text-white 
+    px-3.5 py-2 rounded-full font-medium text-sm
+    transition-all duration-200 ease-out
+    hover:bg-white/20 hover:dark:bg-white/5
+    hover:backdrop-blur-sm hover:scale-102
+    active:scale-98
+    before:absolute before:inset-0 before:rounded-full
+    before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
+    before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-200
+    after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
+    after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-200
+    z-10"
+>
+  Trending
+</a>
+
+<Link
+  href="/About"
+  onClick={(e) => handleProtectedLink(e, "/about")}
+  className="relative text-gray-700 dark:text-gray-300 
+    hover:text-black dark:hover:text-white 
+    px-3.5 py-2 rounded-full font-medium text-sm
+    transition-all duration-200 ease-out
+    hover:bg-white/20 hover:dark:bg-white/5
+    hover:backdrop-blur-sm hover:scale-102
+    active:scale-98
+    before:absolute before:inset-0 before:rounded-full
+    before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
+    before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-200
+    after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
+    after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-200
+    z-10"
+>
+  About
+</Link>
+
+<Link
+  href="/pricing"
+  className="relative text-gray-700 dark:text-gray-300 
+    hover:text-black dark:hover:text-white 
+    px-3.5 py-2 rounded-full font-medium text-sm
+    transition-all duration-200 ease-out
+    hover:bg-white/20 hover:dark:bg-white/5
+    hover:backdrop-blur-sm hover:scale-102
+    active:scale-98
+    before:absolute before:inset-0 before:rounded-full
+    before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
+    before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-200
+    after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
+    after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-200
+    z-10"
+>
+  Pricing
+</Link>
+
 
               {/* Auth actions for mobile inside dropdown */}
               {user ? (

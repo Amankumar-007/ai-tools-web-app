@@ -565,7 +565,15 @@ export default function ChatGPTPage() {
 
   if (isAuthChecking) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[url('/chatbot1.png')] bg-no-repeat bg-center bg-cover">
+      <div 
+        className="flex items-center justify-center min-h-screen bg-no-repeat bg-center bg-cover transition-all duration-1000 ease-in-out"
+        style={{
+          backgroundImage: isDarkMode 
+            ? "url('/chatbot2.png')" 
+            : "url('/chatbot1.png')",
+          transition: 'background-image 1s ease-in-out'
+        }}
+      >
         <div className="flex flex-col items-center gap-4">
           <Image src="/logo.png" alt="TomatoAI" width={64} height={64} className="animate-pulse" />
           <div className="text-lg font-medium text-gray-600 dark:text-gray-400">Loading...</div>
@@ -576,11 +584,18 @@ export default function ChatGPTPage() {
 
   return (
     <div 
-      className="flex h-screen font-['Inter','system-ui','-apple-system','BlinkMacSystemFont','Segoe_UI','Roboto','sans-serif'] relative overflow-hidden antialiased transition-colors duration-300"
+      className="flex h-screen font-['Inter','system-ui','-apple-system','BlinkMacSystemFont','Segoe_UI','Roboto','sans-serif'] relative overflow-hidden antialiased transition-all duration-1000 ease-in-out"
       style={{
-        background: hasStartedChat 
-          ? (isDarkMode ? '#111827' : '#FFFFFF') 
-          : `url(/chatbot1.png) no-repeat center center / cover`,
+        backgroundColor: hasStartedChat ? (isDarkMode ? '#111827' : '#FFFFFF') : 'transparent',
+        backgroundImage: !hasStartedChat 
+          ? isDarkMode 
+            ? 'url(/chatbot2.png)'
+            : 'url(/chatbot1.png)'
+          : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        transition: 'background-color 1s ease-in-out, background-image 1s ease-in-out'
       }}
     >
       {/* Enhanced Custom Styles */}
