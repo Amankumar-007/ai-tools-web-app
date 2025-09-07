@@ -38,26 +38,27 @@ export default function Login() {
 
   // Google login
   const handleGoogleLogin = async () => {
-    setError(null);
-    setLoading(true);
+  setError(null);
+  setLoading(true);
 
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/tomato-ai`,
-        },
-      });
+  try {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: 'https://ai-tools-web-app-topaz.vercel.app/tomato-ai',
+      },
+    });
 
-      if (error) {
-        setError(error.message);
-        setLoading(false);
-      }
-    } catch (err) {
-      setError("Failed to sign in with Google");
+    if (error) {
+      setError(error.message);
       setLoading(false);
     }
-  };
+  } catch (err) {
+    setError("Failed to sign in with Google");
+    setLoading(false);
+  }
+};
+
 
   // ✅ Generate tomato positions once (not every render)
   const tomatoPositions = useMemo(
