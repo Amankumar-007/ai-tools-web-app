@@ -166,15 +166,20 @@ const [isScrolled, setIsScrolled] = useState(false);
     fetchUser();
   }, []);
 
-  // Add scroll listener for navbar animation
+  // Add scroll listener for navbar animation and mobile menu
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 100);
+      
+      // Close mobile menu when scrolling
+      if (navOpen) {
+        setNavOpen(false);
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [navOpen]);
 
 
   const handleProtectedLink = (
@@ -260,7 +265,21 @@ const [isScrolled, setIsScrolled] = useState(false);
   } as const;
 
   return (
-    <div className="relative min-h-screen">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Mobile Background Image */}
+      <div className="fixed inset-0 -z-10 md:hidden">
+        <Image
+          src="/bg-mobile.png"
+          alt="Background"
+          fill
+          className="object-cover"
+          priority
+          quality={100}
+          style={{
+            zIndex: -10,
+          }}
+        />
+      </div>
       {/* Fixed background images for light/dark modes */}
       <div
         aria-hidden
@@ -597,8 +616,8 @@ const [isScrolled, setIsScrolled] = useState(false);
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.8 }}
         >
-          <FlipLink href="">The fresh way to</FlipLink>
-          <br />
+          <FlipLink href="">The fresh </FlipLink>
+          <FlipLink href="">way to</FlipLink>
           <FlipLink href="">work with AI</FlipLink>
         </motion.h1>
         <motion.div
