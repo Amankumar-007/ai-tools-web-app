@@ -36,7 +36,7 @@ function uid() {
 }
 
 function formatTitleFromPrompt(text: string) {
-  return (text || "New chat").split("\n")[0].slice(0, 40) || "New chat";
+  return (text || "New chat").split("\n").slice(0, 40).join(" ") || "New chat";
 }
 
 // Login Popup Component
@@ -223,6 +223,21 @@ export default function ChatGPTPage() {
     return convo;
   }
 
+  // Helper to create or update the streaming assistant message
+  function upsertAssistantStreaming(convoId: string, assistantId: string, patch: string, isStart = false) {
+    setConvos(prev => prev.map(c => {
+      if (c.id !== convoId) return c;
+      const msgs = [...c.messages];
+      const idx = msgs.findIndex(m => m.id === assistantId);
+      if (idx === -1 && isStart) {
+        msgs.push({ id: assistantId, role: "assistant", content: patch, createdAt: Date.now() });
+      } else if (idx !== -1) {
+        msgs[idx] = { ...msgs[idx], content: msgs[idx].content + patch };
+      }
+      return { ...c, messages: msgs, updatedAt: Date.now() };
+    }));
+  }
+
   async function sendMessage(e?: React.FormEvent) {
     e?.preventDefault();
     const text = input.trim();
@@ -243,12 +258,21 @@ export default function ChatGPTPage() {
     }
 
     const userMsg: Message = { id: uid(), role: "user", content: text, createdAt: Date.now() };
-    
     setMessageAnimations(prev => new Set([...prev, userMsg.id]));
-
-    setConvos((prev) =>
-      prev.map((c) =>
-        c.id === convo!.id
+    setConvos(prev => {
+      // If this is a new conversation, add it to the beginning of the list
+      if (!prev.some(c => c.id === convo?.id) && convo) {
+        return [{
+          ...convo,
+          title: formatTitleFromPrompt(text),
+          messages: [...convo.messages, userMsg],
+          updatedAt: Date.now(),
+        }, ...prev];
+      }
+    
+      // Otherwise, update the existing conversation
+      return prev.map(c => 
+        c.id === convo?.id 
           ? {
               ...c,
               title: c.messages.length === 0 ? formatTitleFromPrompt(text) : c.title,
@@ -256,8 +280,13 @@ export default function ChatGPTPage() {
               updatedAt: Date.now(),
             }
           : c
-      )
-    );
+      );
+    });
+
+    // Streaming request
+    const assistantId = uid();
+    setMessageAnimations(prev => new Set([...prev, assistantId]));
+    upsertAssistantStreaming(convo!.id, assistantId, "", true);
 
     try {
       const payload = {
@@ -281,35 +310,36 @@ export default function ChatGPTPage() {
         throw new Error(errText);
       }
 
-      const data = (await res.json()) as { reply: string };
-      
-      const assistantMsg: Message = {
-        id: uid(),
-        role: "assistant",
-        content: data.reply || "",
-        createdAt: Date.now(),
-      };
+      if (!res.body) {
+        throw new Error("Readable stream not supported by browser/route.");
+      }
 
-      setMessageAnimations(prev => new Set([...prev, assistantMsg.id]));
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
 
-      setConvos((prev) =>
-        prev.map((c) =>
-          c.id === convo!.id
-            ? { ...c, messages: [...c.messages, assistantMsg], updatedAt: Date.now() }
-            : c
-        )
-      );
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true });
+          // Append chunk to assistant message
+          upsertAssistantStreaming(convo!.id, assistantId, chunk);
+        }
+      }
     } catch (err: any) {
-      const assistantMsg: Message = {
-        id: uid(),
-        role: "assistant",
-        content: `Error: ${err?.message || "Something went wrong"}`,
-        createdAt: Date.now(),
-      };
-      setConvos((prev) =>
-        prev.map((c) =>
-          c.id === (convo?.id || "")
-            ? { ...c, messages: [...c.messages, assistantMsg], updatedAt: Date.now() }
+      // Replace assistant placeholder with error
+      setConvos(prev =>
+        prev.map(c =>
+          c.id === convo!.id
+            ? {
+                ...c,
+                messages: c.messages.map(m =>
+                  m.id === assistantId
+                    ? { ...m, content: `Error: ${err?.message || "Something went wrong"}` }
+                    : m
+                ),
+                updatedAt: Date.now(),
+              }
             : c
         )
       );
@@ -323,7 +353,6 @@ export default function ChatGPTPage() {
     const trimmed = text.trim();
     if (!trimmed) return;
 
-    // Mirror sendMessage flow but with explicit text
     if (!user) {
       setShowLoginPopup(true);
       return;
@@ -339,19 +368,34 @@ export default function ChatGPTPage() {
 
     const userMsg: Message = { id: uid(), role: "user", content: trimmed, createdAt: Date.now() };
     setMessageAnimations(prev => new Set([...prev, userMsg.id]));
+    setConvos(prev => {
+      const updatedConvos = prev.map(c => {
+        if (c.id !== convo?.id) return c;
+        
+        return {
+          ...c,
+          title: c.messages.length === 0 ? formatTitleFromPrompt(trimmed) : c.title,
+          messages: [...c.messages, userMsg],
+          updatedAt: Date.now(),
+        };
+      });
+      
+      // If the conversation wasn't found in prev, create a new one
+      if (!prev.some(c => c.id === convo?.id) && convo) {
+        return [{
+          ...convo,
+          title: formatTitleFromPrompt(trimmed),
+          messages: [...convo.messages, userMsg],
+          updatedAt: Date.now(),
+        }, ...prev];
+      }
+      
+      return updatedConvos;
+    });
 
-    setConvos((prev) =>
-      prev.map((c) =>
-        c.id === convo!.id
-          ? {
-              ...c,
-              title: c.messages.length === 0 ? formatTitleFromPrompt(trimmed) : c.title,
-              messages: [...c.messages, userMsg],
-              updatedAt: Date.now(),
-            }
-          : c
-      )
-    );
+    const assistantId = uid();
+    setMessageAnimations(prev => new Set([...prev, assistantId]));
+    upsertAssistantStreaming(convo!.id, assistantId, "", true);
 
     try {
       const payload = {
@@ -375,35 +419,34 @@ export default function ChatGPTPage() {
         throw new Error(errText);
       }
 
-      const data = (await res.json()) as { reply: string };
+      if (!res.body) {
+        throw new Error("Readable stream not supported by browser/route.");
+      }
 
-      const assistantMsg: Message = {
-        id: uid(),
-        role: "assistant",
-        content: data.reply || "",
-        createdAt: Date.now(),
-      };
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
 
-      setMessageAnimations(prev => new Set([...prev, assistantMsg.id]));
-
-      setConvos((prev) =>
-        prev.map((c) =>
-          c.id === convo!.id
-            ? { ...c, messages: [...c.messages, assistantMsg], updatedAt: Date.now() }
-            : c
-        )
-      );
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        if (value) {
+          const chunk = decoder.decode(value, { stream: true });
+          upsertAssistantStreaming(convo!.id, assistantId, chunk);
+        }
+      }
     } catch (err: any) {
-      const assistantMsg: Message = {
-        id: uid(),
-        role: "assistant",
-        content: `Error: ${err?.message || "Something went wrong"}`,
-        createdAt: Date.now(),
-      };
-      setConvos((prev) =>
-        prev.map((c) =>
+      setConvos(prev =>
+        prev.map(c =>
           c.id === (convo?.id || "")
-            ? { ...c, messages: [...c.messages, assistantMsg], updatedAt: Date.now() }
+            ? {
+                ...c,
+                messages: c.messages.map(m =>
+                  m.id === assistantId
+                    ? { ...m, content: `Error: ${err?.message || "Something went wrong"}` }
+                    : m
+                ),
+                updatedAt: Date.now(),
+              }
             : c
         )
       );
@@ -451,83 +494,81 @@ export default function ChatGPTPage() {
   }
 
   function formatMessage(content: string) {
-    const codeBlockRegex = /```([\w-]*)\n([\s\S]*?)```/g;
+    // Fixed regex: looking for ```language\ncode\n``` pattern
+    const codeBlockRegex = /```(\w*)\n?([\s\S]*?)```/g;
     const inlineCodeRegex = /`([^`]+)`/g;
     const parts = [];
     let lastIndex = 0;
     let match;
 
     while ((match = codeBlockRegex.exec(content)) !== null) {
+      // Add text before code block
       if (match.index > lastIndex) {
         let textContent = content.slice(lastIndex, match.index);
         
+        // Handle inline code in text content
         textContent = textContent.replace(inlineCodeRegex, (_, code) => 
           `<code class="inline-code">${code}</code>`
         );
         
-        parts.push(
-          <div 
-            key={`text-${lastIndex}`} 
-            className="prose prose-gray dark:prose-invert max-w-none mb-4"
-            dangerouslySetInnerHTML={{
-              __html: textContent.replace(/\n/g, '<br />')
-            }}
-          />
-        );
+       // Process headlines and make them bold
+let processedContent = textContent
+.replace(/^(#{1,6})\s+(.*$)/gm, '<h$1 class="font-bold text-lg mb-2">$2</h$1>')
+.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
+.replace(/\n/g, '<br />');
+
+parts.push(
+<div 
+  key={`text-${lastIndex}`} 
+  className="prose prose-gray dark:prose-invert max-w-none mb-4"
+  dangerouslySetInnerHTML={{ __html: processedContent }}
+/>
+);
       }
 
-      const language = match[1] || 'javascript';
+      const language = match[1] || 'text';
       const code = match[2].trim();
       const codeId = `code-${match.index}-${Date.now()}`;
       const highlightedCode = highlight(code);
       
       parts.push(
         <div key={codeId} className="my-6 group relative">
-          <div className="relative rounded-2xl overflow-hidden border border-gray-200/50 dark:border-gray-700/50 shadow-lg bg-white/10 dark:bg-gray-800/10 backdrop-blur-md hover:shadow-xl transition-shadow duration-300">
-            <div className="flex items-center justify-between px-4 py-3 bg-gray-50/50 dark:bg-gray-700/50 backdrop-blur-sm border-b border-gray-200/50 dark:border-gray-600/50">
-              <div className="flex items-center gap-3">
-                <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-red-500/80 shadow-sm"></div>
-                  <div className="w-3 h-3 rounded-full bg-yellow-500/80 shadow-sm"></div>
-                  <div className="w-3 h-3 rounded-full bg-green-500/80 shadow-sm"></div>
-                </div>
-                <div className="h-4 w-px bg-gray-300/50 dark:bg-gray-600/50 mx-2"></div>
-                <span className="text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider bg-gray-200/50 dark:bg-gray-600/50 px-3 py-1 rounded-md font-mono shadow-sm">
-                  {language}
-                </span>
-              </div>
-              
+          <div className="relative rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
+            {/* Header with language and copy button */}
+            <div className="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+              <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                {language}
+              </span>
               <button
                 onClick={() => copyToClipboard(code, codeId)}
-                className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 bg-white/50 dark:bg-gray-600/50 hover:bg-gray-100/50 dark:hover:bg-gray-500/50 border border-gray-200/50 dark:border-gray-500/50 rounded-md transition-all duration-300 hover:shadow-md transform hover:scale-105 backdrop-blur-sm"
+                className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 rounded transition-all duration-200"
               >
                 {copiedCode === codeId ? (
                   <>
                     <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                     </svg>
-                    Copied!
+                    Copied
                   </>
                 ) : (
                   <>
                     <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                     </svg>
-                    Copy
+                    Copy code
                   </>
                 )}
               </button>
             </div>
             
-            <div className="relative">
-              <pre className="p-6 overflow-x-auto text-sm leading-6 bg-gray-50 text-gray-800 dark:bg-gray-950/90 dark:text-gray-100 backdrop-blur-sm">
+            {/* Code content */}
+            <div className="overflow-x-auto">
+              <pre className="p-4 text-sm leading-relaxed text-gray-800 dark:text-gray-200">
                 <code 
-                  className="font-['SF_Mono','Monaco','Inconsolata','Roboto_Mono','Consolas','monospace'] text-[13px] block"
+                  className="font-mono"
                   dangerouslySetInnerHTML={{ __html: highlightedCode }}
                 />
               </pre>
-              
-              <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-gray-50 dark:from-gray-900/90 to-transparent pointer-events-none opacity-30"></div>
             </div>
           </div>
         </div>
@@ -536,9 +577,11 @@ export default function ChatGPTPage() {
       lastIndex = match.index + match[0].length;
     }
 
+    // Add remaining text after last code block
     if (lastIndex < content.length) {
       let textContent = content.slice(lastIndex);
       
+      // Handle inline code in remaining text
       textContent = textContent.replace(inlineCodeRegex, (_, code) => 
         `<code class="inline-code">${code}</code>`
       );
@@ -554,6 +597,7 @@ export default function ChatGPTPage() {
       );
     }
 
+    // If no parts were created, return the original content
     return parts.length > 0 ? parts : (
       <div className="prose prose-gray dark:prose-invert max-w-none">
         <div className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap font-['Inter','system-ui','-apple-system','BlinkMacSystemFont','Segoe_UI','Roboto','sans-serif'] text-[15px] font-normal">
@@ -618,26 +662,29 @@ export default function ChatGPTPage() {
           color: #fbbf24;
         }
 
-        .sh__token--string { color: #a8cc8c; }
-        .sh__token--keyword { color: #c792ea; }
-        .sh__token--comment { color: #637777; font-style: italic; }
-        .sh__token--punctuation { color: #89ddff; }
-        .sh__token--number { color: #f78c6c; }
-        .sh__token--function { color: #82aaff; }
-        .sh__token--constant { color: #ffcb6b; }
-        .sh__token--class-name { color: #ffcb6b; }
-        .sh__token--operator { color: #89ddff; }
-        .sh__token--boolean { color: #ff5874; }
-        .sh__token--property { color: #80cbc4; }
-        .sh__token--tag { color: #f07178; }
-        .sh__token--attr-name { color: #ffcb6b; }
-        .sh__token--attr-value { color: #c3e88d; }
-
-        .dark .sh__token--string { color: #c3e88d; }
-        .dark .sh__token--keyword { color: #c792ea; }
-        .dark .sh__token--comment { color: #546e7a; }
-        .dark .sh__token--function { color: #82aaff; }
-        .dark .sh__token--number { color: #f78c6c; }
+        /* Syntax highlighting styles */
+        .sh__token--string { color: #22c55e; }
+        .sh__token--keyword { color: #8b5cf6; }
+        .sh__token--comment { color: #6b7280; font-style: italic; }
+        .sh__token--punctuation { color: #64748b; }
+        .sh__token--number { color: #f59e0b; }
+        .sh__token--function { color: #3b82f6; }
+        .sh__token--constant { color: #ef4444; }
+        .sh__token--class-name { color: #f59e0b; }
+        .sh__token--operator { color: #64748b; }
+        .sh__token--boolean { color: #ef4444; }
+        .sh__token--property { color: #06b6d4; }
+        .sh__token--tag { color: #ef4444; }
+        .sh__token--attr-name { color: #f59e0b; }
+        .sh__token--attr-value { color: #22c55e; }
+        
+        .dark .sh__token--string { color: #4ade80; }
+        .dark .sh__token--keyword { color: #a78bfa; }
+        .dark .sh__token--comment { color: #9ca3af; }
+        .dark .sh__token--function { color: #60a5fa; }
+        .dark .sh__token--number { color: #fbbf24; }
+        .dark .sh__token--constant { color: #f87171; }
+        .dark .sh__token--property { color: #22d3ee; }
         
         @keyframes slideInUp {
           from { opacity: 0; transform: translateY(20px); }
@@ -812,7 +859,6 @@ export default function ChatGPTPage() {
                   </div>
                 </button>
               </div>
-
               <div className="flex-1 overflow-y-auto p-4">
                 {convos.length === 0 ? (
                   <div className="text-center text-gray-500 dark:text-gray-400 py-12 fade-in">
@@ -933,8 +979,6 @@ export default function ChatGPTPage() {
                     disabled={loading}
                   />
                 </div>
-
-                {/* Quick prompts removed for a minimal layout */}
               </div>
             </div>
           ) : (
@@ -954,14 +998,14 @@ export default function ChatGPTPage() {
                     </div>
                   ) : (
                     <div className="space-y-3">
-                      <div className="flex items-center gap-3">
-                        <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-full shadow-sm" />
-                        <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 font-['Inter','system-ui','-apple-system','sans-serif']">TomatoAI</span>
-                      </div>
-                      <div className="ml-11">
-                        {formatMessage(m.content)}
-                      </div>
+                    <div className="flex items-center gap-3">
+                      <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-full shadow-sm" />
+                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">TomatoAI</span>
                     </div>
+                    <div className="ml-11">
+                      {formatMessage(m.content)}
+                    </div>
+                  </div>
                   )}
                 </div>
               ))}
@@ -988,7 +1032,7 @@ export default function ChatGPTPage() {
 
         {hasStartedChat && (
           <div className="border-gray-200/50 dark:border-gray-700/50 bg-white/20 dark:bg-gray-900/20 backdrop-blur-md">
-            <div className="max-w-4xl mx-auto ">
+            <div className="max-w-4xl mx-auto">
               <div className="relative">
                 <AiInput
                   onSubmitWithMode={(text, isSearch) => {
@@ -1002,8 +1046,6 @@ export default function ChatGPTPage() {
                   disabled={loading}
                 />
               </div>
-              
-              
             </div>
           </div>
         )}

@@ -1,5 +1,5 @@
+// app/api/chatgpt/route.ts (Next.js App Router)
 import type { NextRequest } from "next/server";
-import OpenAI from "openai";
 
 export const runtime = "nodejs";
 
@@ -21,10 +21,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const openai = new OpenAI({
-      baseURL: "https://openrouter.ai/api/v1",
-      apiKey: process.env.OPENROUTER_API_KEY,
-      defaultHeaders: {
+    // Kick off OpenRouter streaming request
+    const orRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json",
         ...(process.env.OPENROUTER_SITE_URL
           ? { "HTTP-Referer": process.env.OPENROUTER_SITE_URL }
           : {}),
@@ -32,21 +34,94 @@ export async function POST(req: NextRequest) {
           ? { "X-Title": process.env.OPENROUTER_SITE_NAME }
           : {}),
       },
+      body: JSON.stringify({
+        model: model ?? "deepseek/deepseek-chat-v3.1:free",
+        messages,
+        temperature: temperature ?? 0.7,
+        max_tokens: 4096,
+        stream: true,
+      }),
     });
 
-    const completion = await openai.chat.completions.create({
-      model: "deepseek/deepseek-chat-v3.1:free",
-      messages: messages,
-      temperature: temperature ?? 0.7,
-      max_tokens: 4096,
+    if (!orRes.ok || !orRes.body) {
+      const text = await orRes.text().catch(() => "");
+      return new Response(
+        JSON.stringify({
+          error: `OpenRouter error: ${orRes.status} ${orRes.statusText} ${text}`,
+        }),
+        { status: 502 }
+      );
+    }
+
+    // Bridge SSE -> client stream
+    const stream = new ReadableStream({
+      start(controller) {
+        const encoder = new TextEncoder();
+        const reader = orRes.body!.getReader();
+        let buffer = "";
+
+        function pushChunk(text: string) {
+          controller.enqueue(encoder.encode(text));
+        }
+
+        function parseAndForward(lines: string[]) {
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            if (!trimmed.startsWith("data:")) continue;
+
+            const data = trimmed.slice(5).trim();
+            if (data === "[DONE]") {
+              controller.close();
+              return;
+            }
+
+            try {
+              const json = JSON.parse(data);
+              const delta = json?.choices?.[0]?.delta?.content;
+              if (typeof delta === "string" && delta.length > 0) {
+                pushChunk(delta); // send raw text chunk to client
+              }
+            } catch {
+              // ignore non-JSON lines
+            }
+          }
+        }
+
+        function onStreamDone() {
+          try {
+            controller.close();
+          } catch {}
+        }
+
+        function feed({ done, value }: ReadableStreamReadResult<Uint8Array>): Promise<void> | void {
+          if (done) return onStreamDone();
+          buffer += new TextDecoder().decode(value, { stream: true });
+
+          const parts = buffer.split(/\r?\n/);
+          buffer = parts.pop() ?? "";
+          parseAndForward(parts);
+
+          return reader.read().then(feed).catch(onStreamDone);
+        }
+
+        reader.read().then(feed).catch(onStreamDone);
+      },
     });
 
-    const reply = completion?.choices?.[0]?.message?.content ?? "";
-    return new Response(JSON.stringify({ reply }), { status: 200 });
-  } catch (err: unknown) {
-    console.error("/api/chatgpt error", err);
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+        "Connection": "keep-alive",
+        "Content-Encoding": "identity",
+      },
+    });
+  } catch (err) {
+    console.error("/api/chatgpt stream error", err);
     return new Response(
-      JSON.stringify({ error: "Unexpected server error.",  }),
+      JSON.stringify({ error: "Unexpected server error." }),
       { status: 500 }
     );
   }
