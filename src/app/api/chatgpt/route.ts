@@ -35,9 +35,10 @@ export async function POST(req: NextRequest) {
           : {}),
       },
       body: JSON.stringify({
-        model :"deepseek/deepseek-chat-v3-0324:free",
+        model:  "deepseek/deepseek-chat-v3.1:free",
         messages,
         temperature: temperature ?? 0.7,
+        max_tokens: 4096,
         stream: true,
       }),
     });
