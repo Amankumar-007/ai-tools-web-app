@@ -12,7 +12,9 @@ import {
   ChevronLeft,
   Edit3,
   LucideIcon,
+  Upload,
 } from "lucide-react";
+import FileUploader from "@/components/FileUploader";
 
 // Types
 type SummaryType = "general" | "bullet" | "executive" | "academic";
@@ -168,10 +170,31 @@ const AISummariesTool: React.FC = () => {
   const [summaryType, setSummaryType] = useState<SummaryType>("general");
   const [copied, setCopied] = useState<FeatureId | "">("");
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [uploadedFiles, setUploadedFiles] = useState<Array<{name: string; type: 'pdf' | 'image'; text: string}>>([]);
+  const [showFileUploader, setShowFileUploader] = useState<boolean>(false);
+
+  const handleFileUpload = (text: string, fileType: 'pdf' | 'image', fileName: string) => {
+    setUploadedFiles(prev => [...prev, { name: fileName, type: fileType, text }]);
+    setInputText(prev => prev + (prev ? '\n\n' : '') + text);
+    setShowFileUploader(false);
+  };
+
+  const handleFileUploadError = (error: string) => {
+    alert(`File upload error: ${error}`);
+  };
+
+  const removeUploadedFile = (index: number) => {
+    const file = uploadedFiles[index];
+    setUploadedFiles(prev => prev.filter((_, i) => i !== index));
+    
+    // Remove the file's content from the input text
+    const fileTextRegex = new RegExp(`\\[.*${file.name}.*\\][\\s\\S]*?(?=\\[|$)`, 'g');
+    setInputText(prev => prev.replace(fileTextRegex, '').trim());
+  };
 
   const handleProcess = async (featureId: FeatureId): Promise<void> => {
-    if (!inputText.trim()) {
-      alert("Please enter some text to process");
+    if (!inputText.trim() && uploadedFiles.length === 0) {
+      alert("Please enter some text or upload a file to process");
       return;
     }
 
@@ -391,9 +414,57 @@ const AISummariesTool: React.FC = () => {
             <div className="max-w-4xl mx-auto px-6 py-8">
               {/* Input Section */}
               <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                  Enter Your Text
-                </h2>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    Enter Your Text
+                  </h2>
+                  <button
+                    onClick={() => setShowFileUploader(!showFileUploader)}
+                    className="flex items-center space-x-2 px-4 py-2 bg-orange-100 hover:bg-orange-200 text-orange-700 rounded-lg transition-colors"
+                    type="button"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Upload Files</span>
+                  </button>
+                </div>
+
+                {/* File Uploader */}
+                {showFileUploader && (
+                  <div className="mb-6">
+                    <FileUploader 
+                      onFileProcessed={handleFileUpload}
+                      onError={handleFileUploadError}
+                    />
+                  </div>
+                )}
+
+                {/* Uploaded Files List */}
+                {uploadedFiles.length > 0 && (
+                  <div className="mb-4">
+                    <h3 className="text-sm font-medium text-gray-900 mb-2">Uploaded Files</h3>
+                    <div className="space-y-2">
+                      {uploadedFiles.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center space-x-2">
+                            {file.type === 'pdf' ? (
+                              <FileText className="w-4 h-4 text-red-500" />
+                            ) : (
+                              <FileText className="w-4 h-4 text-blue-500" />
+                            )}
+                            <span className="text-sm text-gray-700">{file.name}</span>
+                          </div>
+                          <button
+                            onClick={() => removeUploadedFile(index)}
+                            className="p-1 hover:bg-gray-200 rounded-full transition-colors"
+                            aria-label="Remove file"
+                          >
+                            <X className="w-4 h-4 text-gray-500" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <textarea
                   value={inputText}
@@ -404,6 +475,7 @@ const AISummariesTool: React.FC = () => {
 
                 <div className="mt-3 text-sm text-gray-500">
                   {inputText.length} characters • {wordCount} words
+                  {uploadedFiles.length > 0 && ` • ${uploadedFiles.length} file(s) uploaded`}
                 </div>
               </div>
 
@@ -413,7 +485,7 @@ const AISummariesTool: React.FC = () => {
                   <button
                     key={feature.id}
                     onClick={() => handleProcess(feature.id)}
-                    disabled={!inputText.trim()}
+                    disabled={!inputText.trim() && uploadedFiles.length === 0}
                     className="group bg-white p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border-2 border-transparent hover:border-orange-200 disabled:opacity-50 disabled:cursor-not-allowed"
                     type="button"
                   >

@@ -528,42 +528,51 @@ parts.push(
 
       const language = match[1] || 'text';
       const code = match[2].trim();
-      const codeId = `code-${match.index}-${Date.now()}`;
+      // Stable id across re-renders for reliable copy feedback
+      const codeId = `code-${match.index}`;
       const highlightedCode = highlight(code);
       
       parts.push(
-        <div key={codeId} className="my-6 group relative">
-          <div className="relative rounded-xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700">
-            {/* Header with language and copy button */}
-            <div className="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-              <span className="text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+        <div key={codeId} className="my-6 group relative max-w-full">
+          <div className={`relative rounded-2xl overflow-hidden bg-gray-50 dark:bg-gray-900 border border-gray-200/80 dark:border-gray-700/80 shadow-xl code-card ${copiedCode === codeId ? 'ring-2 ring-green-400/60 dark:ring-green-500/50' : ''}`}>
+            {/* Header with language */}
+            <div className="flex items-center justify-between px-3 py-2 bg-gray-100/90 dark:bg-gray-800/90 border-b border-gray-200/80 dark:border-gray-700/80 backdrop-blur-sm code-card-inner">
+              <span className="text-[10px] sm:text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider px-2 py-1 rounded bg-white/70 dark:bg-gray-700/70">
                 {language}
               </span>
-              <button
-                onClick={() => copyToClipboard(code, codeId)}
-                className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600 rounded transition-all duration-200"
-              >
-                {copiedCode === codeId ? (
-                  <>
-                    <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    Copied
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                    Copy code
-                  </>
-                )}
-              </button>
             </div>
+
+            {/* Copy button overlay */}
+            <button
+              onClick={() => copyToClipboard(code, codeId)}
+              disabled={copiedCode === codeId}
+              aria-label={copiedCode === codeId ? 'Copied' : 'Copy code'}
+              className={`absolute top-2 right-2 z-10 flex items-center gap-1.5 px-2 py-1 text-[10px] sm:text-xs font-medium rounded-md transition-all duration-200 shadow-sm border
+                ${copiedCode === codeId
+                  ? 'text-green-700 dark:text-green-300 bg-green-50/90 dark:bg-green-900/30 border-green-300/80 dark:border-green-700/70'
+                  : 'text-gray-700 dark:text-gray-200 bg-white/90 dark:bg-gray-700/90 hover:bg-white dark:hover:bg-gray-700 border-gray-200 dark:border-gray-600'}
+              `}
+            >
+              {copiedCode === codeId ? (
+                <>
+                  <svg className="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  <span className="hidden sm:inline">Copied</span>
+                </>
+              ) : (
+                <>
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                  <span className="hidden sm:inline">Copy code</span>
+                </>
+              )}
+            </button>
             
             {/* Code content */}
-            <div className="overflow-x-auto">
-              <pre className="p-4 text-sm leading-relaxed text-gray-800 dark:text-gray-200">
+            <div className="overflow-x-auto max-w-full code-scroll">
+              <pre className="p-4 text-[13px] sm:text-sm leading-relaxed text-gray-800 dark:text-gray-200 min-w-0">
                 <code 
                   className="font-mono"
                   dangerouslySetInnerHTML={{ __html: highlightedCode }}
@@ -734,6 +743,40 @@ parts.push(
         * {
           scrollbar-width: none;
           -ms-overflow-style: none;
+        }
+
+        /* 3D code card shadows */
+        .code-card {
+          transition: box-shadow 200ms ease, transform 200ms ease;
+          box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.05),
+            0 3px 6px rgba(0, 0, 0, 0.08),
+            0 10px 20px rgba(0, 0, 0, 0.06);
+        }
+        .code-card:hover {
+          transform: none;
+          box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.05),
+            0 3px 6px rgba(0, 0, 0, 0.08),
+            0 10px 20px rgba(0, 0, 0, 0.06);
+        }
+        .dark .code-card {
+          box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.35),
+            0 6px 10px rgba(0, 0, 0, 0.35),
+            0 18px 32px rgba(0, 0, 0, 0.45);
+        }
+        .dark .code-card:hover {
+          box-shadow:
+            0 1px 2px rgba(0, 0, 0, 0.35),
+            0 6px 10px rgba(0, 0, 0, 0.35),
+            0 18px 32px rgba(0, 0, 0, 0.45);
+        }
+        .code-card-inner {
+          background-image: radial-gradient(ellipse at top, rgba(255,255,255,0.6), rgba(255,255,255,0) 60%);
+        }
+        .dark .code-card-inner {
+          background-image: radial-gradient(ellipse at top, rgba(255,255,255,0.06), rgba(255,255,255,0) 60%);
         }
       `}</style>
 

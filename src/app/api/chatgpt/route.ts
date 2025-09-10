@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, model, temperature } = await req.json();
+    const { messages, temperature } = await req.json();
 
     if (!process.env.OPENROUTER_API_KEY) {
       return new Response(
@@ -35,10 +35,9 @@ export async function POST(req: NextRequest) {
           : {}),
       },
       body: JSON.stringify({
-        model: model ?? "deepseek/deepseek-chat-v3.1:free",
+        model :"deepseek/deepseek-chat-v3-0324:free",
         messages,
         temperature: temperature ?? 0.7,
-        max_tokens: 4096,
         stream: true,
       }),
     });

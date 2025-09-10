@@ -1,6 +1,127 @@
 // src/lib/pdf-utils.ts
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
+/**
+ * Extract text content from a PDF file
+ * Note: This is a simplified implementation. For production use, consider using a dedicated PDF text extraction library
+ * @param pdfFile - The PDF file as a File object or ArrayBuffer
+ * @returns Promise<string> - The extracted text content
+ */
+export const extractTextFromPDF = async (pdfFile: File | ArrayBuffer): Promise<string> => {
+  let arrayBuffer: ArrayBuffer = new ArrayBuffer(0);
+  
+  try {
+    if (pdfFile instanceof File) {
+      arrayBuffer = await pdfFile.arrayBuffer();
+    } else {
+      arrayBuffer = pdfFile;
+    }
+    
+    // Load the PDF document
+    const pdfDoc = await PDFDocument.load(arrayBuffer);
+    
+    // Get basic info about the PDF
+    const pageCount = pdfDoc.getPageCount();
+    const title = pdfDoc.getTitle() || (pdfFile instanceof File ? pdfFile.name : 'Unknown');
+    const author = pdfDoc.getAuthor() || 'Unknown';
+    const subject = pdfDoc.getSubject() || '';
+    const keywords = pdfDoc.getKeywords() || '';
+    
+    // Create a more informative content description
+    let content = `PDF Document: ${title}\n`;
+    content += `Author: ${author}\n`;
+    content += `Pages: ${pageCount}\n`;
+    content += `File size: ${(pdfFile instanceof File ? pdfFile.size : arrayBuffer.byteLength / 1024).toFixed(2)} KB\n`;
+    
+    if (subject) {
+      content += `Subject: ${subject}\n`;
+    }
+    
+    if (keywords) {
+      content += `Keywords: ${keywords}\n`;
+    }
+    
+    content += `\n--- Document Content ---\n`;
+    content += `This PDF contains ${pageCount} page${pageCount > 1 ? 's' : ''} of content. `;
+    content += `To extract the actual text content from this PDF, you would need to implement a proper PDF text extraction library like pdfjs-dist.\n\n`;
+    content += `For now, here's what we know about this document:\n`;
+    content += `- Document title: ${title}\n`;
+    content += `- Total pages: ${pageCount}\n`;
+    content += `- File size: ${(pdfFile instanceof File ? pdfFile.size : arrayBuffer.byteLength / 1024).toFixed(2)} KB\n`;
+    
+    if (subject) {
+      content += `- Subject: ${subject}\n`;
+    }
+    
+    if (keywords) {
+      content += `- Keywords: ${keywords}\n`;
+    }
+    
+    content += `\n[Note: This is enhanced placeholder content. For actual text extraction, please implement PDF text extraction using pdfjs-dist or a server-side API.]`;
+    
+    return content;
+  } catch (error) {
+    console.error('Error extracting text from PDF:', error);
+    
+    // Fallback to basic file info if PDF parsing fails
+    const fallbackSize = pdfFile instanceof File ? pdfFile.size : (arrayBuffer ? arrayBuffer.byteLength : 0);
+    return `PDF Document: ${pdfFile instanceof File ? pdfFile.name : 'Unknown'}\n` +
+           `File size: ${(fallbackSize / 1024).toFixed(2)} KB\n` +
+           `\n[Note: Could not parse PDF metadata. This appears to be a PDF file that contains content. For actual text extraction, please implement PDF text extraction using pdfjs-dist or a server-side API.]`;
+  }
+};
+
+/**
+ * Extract text from PDF using a more robust approach with pdfjs-dist
+ * This requires installing pdfjs-dist: npm install pdfjs-dist
+ * @param pdfFile - The PDF file as a File object or ArrayBuffer
+ * @returns Promise<string> - The extracted text content
+ */
+export const extractTextFromPDFWithPDFJS = async (pdfFile: File | ArrayBuffer): Promise<string> => {
+  try {
+    // This is a placeholder for pdfjs-dist implementation
+    // In a real implementation, you would:
+    // 1. Import pdfjs-dist
+    // 2. Configure the worker
+    // 3. Load the PDF document
+    // 4. Extract text from each page
+    
+    throw new Error('PDF text extraction requires pdfjs-dist library. Please install it with: npm install pdfjs-dist');
+  } catch (error) {
+    console.error('Error extracting text from PDF with PDFJS:', error);
+    throw error;
+  }
+};
+
+/**
+ * Alternative: Extract text from PDF by sending it to a server-side API
+ * This is useful when client-side PDF processing is limited
+ * @param pdfFile - The PDF file as a File object
+ * @param apiEndpoint - The API endpoint for PDF text extraction
+ * @returns Promise<string> - The extracted text content
+ */
+export const extractTextFromPDFAPI = async (pdfFile: File, apiEndpoint: string = '/api/extract-pdf-text'): Promise<string> => {
+  try {
+    const formData = new FormData();
+    formData.append('pdf', pdfFile);
+    
+    const response = await fetch(apiEndpoint, {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`API request failed: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    return data.text || '';
+  } catch (error) {
+    console.error('Error extracting text from PDF via API:', error);
+    throw new Error('Failed to extract text from PDF via API');
+  }
+};
+
 export interface ResumeData {
   personalInfo: {
     fullName: string;
