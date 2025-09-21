@@ -1,6 +1,6 @@
-# Image Generator Setup Instructions
+# AI Tools Setup Instructions
 
-To get the image generator working, you need to set up your Google Gemini API key:
+To get the AI tools working, you need to set up your Google Gemini API key:
 
 1. Get your Gemini API key from https://makersuite.google.com/app/apikey
 2. Create a file named ".env.local" in the root of your project
@@ -13,3 +13,8 @@ NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
 Note: The .env.local file should already be in your .gitignore, so your API key won't be committed to version control.
 
 If you don't have a Gemini API key, you can sign up at https://makersuite.google.com/ and get free API access to start.
+
+This API key is used for:
+- Image Generator
+- Prompt Generator
+- Other AI features in the application

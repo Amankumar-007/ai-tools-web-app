@@ -20,10 +20,10 @@ const features: Feature[] = [
     link: "/summarization",
   },
   {
-    title: "Search Thumbnail",
+    title: "n8n templates",
     bgColor: "bg-gradient-to-r from-cyan-400 via-sky-500 to-blue-600",
     imageSrc: "/feature2.png",
-    link: "/search-thumbnail",
+    link: "/n8n-templates",
   },
   {
     title: "Content Generator",
@@ -47,7 +47,7 @@ const features: Feature[] = [
     title: "Optimize prompt",
     bgColor: "bg-gradient-to-r from-red-600 via-pink-600 to-purple-700",
     imageSrc: "/feature6.png",
-    link: "/optimize-with-ai",
+    link: "/prompt-generator",
   },
 ];
 
