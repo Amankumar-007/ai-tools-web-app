@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import FlipLink from "@/components/ui/text-effect-flipper";
+import { motion } from "framer-motion";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 import WrapButton from "@/components/ui/wrap-button";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Globe, SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import AIToolsGrid from '../components/AIToolsGrid';
@@ -38,6 +39,63 @@ interface IconProps {
 }
 
 // Define Icons object with typed components
+// Responsive text component that uses FlipLink on desktop and professional text on mobile
+const ResponsiveText: React.FC<{ children: string; href?: string; className?: string }> = ({ 
+  children, 
+  href = "", 
+  className = "" 
+}) => {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  if (isMobile) {
+    return (
+      <motion.a
+        href={href}
+        target="_blank"
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className={`
+          relative
+          inline-block
+          text-4xl
+          font-bold
+          uppercase
+          tracking-tight
+          px-2
+          py-1
+          transition-all duration-300 ease-out
+          group
+          hover:text-blue-600
+          dark:hover:text-blue-400
+          ${className}
+        `}
+        style={{
+          lineHeight: 1.1,
+          WebkitTapHighlightColor: 'transparent',
+          textShadow: '0 1px 2px rgba(0,0,0,0.1)',
+        }}
+      >
+        <span className="relative z-10">{children}</span>
+        <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transform scale-x-0 transition-transform duration-300 group-hover:scale-x-100"></span>
+      </motion.a>
+    );
+  }
+
+  return <FlipLink href={href} className={className}>{children}</FlipLink>;
+};
+
 const Icons: {
   be: React.FC<IconProps>;
   linkedin: React.FC<IconProps>;
@@ -616,9 +674,9 @@ const [isScrolled, setIsScrolled] = useState(false);
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.8 }}
         >
-          <FlipLink href="">The fresh </FlipLink>
-          <FlipLink href="">way to</FlipLink>
-          <FlipLink href="">work with AI</FlipLink>
+          <ResponsiveText href="">The fresh </ResponsiveText>
+          <ResponsiveText href="">way to</ResponsiveText>
+          <ResponsiveText href="">work with AI</ResponsiveText>
         </motion.h1>
         <motion.div
           initial={{ opacity: 0, y: 50 }}
@@ -662,7 +720,7 @@ const [isScrolled, setIsScrolled] = useState(false);
           <path d="M48.101 37.7616C46.7404 38.8232 45.8267 40.2814 44.9163 41.7109C44.0407 43.0866 43.1365 44.4592 41.738 45.3434C42.1247 45.5019 42.5146 45.6321 42.9014 45.7908C42.1324 41.8051 41.04 37.8699 39.6781 34.0203C39.545 33.6589 39.0695 33.5191 38.7365 33.6553C38.3719 33.817 38.2385 34.2353 38.3716 34.5969C39.7209 38.3007 40.7404 42.1121 41.4904 46.009C41.6012 46.5703 42.1877 46.7512 42.6539 46.4565C45.5462 44.6124 46.3877 40.9506 49.0169 38.8748C49.7178 38.2884 48.8304 37.1784 48.101 37.7616ZM25.9671 13.1014C25.7028 16.2497 26.0758 19.3824 26.5091 22.4929C26.9645 25.6636 27.4166 28.863 27.872 32.0337C28.1346 33.8253 28.3971 35.6167 28.631 37.4051C28.7607 38.3151 30.1717 38.0968 30.042 37.1868C29.5866 34.016 29.1281 30.8738 28.7012 27.7062C28.2647 24.6242 27.7396 21.5612 27.449 18.4666C27.2943 16.7449 27.2283 15.0042 27.3653 13.2572C27.4671 12.3442 26.0404 12.1851 25.9671 13.1014Z" />
           <path d="M30.5625 27.3357C29.9525 30.7343 29.3425 34.133 28.704 37.5284C29.1225 37.4018 29.5411 37.2751 29.9882 37.1516C28.6034 35.0617 27.2504 32.9465 25.8655 30.8565C25.6406 30.5425 25.1523 30.517 24.8669 30.7451C24.5497 30.9987 24.5305 31.4299 24.7555 31.7439C26.1403 33.8338 27.4933 35.9491 28.8781 38.039C29.2489 38.6003 30.0417 38.2265 30.1624 37.6621C30.7724 34.2635 31.3824 30.8648 32.0209 27.4694C32.0908 27.1016 31.758 26.7178 31.3871 26.6765C30.9559 26.6573 30.6324 26.9679 30.5625 27.3357Z" />
         </svg>
-        <VideoSection />
+       
        
         <motion.div
           id="categories"
