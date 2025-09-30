@@ -1041,10 +1041,7 @@ parts.push(
                     </div>
                   ) : (
                     <div className="space-y-3">
-                    <div className="flex items-center gap-3">
-                      <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-full shadow-sm" />
-                      <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">TomatoAI</span>
-                    </div>
+                    
                     <div className="ml-11">
                       {formatMessage(m.content)}
                     </div>
