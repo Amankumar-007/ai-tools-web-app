@@ -1124,40 +1124,64 @@ parts.push(
       </main>
 
       {/* Mobile Input Bar - Enhanced */}
-      <div className={`fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 border-t border-gray-200/80 dark:border-gray-700/80 p-3 md:hidden z-10 backdrop-blur-lg transition-transform duration-200 ${inputFocused ? 'transform translate-y-0' : ''}`}>
-        <form onSubmit={sendMessage} className="flex items-center gap-2">
-          <div className="relative flex-1">
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 border-t border-gray-200/80 dark:border-gray-700/80 p-2 md:hidden z-10 backdrop-blur-lg">
+        <form onSubmit={sendMessage} className="flex items-stretch gap-1 w-full">
+          <div className="relative flex-1 min-w-0">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Message TomatoAI..."
-              className="w-full bg-gray-100/90 dark:bg-gray-700/90 rounded-full px-5 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all duration-200 shadow-sm"
+              className="w-full bg-gray-100/90 dark:bg-gray-700/90 rounded-full px-4 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all duration-200 shadow-sm"
               onFocus={() => setInputFocused(true)}
               onBlur={() => setInputFocused(false)}
               disabled={loading}
+              style={{
+                WebkitAppearance: 'none',
+                WebkitBorderRadius: '9999px',
+              }}
             />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-              onClick={() => setInput('')}
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
+            {input && (
+              <button
+                type="button"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+                onClick={() => setInput('')}
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
           </div>
           <button
             type="submit"
             disabled={!input.trim() || loading}
-            className={`p-3 rounded-full ${input.trim() ? 'bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg' : 'bg-gray-300 dark:bg-gray-600'} text-white transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
+            className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full ${
+              input.trim() 
+                ? 'bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg' 
+                : 'bg-gray-300 dark:bg-gray-600'
+            } text-white transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
+            style={{
+              flex: '0 0 40px',
+              width: '40px',
+              minWidth: '40px',
+              height: '40px',
+            }}
           >
             {loading ? (
-              <div className="flex items-center justify-center w-5 h-5">
-                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-              </div>
+              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
             ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="2" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
                 <line x1="22" y1="2" x2="11" y2="13"></line>
                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
               </svg>
