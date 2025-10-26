@@ -2,7 +2,21 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
+// Add CORS headers
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+};
+
 export async function GET(request: NextRequest) {
+  // Handle OPTIONS request for CORS preflight
+  if (request.method === 'OPTIONS') {
+    return new Response(null, {
+      status: 200,
+      headers: corsHeaders,
+    });
+  }
   try {
     const templatesDir = path.join(process.cwd(), 'src', 'data', 'n8n-ai-automations');
     
@@ -35,10 +49,22 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    return NextResponse.json({ templates });
+    return new NextResponse(JSON.stringify({ templates }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      },
+    });
   } catch (error) {
     console.error('Error reading templates directory:', error);
-    return NextResponse.json({ error: 'Failed to load templates' }, { status: 500 });
+    return new NextResponse(JSON.stringify({ error: 'Failed to load templates' }), {
+      status: 500,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders
+      },
+    });
   }
 }
 
