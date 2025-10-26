@@ -1124,6 +1124,11 @@ parts.push(
       </main>
 
       {/* Mobile Input Bar - Enhanced */}
+      {/* Add viewport meta tag */}
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      </head>
+      
       <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 border-t border-gray-200/80 dark:border-gray-700/80 p-2 md:hidden z-10 backdrop-blur-lg">
         <form onSubmit={sendMessage} className="flex items-stretch gap-1 w-full">
           <div className="relative flex-1 min-w-0">
@@ -1132,13 +1137,17 @@ parts.push(
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Message TomatoAI..."
-              className="w-full bg-gray-100/90 dark:bg-gray-700/90 rounded-full px-4 py-2.5 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all duration-200 shadow-sm"
+              className="w-full bg-gray-100/90 dark:bg-gray-700/90 rounded-full px-4 py-2.5 pr-10 text-base focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all duration-200 shadow-sm"
               onFocus={() => setInputFocused(true)}
               onBlur={() => setInputFocused(false)}
               disabled={loading}
               style={{
                 WebkitAppearance: 'none',
                 WebkitBorderRadius: '9999px',
+                fontSize: '16px', // Prevent iOS zoom
+                lineHeight: '1.5', // Ensure proper line height
+                transform: 'scale(1)', // Prevent zoom on focus
+                transformOrigin: 'left center', // Keep text aligned properly
               }}
             />
             {input && (
