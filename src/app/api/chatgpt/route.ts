@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
           : {}),
       },
       body: JSON.stringify({
-        model:  "deepseek/deepseek-chat-v3.1:free",
+        model:  "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
         messages,
         temperature: temperature ?? 0.7,
         max_tokens: 4096,
