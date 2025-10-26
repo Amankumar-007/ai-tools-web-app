@@ -52,7 +52,7 @@ function LoginPopup({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
     >
       <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-8 w-full max-w-md shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-3">
             Welcome to TomatoAI
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
@@ -896,7 +896,7 @@ parts.push(
             onClick={() => setSidebarOpen(false)}
           />
           <div className="absolute left-0 top-0 bottom-0 w-80 bg-white/20 dark:bg-gray-800/20 backdrop-blur-lg border-r border-gray-200/30 dark:border-gray-600/30 shadow-2xl transform transition-all duration-300 ease-out">
-            <div className="flex flex-col h-full">
+            <div className="flex-1 flex flex-col h-full overflow-hidden pb-16 md:pb-0">
               <div className="p-6 border-b border-gray-100/30 dark:border-gray-700/30 bg-white/10 dark:bg-gray-700/10 backdrop-blur-sm">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
@@ -908,7 +908,7 @@ parts.push(
                       <Image src="/logo.png" alt="TomatoAI" width={40} height={40} className="rounded-xl shadow-lg" />
                     </motion.div>
                     <div>
-                      <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100 font-['Inter','system-ui','-apple-system','sans-serif']">TomatoAI</h1>
+                      <h1 className="text-3xl font-extrabold">TomatoAI</h1>
                       <p className="text-xs text-gray-500 dark:text-gray-400 font-['Inter','system-ui','-apple-system','sans-serif']">Professional AI Assistant</p>
                     </div>
                   </div>
@@ -933,7 +933,7 @@ parts.push(
                   </div>
                 </button>
               </div>
-              <div className="flex-1 overflow-y-auto p-4">
+              <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20 md:pb-4" ref={listRef}>
                 {convos.length === 0 ? (
                   <div className="text-center text-gray-500 dark:text-gray-400 py-12 fade-in">
                     <div className="w-16 h-16 bg-gray-100/30 dark:bg-gray-700/30 rounded-2xl mx-auto mb-6 flex items-center justify-center bounce-in backdrop-blur-sm">
@@ -1013,8 +1013,8 @@ parts.push(
       )}
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative pt-16">
-        <div ref={listRef} className="flex-1 overflow-y-auto">
+      <main className="flex-1 flex flex-col relative pt-16 overflow-hidden">
+        <div ref={listRef} className="flex-1 overflow-y-auto w-full">
           {(!hasStartedChat || (!active && !loading)) ? (
             <div className="flex flex-col items-center justify-center h-full px-4 relative">
               <div className="max-w-2xl w-full text-center mb-12">
@@ -1056,7 +1056,7 @@ parts.push(
               </div>
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+            <div className="w-full max-w-4xl mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8">
               {active?.messages.map((m) => (
                 <div 
                   key={m.id} 
@@ -1064,19 +1064,20 @@ parts.push(
                 >
                   {m.role === "user" ? (
                     <div className="flex justify-end">
-                      <div className="bg-gray-900/90 dark:bg-gray-600/90 text-white px-6 py-4 rounded-2xl max-w-[85%] shadow-lg transform hover:scale-102 transition-transform duration-300 backdrop-blur-sm">
-                        <div className="text-sm leading-relaxed whitespace-pre-wrap font-['Inter','system-ui','-apple-system','sans-serif'] font-normal">
+                      <div className="bg-gray-900/90 dark:bg-gray-600/90 text-white px-4 md:px-6 py-3 md:py-4 rounded-2xl max-w-[90%] md:max-w-[85%] shadow-lg transform hover:scale-102 transition-transform duration-300 backdrop-blur-sm">
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap break-words font-['Inter','system-ui','-apple-system','sans-serif'] font-normal">
                           {m.content}
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                    
-                    <div className="ml-11">
-                      {formatMessage(m.content)}
+                    <div className="space-y-3 w-full">
+                      <div className="ml-0 md:ml-11 overflow-x-auto">
+                        <div className="max-w-full">
+                          {formatMessage(m.content)}
+                        </div>
+                      </div>
                     </div>
-                  </div>
                   )}
                 </div>
               ))}
@@ -1102,7 +1103,7 @@ parts.push(
         </div>
 
         {hasStartedChat && (
-          <div className="border-gray-200/50 dark:border-gray-700/50 bg-white/20 dark:bg-gray-900/20 backdrop-blur-md">
+          <div className="hidden md:block border-t border-gray-200/50 dark:border-gray-700/50 bg-white/20 dark:bg-gray-900/20 backdrop-blur-md">
             <div className="max-w-4xl mx-auto">
               <div className="relative">
                 <AiInput
@@ -1121,6 +1122,49 @@ parts.push(
           </div>
         )}
       </main>
+
+      {/* Mobile Input Bar - Enhanced */}
+      <div className={`fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 border-t border-gray-200/80 dark:border-gray-700/80 p-3 md:hidden z-10 backdrop-blur-lg transition-transform duration-200 ${inputFocused ? 'transform translate-y-0' : ''}`}>
+        <form onSubmit={sendMessage} className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Message TomatoAI..."
+              className="w-full bg-gray-100/90 dark:bg-gray-700/90 rounded-full px-5 py-3 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all duration-200 shadow-sm"
+              onFocus={() => setInputFocused(true)}
+              onBlur={() => setInputFocused(false)}
+              disabled={loading}
+            />
+            <button
+              type="button"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
+              onClick={() => setInput('')}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <button
+            type="submit"
+            disabled={!input.trim() || loading}
+            className={`p-3 rounded-full ${input.trim() ? 'bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg' : 'bg-gray-300 dark:bg-gray-600'} text-white transition-all duration-200 transform hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {loading ? (
+              <div className="flex items-center justify-center w-5 h-5">
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+              </div>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+              </svg>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
