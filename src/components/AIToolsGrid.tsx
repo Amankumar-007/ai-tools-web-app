@@ -41,7 +41,7 @@ const features: Feature[] = [
     title: "Resume Builder",
     bgColor: "bg-gradient-to-r from-blue-500 via-indigo-600 to-purple-700",
     imageSrc: "/feature5.png",
-    link: "/resume-generator",
+    link: "https://resume-by-tomatotool.vercel.app/",
   },
   {
     title: "Optimize prompt",
@@ -60,7 +60,11 @@ const FeatureCard = ({
 }: Feature & { index: number }) => {
   const handleButtonClick = (e: MouseEvent<HTMLButtonElement>, link: string) => {
     e.preventDefault();
-    window.location.href = link;
+    if (link.startsWith('http')) {
+      window.open(link, '_blank');
+    } else {
+      window.location.href = link;
+    }
   };
 
   return (

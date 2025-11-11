@@ -1123,79 +1123,83 @@ parts.push(
         )}
       </main>
 
-      {/* Mobile Input Bar - Enhanced */}
-      {/* Add viewport meta tag */}
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-      </head>
-      
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 border-t border-gray-200/80 dark:border-gray-700/80 p-2 md:hidden z-10 backdrop-blur-lg">
-        <form onSubmit={sendMessage} className="flex items-stretch gap-1 w-full">
-          <div className="relative flex-1 min-w-0">
-            <input
-              type="text"
+      {/* Enhanced Mobile Input Bar with Integrated Send Button */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 border-t border-gray-200/80 dark:border-gray-700/80 p-3 md:hidden z-10 backdrop-blur-lg">
+        <form onSubmit={sendMessage} className="relative w-full">
+          <div className="relative flex items-end bg-gray-100/90 dark:bg-gray-700/90 rounded-2xl shadow-sm transition-all duration-300 focus-within:ring-2 focus-within:ring-green-500/50">
+            <textarea
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(e) => {
+                setInput(e.target.value);
+                // Auto-resize the textarea
+                e.target.style.height = 'auto';
+                e.target.style.height = `${Math.min(e.target.scrollHeight, 150)}px`;
+              }}
               placeholder="Message TomatoAI..."
-              className="w-full bg-gray-100/90 dark:bg-gray-700/90 rounded-full px-4 py-2.5 pr-10 text-base focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all duration-200 shadow-sm"
+              className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none resize-none py-3 pl-4 pr-12 text-base text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
               onFocus={() => setInputFocused(true)}
               onBlur={() => setInputFocused(false)}
               disabled={loading}
+              rows={1}
               style={{
+                minHeight: '24px',
+                maxHeight: '150px',
+                lineHeight: '1.5',
+                fontSize: '16px',
                 WebkitAppearance: 'none',
-                WebkitBorderRadius: '9999px',
-                fontSize: '16px', // Prevent iOS zoom
-                lineHeight: '1.5', // Ensure proper line height
-                transform: 'scale(1)', // Prevent zoom on focus
-                transformOrigin: 'left center', // Keep text aligned properly
+                paddingRight: '60px',
               }}
             />
-            {input && (
+            
+            {/* Send Button - Integrated Inside Input */}
+            <div className="absolute right-2 bottom-1.5 flex items-center space-x-1">
+              {input && (
+                <button
+                  type="button"
+                  className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-600/50"
+                  onClick={() => {
+                    setInput('');
+                    const textarea = document.querySelector('textarea');
+                    if (textarea) textarea.style.height = 'auto';
+                  }}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+              
               <button
-                type="button"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors"
-                onClick={() => setInput('')}
+                type="submit"
+                disabled={!input.trim() || loading}
+                className={`p-2 rounded-full transition-all duration-200 ${
+                  input.trim() 
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105' 
+                    : 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                }`}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
+                {loading ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    width="20" 
+                    height="20" 
+                    viewBox="0 0 24 24" 
+                    fill="none" 
+                    stroke="currentColor" 
+                    strokeWidth="2" 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round"
+                    className="transform rotate-0 transition-transform duration-200 group-hover:rotate-12"
+                  >
+                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+                )}
               </button>
-            )}
+            </div>
           </div>
-          <button
-            type="submit"
-            disabled={!input.trim() || loading}
-            className={`flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-full ${
-              input.trim() 
-                ? 'bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg' 
-                : 'bg-gray-300 dark:bg-gray-600'
-            } text-white transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed`}
-            style={{
-              flex: '0 0 40px',
-              width: '40px',
-              minWidth: '40px',
-              height: '40px',
-            }}
-          >
-            {loading ? (
-              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-            ) : (
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="18" 
-                height="18" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <line x1="22" y1="2" x2="11" y2="13"></line>
-                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-              </svg>
-            )}
-          </button>
         </form>
       </div>
     </div>

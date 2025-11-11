@@ -23,6 +23,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/api/stripe/webhook.js", "src/app/api/checkout/create-session.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "src/app/api/stripe/webhook.js", "src/app/api/checkout/create-session.js", "src/app/(routes)/ai-tools/page.jsx"],
   "exclude": ["node_modules"]
 }

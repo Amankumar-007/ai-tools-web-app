@@ -1,0 +1,1828 @@
+[
+  {
+    "name": "ChatGPT",
+    "category": "AI Chat",
+    "website": "https://chat.openai.com",
+    "pricing": "Freemium",
+    "description": "Advanced AI chatbot for conversations, writing, coding, and problem-solving with GPT-4 technology.",
+    "features": ["Chat", "Code", "Write Content", "Problem Solving", "Learning Assistance"]
+  },
+  {
+    "name": "Claude",
+    "category": "AI Chat",
+    "website": "https://claude.ai",
+    "pricing": "Freemium",
+    "description": "Anthropic's AI assistant excelling in coding, analysis, and collaborative problem-solving.",
+    "features": ["Coding", "Analysis", "Writing", "Research", "File Processing"]
+  },
+  {
+    "name": "Gemini",
+    "category": "AI Chat",
+    "website": "https://gemini.google.com",
+    "pricing": "Freemium",
+    "description": "Google's advanced AI with large context window and multimodal capabilities.",
+    "features": ["Large Context", "Multimodal", "Audio Overview", "Document Analysis", "Search Integration"]
+  },
+  {
+    "name": "Perplexity",
+    "category": "AI Search",
+    "website": "https://perplexity.ai",
+    "pricing": "Freemium",
+    "description": "AI-powered search engine providing accurate answers with cited sources.",
+    "features": ["Web Search", "Citations", "Research", "Real-time Information", "Pro Search"]
+  },
+  {
+    "name": "Midjourney",
+    "category": "Image Generation",
+    "website": "https://midjourney.com",
+    "pricing": "Paid",
+    "description": "Leading AI image generator known for artistic and creative visual content.",
+    "features": ["Text to Image", "Artistic Style", "High Quality", "Creative Design", "Professional Output"]
+  },
+  {
+    "name": "DALL-E 3",
+    "category": "Image Generation",
+    "website": "https://openai.com/dall-e-3",
+    "pricing": "Freemium",
+    "description": "OpenAI's image generator integrated with ChatGPT for creating detailed visuals.",
+    "features": ["Text to Image", "ChatGPT Integration", "Detailed Prompts", "Style Variety", "Text in Images"]
+  },
+  {
+    "name": "Stable Diffusion",
+    "category": "Image Generation",
+    "website": "https://stability.ai",
+    "pricing": "Free",
+    "description": "Open-source AI image generator for creating photorealistic images from text.",
+    "features": ["Open Source", "Photorealistic", "Customizable", "Local Running", "Community Models"]
+  },
+  {
+    "name": "Synthesia",
+    "category": "Video Generation",
+    "website": "https://synthesia.io",
+    "pricing": "Freemium",
+    "description": "AI video platform creating professional videos with AI avatars in multiple languages.",
+    "features": ["AI Avatars", "Multi-language", "Professional Videos", "Training Content", "No Equipment Needed"]
+  },
+  {
+    "name": "Runway ML",
+    "category": "Video Generation",
+    "website": "https://runwayml.com",
+    "pricing": "Freemium",
+    "description": "AI-powered video editing and generation platform for creative professionals.",
+    "features": ["Video Generation", "AI Editing", "Creative Tools", "Real-time Processing", "Professional Grade"]
+  },
+  {
+    "name": "Luma Dream Machine",
+    "category": "Video Generation",
+    "website": "https://lumalabs.ai",
+    "pricing": "Freemium",
+    "description": "AI video generator creating high-quality videos from text prompts and images.",
+    "features": ["Text to Video", "Image to Video", "High Quality", "Realistic Motion", "Creative Control"]
+  },
+  {
+    "name": "Jasper AI",
+    "category": "Content Writing",
+    "website": "https://jasper.ai",
+    "pricing": "Paid",
+    "description": "AI marketing platform for creating brand-consistent content at scale.",
+    "features": ["Brand Voice", "Marketing Content", "Team Collaboration", "Templates", "SEO Optimization"]
+  },
+  {
+    "name": "Copy.ai",
+    "category": "Content Writing",
+    "website": "https://copy.ai",
+    "pricing": "Freemium",
+    "description": "AI copywriting tool for marketing content, emails, and social media posts.",
+    "features": ["Marketing Copy", "Email Writing", "Social Media", "Templates", "Brand Voice"]
+  },
+  {
+    "name": "Grammarly",
+    "category": "Writing Assistant",
+    "website": "https://grammarly.com",
+    "pricing": "Freemium",
+    "description": "AI writing assistant for grammar, style, and tone improvement.",
+    "features": ["Grammar Check", "Style Suggestions", "Tone Detection", "Plagiarism Check", "Writing Analytics"]
+  },
+  {
+    "name": "Notion AI",
+    "category": "Productivity",
+    "website": "https://notion.so",
+    "pricing": "Freemium",
+    "description": "AI-powered workspace for notes, documents, and project management.",
+    "features": ["Note Taking", "Document Creation", "Project Management", "Team Collaboration", "Knowledge Base"]
+  },
+  {
+    "name": "GitHub Copilot",
+    "category": "Coding",
+    "website": "https://github.com/features/copilot",
+    "pricing": "Paid",
+    "description": "AI pair programmer helping developers write code faster and more efficiently.",
+    "features": ["Code Completion", "Multiple Languages", "Context Aware", "IDE Integration", "Learning from Context"]
+  },
+  {
+    "name": "Cursor",
+    "category": "Coding",
+    "website": "https://cursor.sh",
+    "pricing": "Freemium",
+    "description": "AI-powered code editor with intelligent completion and debugging features.",
+    "features": ["AI Code Editor", "Intelligent Completion", "Debugging", "Multiple Languages", "VS Code Fork"]
+  },
+  {
+    "name": "Replit",
+    "category": "Coding",
+    "website": "https://replit.com",
+    "pricing": "Freemium",
+    "description": "Online IDE with AI assistance for coding, collaboration, and deployment.",
+    "features": ["Online IDE", "AI Assistance", "Collaboration", "Instant Deployment", "Multiple Languages"]
+  },
+  {
+    "name": "ElevenLabs",
+    "category": "Voice Generation",
+    "website": "https://elevenlabs.io",
+    "pricing": "Freemium",
+    "description": "AI voice generation platform creating realistic speech in multiple languages.",
+    "features": ["Voice Cloning", "Text to Speech", "Multiple Languages", "Realistic Audio", "Custom Voices"]
+  },
+  {
+    "name": "Murf AI",
+    "category": "Voice Generation",
+    "website": "https://murf.ai",
+    "pricing": "Freemium",
+    "description": "AI voiceover platform for creating professional audio content.",
+    "features": ["Professional Voices", "Voiceover Creation", "Multiple Languages", "Customizable", "Commercial Use"]
+  },
+  {
+    "name": "Suno AI",
+    "category": "Music Generation",
+    "website": "https://suno.ai",
+    "pricing": "Freemium",
+    "description": "AI music generator creating songs from text prompts with vocals and instruments.",
+    "features": ["Music Generation", "Vocal Creation", "Multiple Genres", "Custom Lyrics", "Full Songs"]
+  },
+  {
+    "name": "Udio",
+    "category": "Music Generation",
+    "website": "https://udio.com",
+    "pricing": "Freemium",
+    "description": "AI music creation platform for generating high-quality musical compositions.",
+    "features": ["Music Composition", "High Quality Audio", "Genre Variety", "Professional Output", "Creative Control"]
+  },
+  {
+    "name": "Canva AI",
+    "category": "Design",
+    "website": "https://canva.com",
+    "pricing": "Freemium",
+    "description": "Design platform with AI-powered features for creating visual content.",
+    "features": ["Magic Design", "AI Image Generation", "Template Creation", "Brand Kit", "Social Media Graphics"]
+  },
+  {
+    "name": "Figma AI",
+    "category": "Design",
+    "website": "https://figma.com",
+    "pricing": "Freemium",
+    "description": "Collaborative design tool with AI features for UI/UX design and prototyping.",
+    "features": ["UI Design", "Collaboration", "Prototyping", "Design Systems", "AI Assistance"]
+  },
+  {
+    "name": "Adobe Firefly",
+    "category": "Design",
+    "website": "https://firefly.adobe.com",
+    "pricing": "Freemium",
+    "description": "Adobe's AI creative suite for generating images, text effects, and design elements.",
+    "features": ["Image Generation", "Text Effects", "Creative Tools", "Adobe Integration", "Commercial Safe"]
+  },
+  {
+    "name": "Zapier",
+    "category": "Automation",
+    "website": "https://zapier.com",
+    "pricing": "Freemium",
+    "description": "Automation platform connecting apps and workflows with AI assistance.",
+    "features": ["App Integration", "Workflow Automation", "AI Assistance", "No-Code", "Trigger Actions"]
+  },
+  {
+    "name": "Make (Integromat)",
+    "category": "Automation",
+    "website": "https://make.com",
+    "pricing": "Freemium",
+    "description": "Visual automation platform for connecting apps and automating workflows.",
+    "features": ["Visual Automation", "App Connections", "Complex Workflows", "Real-time Processing", "API Integration"]
+  },
+  {
+    "name": "Anthropic Claude",
+    "category": "AI Assistant",
+    "website": "https://claude.ai",
+    "pricing": "Freemium",
+    "description": "Constitutional AI assistant focused on being helpful, harmless, and honest.",
+    "features": ["Ethical AI", "Long Conversations", "Code Analysis", "Document Processing", "Research"]
+  },
+  {
+    "name": "Character.AI",
+    "category": "AI Chat",
+    "website": "https://character.ai",
+    "pricing": "Freemium",
+    "description": "Platform for creating and chatting with AI characters with distinct personalities.",
+    "features": ["Character Creation", "Personality Training", "Roleplay", "Creative Writing", "Community"]
+  },
+  {
+    "name": "Poe by Quora",
+    "category": "AI Chat",
+    "website": "https://poe.com",
+    "pricing": "Freemium",
+    "description": "Platform accessing multiple AI models including GPT, Claude, and others.",
+    "features": ["Multiple AI Models", "Model Comparison", "Custom Bots", "Mobile App", "Premium Models"]
+  },
+  {
+    "name": "Bing AI",
+    "category": "AI Search",
+    "website": "https://bing.com/chat",
+    "pricing": "Free",
+    "description": "Microsoft's AI-powered search engine with conversational capabilities.",
+    "features": ["Web Search", "Image Creation", "Conversation", "Real-time Info", "Microsoft Integration"]
+  },
+  {
+    "name": "You.com",
+    "category": "AI Search",
+    "website": "https://you.com",
+    "pricing": "Freemium",
+    "description": "AI search engine providing personalized results and research capabilities.",
+    "features": ["Personalized Search", "AI Chat", "Research Tools", "Privacy Focus", "Multiple Sources"]
+  },
+  {
+    "name": "Phind",
+    "category": "AI Search",
+    "website": "https://phind.com",
+    "pricing": "Freemium",
+    "description": "AI search engine optimized for developers and technical questions.",
+    "features": ["Developer Focus", "Code Search", "Technical Answers", "Real-time Info", "Programming Help"]
+  },
+  {
+    "name": "Leonardo AI",
+    "category": "Image Generation",
+    "website": "https://leonardo.ai",
+    "pricing": "Freemium",
+    "description": "AI image generator focused on game assets, concept art, and creative designs.",
+    "features": ["Game Assets", "Concept Art", "Fine-tuned Models", "Style Control", "Commercial Use"]
+  },
+  {
+    "name": "Artbreeder",
+    "category": "Image Generation",
+    "website": "https://artbreeder.com",
+    "pricing": "Freemium",
+    "description": "Collaborative AI art platform for breeding and evolving images.",
+    "features": ["Image Breeding", "Collaborative Art", "Portrait Generation", "Style Mixing", "Community"]
+  },
+  {
+    "name": "NightCafe",
+    "category": "Image Generation",
+    "website": "https://nightcafe.studio",
+    "pricing": "Freemium",
+    "description": "AI art generator with multiple algorithms and artistic styles.",
+    "features": ["Multiple Algorithms", "Artistic Styles", "Community", "Print Services", "Challenges"]
+  },
+  {
+    "name": "Pika Labs",
+    "category": "Video Generation",
+    "website": "https://pika.art",
+    "pricing": "Freemium",
+    "description": "AI video generator creating short clips from text and image inputs.",
+    "features": ["Text to Video", "Image Animation", "Short Clips", "Creative Effects", "Easy to Use"]
+  },
+  {
+    "name": "InVideo AI",
+    "category": "Video Generation",
+    "website": "https://invideo.io",
+    "pricing": "Freemium",
+    "description": "AI video creation platform for marketing and social media content.",
+    "features": ["Marketing Videos", "Templates", "AI Voiceover", "Stock Media", "Brand Customization"]
+  },
+  {
+    "name": "OpusClip",
+    "category": "Video Editing",
+    "website": "https://opus.pro",
+    "pricing": "Freemium",
+    "description": "AI tool for converting long videos into short, engaging clips for social media.",
+    "features": ["Long to Short", "Auto Clipping", "Social Media", "Captions", "Viral Score"]
+  },
+  {
+    "name": "Descript",
+    "category": "Video Editing",
+    "website": "https://descript.com",
+    "pricing": "Freemium",
+    "description": "AI-powered video and podcast editing tool with text-based editing.",
+    "features": ["Text-based Editing", "Overdub", "Screen Recording", "Collaboration", "Transcription"]
+  },
+  {
+    "name": "Writesonic",
+    "category": "Content Writing",
+    "website": "https://writesonic.com",
+    "pricing": "Freemium",
+    "description": "AI writing platform for articles, ads, and marketing content creation.",
+    "features": ["Article Writing", "Ad Copy", "SEO Content", "Chatbot", "Bulk Generation"]
+  },
+  {
+    "name": "Rytr",
+    "category": "Content Writing",
+    "website": "https://rytr.me",
+    "pricing": "Freemium",
+    "description": "AI writing assistant for quick content generation across multiple formats.",
+    "features": ["Quick Generation", "Multiple Formats", "Tone Selection", "Plagiarism Check", "SEO Tools"]
+  },
+  {
+    "name": "QuillBot",
+    "category": "Writing Assistant",
+    "website": "https://quillbot.com",
+    "pricing": "Freemium",
+    "description": "AI paraphrasing and writing enhancement tool for improving text quality.",
+    "features": ["Paraphrasing", "Grammar Check", "Summarizer", "Citation Generator", "Plagiarism Checker"]
+  },
+  {
+    "name": "Hemingway Editor",
+    "category": "Writing Assistant",
+    "website": "https://hemingwayapp.com",
+    "pricing": "Freemium",
+    "description": "Writing tool that makes your writing bold and clear by highlighting issues.",
+    "features": ["Readability Analysis", "Writing Improvement", "Style Suggestions", "Grade Level", "Formatting"]
+  },
+  {
+    "name": "Todoist",
+    "category": "Productivity",
+    "website": "https://todoist.com",
+    "pricing": "Freemium",
+    "description": "Task management app with AI features for organizing and prioritizing work.",
+    "features": ["Task Management", "Project Organization", "AI Scheduling", "Team Collaboration", "Integrations"]
+  },
+  {
+    "name": "ClickUp",
+    "category": "Productivity",
+    "website": "https://clickup.com",
+    "pricing": "Freemium",
+    "description": "All-in-one productivity platform with AI writing and project management features.",
+    "features": ["Project Management", "AI Writing", "Team Collaboration", "Time Tracking", "Custom Views"]
+  },
+  {
+    "name": "Monday.com",
+    "category": "Productivity",
+    "website": "https://monday.com",
+    "pricing": "Paid",
+    "description": "Work management platform with AI features for team collaboration and planning.",
+    "features": ["Work Management", "Team Collaboration", "AI Insights", "Custom Workflows", "Automation"]
+  },
+  {
+    "name": "Tabnine",
+    "category": "Coding",
+    "website": "https://tabnine.com",
+    "pricing": "Freemium",
+    "description": "AI code completion tool supporting multiple programming languages and IDEs.",
+    "features": ["Code Completion", "Multiple Languages", "IDE Integration", "Team Learning", "Privacy Focus"]
+  },
+  {
+    "name": "CodeT5",
+    "category": "Coding",
+    "website": "https://github.com/salesforce/CodeT5",
+    "pricing": "Free",
+    "description": "Open-source AI model for code understanding and generation tasks.",
+    "features": ["Code Generation", "Code Understanding", "Multiple Tasks", "Open Source", "Research Based"]
+  },
+  {
+    "name": "Amazon CodeWhisperer",
+    "category": "Coding",
+    "website": "https://aws.amazon.com/codewhisperer/",
+    "pricing": "Freemium",
+    "description": "AI coding companion providing code suggestions and security scanning.",
+    "features": ["Code Suggestions", "Security Scanning", "Multiple Languages", "AWS Integration", "IDE Support"]
+  },
+  {
+    "name": "Speechify",
+    "category": "Voice Generation",
+    "website": "https://speechify.com",
+    "pricing": "Freemium",
+    "description": "Text-to-speech platform for converting written content into natural audio.",
+    "features": ["Text to Speech", "Natural Voices", "Speed Control", "Mobile App", "Document Support"]
+  },
+  {
+    "name": "Resemble AI",
+    "category": "Voice Generation",
+    "website": "https://resemble.ai",
+    "pricing": "Paid",
+    "description": "Voice cloning and generation platform for creating custom AI voices.",
+    "features": ["Voice Cloning", "Custom Voices", "Real-time", "API Access", "Enterprise Features"]
+  },
+  {
+    "name": "AIVA",
+    "category": "Music Generation",
+    "website": "https://aiva.ai",
+    "pricing": "Freemium",
+    "description": "AI composer creating original music for films, games, and commercial use.",
+    "features": ["Music Composition", "Multiple Genres", "Commercial License", "MIDI Export", "Custom Styles"]
+  },
+  {
+    "name": "Boomy",
+    "category": "Music Generation",
+    "website": "https://boomy.com",
+    "pricing": "Freemium",
+    "description": "AI music creation platform for generating songs and releasing them on streaming platforms.",
+    "features": ["Song Creation", "Streaming Release", "Royalty Sharing", "Social Features", "Mobile App"]
+  },
+  {
+    "name": "Looka",
+    "category": "Design",
+    "website": "https://looka.com",
+    "pricing": "Paid",
+    "description": "AI logo maker and brand identity platform for creating professional designs.",
+    "features": ["Logo Creation", "Brand Identity", "Business Cards", "Website Design", "Marketing Materials"]
+  },
+  {
+    "name": "Uizard",
+    "category": "Design",
+    "website": "https://uizard.io",
+    "pricing": "Freemium",
+    "description": "AI-powered design tool for creating mockups, prototypes, and UI designs.",
+    "features": ["UI Design", "Mockups", "Prototyping", "Wireframes", "Collaboration"]
+  },
+  {
+    "name": "Khroma",
+    "category": "Design",
+    "website": "https://khroma.co",
+    "pricing": "Free",
+    "description": "AI color palette generator for designers and creatives.",
+    "features": ["Color Palettes", "Personalized", "Unlimited Combos", "Search Function", "Designer Tools"]
+  },
+  {
+    "name": "IFTTT",
+    "category": "Automation",
+    "website": "https://ifttt.com",
+    "pricing": "Freemium",
+    "description": "Automation platform connecting devices and services with simple conditional logic.",
+    "features": ["Device Automation", "App Integration", "Simple Logic", "Mobile Control", "Smart Home"]
+  },
+  {
+    "name": "n8n",
+    "category": "Automation",
+    "website": "https://n8n.io",
+    "pricing": "Freemium",
+    "description": "Fair-code automation platform with visual workflow editor and self-hosting option.",
+    "features": ["Visual Workflows", "Self-hosted", "Open Source", "API Integration", "Custom Functions"]
+  },
+  {
+    "name": "Pi AI",
+    "category": "AI Assistant",
+    "website": "https://pi.ai",
+    "pricing": "Free",
+    "description": "Personal AI assistant focused on emotional intelligence and supportive conversations.",
+    "features": ["Emotional Intelligence", "Personal Support", "Voice Chat", "Memory", "Empathetic Responses"]
+  },
+  {
+    "name": "Replika",
+    "category": "AI Assistant",
+    "website": "https://replika.ai",
+    "pricing": "Freemium",
+    "description": "AI companion for emotional support and personal conversations.",
+    "features": ["Emotional Support", "Personal Companion", "Learning", "Memory", "Customization"]
+  },
+  {
+    "name": "Gamma",
+    "category": "Presentation",
+    "website": "https://gamma.app",
+    "pricing": "Freemium",
+    "description": "AI presentation maker creating beautiful slides from text prompts.",
+    "features": ["AI Presentations", "Beautiful Design", "Content Generation", "Collaboration", "Export Options"]
+  },
+  {
+    "name": "Beautiful.AI",
+    "category": "Presentation",
+    "website": "https://beautiful.ai",
+    "pricing": "Paid",
+    "description": "Intelligent presentation platform with smart design suggestions.",
+    "features": ["Smart Design", "Templates", "Team Collaboration", "Brand Consistency", "Analytics"]
+  },
+  {
+    "name": "Tome",
+    "category": "Presentation",
+    "website": "https://tome.app",
+    "pricing": "Freemium",
+    "description": "AI-powered presentation and storytelling tool with interactive features.",
+    "features": ["AI Storytelling", "Interactive Content", "Multimedia", "Collaboration", "Analytics"]
+  },
+  {
+    "name": "Loom AI",
+    "category": "Video Communication",
+    "website": "https://loom.com",
+    "pricing": "Freemium",
+    "description": "Screen recording and video messaging platform with AI transcription and editing.",
+    "features": ["Screen Recording", "AI Transcription", "Video Editing", "Team Sharing", "Analytics"]
+  },
+  {
+    "name": "Otter.ai",
+    "category": "Transcription",
+    "website": "https://otter.ai",
+    "pricing": "Freemium",
+    "description": "AI-powered meeting transcription and note-taking platform.",
+    "features": ["Meeting Transcription", "Real-time Notes", "Speaker Identification", "Integration", "Search"]
+  },
+  {
+    "name": "Rev AI",
+    "category": "Transcription",
+    "website": "https://rev.ai",
+    "pricing": "Paid",
+    "description": "Professional speech-to-text API and transcription service.",
+    "features": ["Speech to Text", "API Access", "High Accuracy", "Multiple Languages", "Custom Models"]
+  },
+  {
+    "name": "Fathom",
+    "category": "Meeting Assistant",
+    "website": "https://fathom.video",
+    "pricing": "Freemium",
+    "description": "AI meeting assistant that records, transcribes, and summarizes meetings.",
+    "features": ["Meeting Recording", "Transcription", "Summaries", "Action Items", "CRM Integration"]
+  },
+  {
+    "name": "Fireflies.ai",
+    "category": "Meeting Assistant",
+    "website": "https://fireflies.ai",
+    "pricing": "Freemium",
+    "description": "AI assistant for recording, transcribing, and analyzing meetings.",
+    "features": ["Meeting Recording", "Transcription", "Analytics", "CRM Sync", "Team Insights"]
+  },
+  {
+    "name": "Krisp",
+    "category": "Audio Enhancement",
+    "website": "https://krisp.ai",
+    "pricing": "Freemium",
+    "description": "AI noise cancellation and audio enhancement for calls and recordings.",
+    "features": ["Noise Cancellation", "Voice Enhancement", "Meeting Insights", "Call Recording", "Real-time"]
+  },
+  {
+    "name": "Remove.bg",
+    "category": "Image Editing",
+    "website": "https://remove.bg",
+    "pricing": "Freemium",
+    "description": "AI tool for automatically removing backgrounds from images.",
+    "features": ["Background Removal", "Bulk Processing", "API Access", "High Quality", "Instant Results"]
+  },
+  {
+    "name": "Upscale.media",
+    "category": "Image Editing",
+    "website": "https://upscale.media",
+    "pricing": "Freemium",
+    "description": "AI image upscaler for enhancing and enlarging photos without quality loss.",
+    "features": ["Image Upscaling", "Quality Enhancement", "Batch Processing", "API Access", "Multiple Formats"]
+  },
+  {
+    "name": "Cleanup.pictures",
+    "category": "Image Editing",
+    "website": "https://cleanup.pictures",
+    "pricing": "Freemium",
+    "description": "AI tool for removing unwanted objects and people from photos.",
+    "features": ["Object Removal", "Photo Cleanup", "Instant Processing", "High Quality", "Easy to Use"]
+  },
+  {
+    "name": "Surfer SEO",
+    "category": "SEO",
+    "website": "https://surferseo.com",
+    "pricing": "Paid",
+    "description": "AI-powered SEO tool for content optimization and keyword research.",
+    "features": ["Content Optimization", "Keyword Research", "SERP Analysis", "Content Editor", "Audit Tools"]
+  },
+  {
+    "name": "Semrush",
+    "category": "SEO",
+    "website": "https://semrush.com",
+    "pricing": "Paid",
+    "description": "Comprehensive SEO and digital marketing platform with AI features.",
+    "features": ["SEO Analysis", "Keyword Research", "Content Marketing", "PPC Tools", "Social Media"]
+  },
+  {
+    "name": "Ahrefs",
+    "category": "SEO",
+    "website": "https://ahrefs.com",
+    "pricing": "Paid",
+    "description": "SEO toolset for backlink analysis, keyword research, and content optimization.",
+    "features": ["Backlink Analysis", "Keyword Research", "Content Gap", "Rank Tracking", "Site Audit"]
+  },
+  {
+    "name": "ChatPDF",
+    "category": "Document Analysis",
+    "website": "https://chatpdf.com",
+    "pricing": "Freemium",
+    "description": "AI tool for analyzing and chatting with PDF documents.",
+    "features": ["PDF Analysis", "Document Chat", "Question Answering", "Summarization", "Multi-language"]
+  },
+  {
+    "name": "DocuAsk",
+    "category": "Document Analysis",
+    "website": "https://docuask.com",
+    "pricing": "Freemium",
+    "description": "AI-powered document analysis and question-answering platform.",
+    "features": ["Document Q&A", "Multiple Formats", "Analysis", "Insights", "Team Features"]
+  },
+  {
+    "name": "SciSpace",
+    "category": "Research",
+    "website": "https://scispace.com",
+    "pricing": "Freemium",
+    "description": "AI research assistant for reading and understanding scientific papers.",
+    "features": ["Paper Analysis", "Research Assistant", "Citation Help", "Literature Review", "Academic Writing"]
+  },
+  {
+    "name": "Elicit",
+    "category": "Research",
+    "website": "https://elicit.org",
+    "pricing": "Freemium",
+    "description": "AI research assistant for finding and summarizing academic papers.",
+    "features": ["Paper Search", "Literature Review", "Research Questions", "Data Extraction", "Academic Focus"]
+  },
+  {
+    "name": "Consensus",
+    "category": "Research",
+    "website": "https://consensus.app",
+    "pricing": "Freemium",
+    "description": "AI-powered search engine for finding insights in scientific research.",
+    "features": ["Scientific Search", "Evidence-based", "Citation Analysis", "Research Insights", "Academic Papers"]
+  },
+  {
+    "name": "Scite",
+    "category": "Research",
+    "website": "https://scite.ai",
+    "pricing": "Freemium",
+    "description": "Citation analysis tool showing how research papers are cited and discussed.",
+    "features": ["Citation Analysis", "Supporting Evidence", "Research Evaluation", "Paper Discovery", "Academic Integrity"]
+  },
+  {
+    "name": "Humata",
+    "category": "Document Analysis",
+    "website": "https://humata.ai",
+    "pricing": "Freemium",
+    "description": "AI assistant for analyzing and asking questions about your documents.",
+    "features": ["Document Chat", "File Analysis", "Question Answering", "Summarization", "Team Workspace"]
+  },
+  {
+    "name": "MonkeyLearn",
+    "category": "Text Analysis",
+    "website": "https://monkeylearn.com",
+    "pricing": "Freemium",
+    "description": "Text analytics platform with AI for sentiment analysis and data extraction.",
+    "features": ["Sentiment Analysis", "Text Classification", "Data Extraction", "API Access", "Custom Models"]
+  },
+  {
+    "name": "Lexalytics",
+    "category": "Text Analysis",
+    "website": "https://lexalytics.com",
+    "pricing": "Paid",
+    "description": "Enterprise text analytics platform for sentiment and entity analysis.",
+    "features": ["Enterprise Analytics", "Sentiment Analysis", "Entity Recognition", "Custom Models", "API Integration"]
+  },
+  {
+    "name": "AssemblyAI",
+    "category": "Speech-to-Text",
+    "website": "https://assemblyai.com",
+    "pricing": "Paid",
+    "description": "Speech-to-text API with advanced AI features for audio transcription.",
+    "features": ["Speech Recognition", "Speaker Diarization", "Sentiment Analysis", "Content Moderation", "API Access"]
+  },
+  {
+    "name": "Deepgram",
+    "category": "Speech-to-Text",
+    "website": "https://deepgram.com",
+    "pricing": "Paid",
+    "description": "Advanced speech recognition API with real-time transcription capabilities.",
+    "features": ["Real-time Transcription", "High Accuracy", "Multiple Languages", "Streaming", "Custom Models"]
+  },
+  {
+    "name": "Riverside.fm",
+    "category": "Podcast/Video",
+    "website": "https://riverside.fm",
+    "pricing": "Freemium",
+    "description": "AI-powered platform for recording and editing podcasts and video interviews.",
+    "features": ["Remote Recording", "AI Editing", "High Quality", "Auto-transcription", "Multi-track"]
+  },
+  {
+    "name": "Podcastle",
+    "category": "Podcast/Video",
+    "website": "https://podcastle.ai",
+    "pricing": "Freemium",
+    "description": "AI podcast creation platform with recording, editing, and hosting features.",
+    "features": ["Podcast Creation", "AI Editing", "Voice Enhancement", "Hosting", "Collaboration"]
+  },
+  {
+    "name": "Brand24",
+    "category": "Social Media Monitoring",
+    "website": "https://brand24.com",
+    "pricing": "Paid",
+    "description": "AI-powered social media monitoring and analytics platform.",
+    "features": ["Social Monitoring", "Sentiment Analysis", "Influencer Identification", "Competitive Intelligence", "Analytics"]
+  },
+  {
+    "name": "Hootsuite Insights",
+    "category": "Social Media Monitoring",
+    "website": "https://hootsuite.com",
+    "pricing": "Paid",
+    "description": "Social media management platform with AI-powered analytics and insights.",
+    "features": ["Social Management", "AI Analytics", "Content Scheduling", "Team Collaboration", "Reporting"]
+  },
+  {
+    "name": "AdCreative.ai",
+    "category": "Marketing",
+    "website": "https://adcreative.ai",
+    "pricing": "Paid",
+    "description": "AI platform for generating high-converting ad creatives and marketing content.",
+    "features": ["Ad Generation", "Creative Optimization", "Performance Prediction", "A/B Testing", "Brand Consistency"]
+  },
+  {
+    "name": "Pencil",
+    "category": "Marketing",
+    "website": "https://trypencil.com",
+    "pricing": "Paid",
+    "description": "AI ad creative platform for generating and testing marketing visuals at scale.",
+    "features": ["Creative Generation", "Performance Testing", "Brand Assets", "Video Ads", "Static Ads"]
+  },
+  {
+    "name": "Mailchimp",
+    "category": "Email Marketing",
+    "website": "https://mailchimp.com",
+    "pricing": "Freemium",
+    "description": "Email marketing platform with AI features for automation and optimization.",
+    "features": ["Email Automation", "AI Optimization", "Audience Segmentation", "Analytics", "E-commerce Integration"]
+  },
+  {
+    "name": "Constant Contact",
+    "category": "Email Marketing",
+    "website": "https://constantcontact.com",
+    "pricing": "Paid",
+    "description": "Email and digital marketing platform with AI-powered features.",
+    "features": ["Email Marketing", "Social Media", "Event Management", "AI Recommendations", "Automation"]
+  },
+  {
+    "name": "Salesforce Einstein",
+    "category": "CRM",
+    "website": "https://salesforce.com/products/einstein/",
+    "pricing": "Paid",
+    "description": "AI-powered CRM platform with predictive analytics and automation.",
+    "features": ["Predictive Analytics", "Lead Scoring", "Opportunity Insights", "Automation", "Personalization"]
+  },
+  {
+    "name": "HubSpot AI",
+    "category": "CRM",
+    "website": "https://hubspot.com",
+    "pricing": "Freemium",
+    "description": "Inbound marketing and CRM platform with integrated AI features.",
+    "features": ["Marketing Automation", "AI Content", "Lead Management", "Sales Tools", "Customer Service"]
+  },
+  {
+    "name": "DataRobot",
+    "category": "Machine Learning",
+    "website": "https://datarobot.com",
+    "pricing": "Paid",
+    "description": "Enterprise AI platform for building and deploying machine learning models.",
+    "features": ["AutoML", "Model Deployment", "MLOps", "Predictive Analytics", "Enterprise Scale"]
+  },
+  {
+    "name": "H2O.ai",
+    "category": "Machine Learning",
+    "website": "https://h2o.ai",
+    "pricing": "Freemium",
+    "description": "Open-source machine learning platform for data science and AI applications.",
+    "features": ["AutoML", "Open Source", "Scalable", "Enterprise Solutions", "Model Interpretability"]
+  },
+  {
+    "name": "Obviously AI",
+    "category": "Machine Learning",
+    "website": "https://obviously.ai",
+    "pricing": "Paid",
+    "description": "No-code machine learning platform for building predictive models.",
+    "features": ["No-code ML", "Predictive Models", "Data Visualization", "Model Explanation", "Easy Deployment"]
+  },
+  {
+    "name": "Tripo AI",
+    "category": "3D Generation",
+    "website": "https://tripo3d.ai",
+    "pricing": "Freemium",
+    "description": "AI tool for creating 3D models from text or images in seconds with fast prototyping and stylization options.",
+    "features": ["Text to 3D", "Image to 3D", "Fast Prototyping", "API Access", "Stylization Options"]
+  },
+  {
+    "name": "Sysarchitect",
+    "category": "No-Code Development",
+    "website": "https://sysarchitect.io",
+    "pricing": "Freemium",
+    "description": "Build functional web apps by describing them in plain English, generating source code and deployable projects.",
+    "features": ["Plain English Input", "Source Code Generation", "Interactive Mockups", "No Coding Required", "Deployable Projects"]
+  },
+  {
+    "name": "Icon",
+    "category": "Marketing",
+    "website": "https://icon.so",
+    "pricing": "Paid",
+    "description": "Creative production platform for generating static ads, video ads, and UGC at scale for businesses.",
+    "features": ["Static Ads", "Video Ads", "UGC Creation", "Scale Production", "Brand Customization"]
+  },
+  {
+    "name": "VideoGen",
+    "category": "Video Generation",
+    "website": "https://videogen.io",
+    "pricing": "Paid",
+    "description": "Generate professional videos from text, images, and articles for social media platforms with AI assistance.",
+    "features": ["Text to Video", "Multi-platform", "3M+ Assets", "Multilingual TTS", "Intuitive Editor"]
+  },
+  {
+    "name": "Quickads AI",
+    "category": "Marketing",
+    "website": "https://quickads.ai",
+    "pricing": "Paid",
+    "description": "AI ad creation platform for businesses with multi-format ads, targeted generation, and virtual product photography.",
+    "features": ["Multi-format Ads", "Targeted Generation", "Virtual Photography", "Customizable Layouts", "Error Detection"]
+  },
+  {
+    "name": "Thoughtly",
+    "category": "Voice AI",
+    "website": "https://thoughtly.ai",
+    "pricing": "Paid",
+    "description": "Build human-like AI voice agents for seamless call handling, analytics, and lead qualification.",
+    "features": ["Voice Agents", "Call Handling", "Analytics", "Lead Qualification", "Human-like Interaction"]
+  },
+  {
+    "name": "Blaze AI",
+    "category": "Marketing Automation",
+    "website": "https://blaze.ai",
+    "pricing": "Paid",
+    "description": "Combines content generation and marketing automation tools for small businesses to manage digital presence.",
+    "features": ["Content Generation", "Marketing Automation", "Social Media Scheduling", "Brand Consistency", "Digital Presence"]
+  },
+  {
+    "name": "Alphana",
+    "category": "Content Repurposing",
+    "website": "https://alphana.ai",
+    "pricing": "Paid",
+    "description": "Transform videos, podcasts, and ideas into shareable content with summaries, articles, and social media posts.",
+    "features": ["Content Transformation", "Automated Transcription", "Personalized Output", "Multichannel Marketing", "Social Media Posts"]
+  },
+  {
+    "name": "LearnWorlds AI",
+    "category": "Education",
+    "website": "https://learnworlds.com",
+    "pricing": "Paid",
+    "description": "AI features for course creation with course layout guidance, content ideas, and personalized learning experiences.",
+    "features": ["Course Creation", "Layout Guidance", "Content Ideas", "Learner Engagement", "Custom Learning"]
+  },
+  {
+    "name": "TikTok Symphony",
+    "category": "Social Media Marketing",
+    "website": "https://ads.tiktok.com",
+    "pricing": "Freemium",
+    "description": "AI-driven tools for TikTok ads with trend analysis, automatic content generation, and ad optimization.",
+    "features": ["Trend Analysis", "Content Generation", "Ad Optimization", "Video Generation", "Performance Enhancement"]
+  },
+  {
+    "name": "Lovable.dev",
+    "category": "Web Development",
+    "website": "https://lovable.dev",
+    "pricing": "Freemium",
+    "description": "Build websites super fast by typing what you want, accessible for beginners to experts.",
+    "features": ["Natural Language", "Fast Building", "Beginner Friendly", "Expert Tools", "No Code Required"]
+  },
+  {
+    "name": "Letterly",
+    "category": "Voice to Text",
+    "website": "https://letterly.ai",
+    "pricing": "Paid",
+    "description": "Turns your voice into structured, rewritten text for tweets, emails, notes, and more in seconds.",
+    "features": ["Voice to Text", "Text Rewriting", "Mobile Friendly", "Multiple Formats", "Instant Processing"]
+  },
+  {
+    "name": "ContentShake AI",
+    "category": "Content Writing",
+    "website": "https://contentshake.ai",
+    "pricing": "Freemium",
+    "description": "SEO-focused AI content writing assistant backed by Semrush with optimization and WordPress publishing.",
+    "features": ["SEO Focus", "Content Ideas", "Copy Optimization", "WordPress Integration", "Topic Expertise"]
+  },
+  {
+    "name": "Munch",
+    "category": "Video Editing",
+    "website": "https://getmunch.com",
+    "pricing": "Paid",
+    "description": "Extracts engaging, contextual clips from long-form content using GPT3, OCR, and NLP for social sharing.",
+    "features": ["Content Extraction", "Contextual Clips", "Social Trends", "GPT3 Integration", "Shareable Content"]
+  },
+  {
+    "name": "Brandwell AI Detector",
+    "category": "Content Analysis",
+    "website": "https://brandwell.ai",
+    "pricing": "Free",
+    "description": "Free AI content detector to mitigate Google penalties with multiple AI engines and semantic analysis.",
+    "features": ["AI Detection", "Multiple Engines", "Semantic Analysis", "Google Protection", "Risk Mitigation"]
+  },
+  {
+    "name": "Divi AI",
+    "category": "Web Design",
+    "website": "https://elegantthemes.com/divi",
+    "pricing": "Paid",
+    "description": "AI-powered page builder with tailored content and image creation, plus smart suggestions for web design.",
+    "features": ["Page Building", "Content Creation", "Image Generation", "Smart Suggestions", "Pattern Recognition"]
+  },
+  {
+    "name": "AIApply",
+    "category": "Job Search",
+    "website": "https://aiapply.co",
+    "pricing": "Freemium",
+    "description": "AI-powered job search tool creating tailored resumes, cover letters, auto-applying to jobs, and interview practice.",
+    "features": ["Resume Creation", "Cover Letters", "Auto Apply", "Interview Practice", "Job Matching"]
+  },
+  {
+    "name": "Clipchamp",
+    "category": "Video Editing",
+    "website": "https://clipchamp.com",
+    "pricing": "Freemium",
+    "description": "Convert long videos into shorter clips with automatic moment identification and features like captions.",
+    "features": ["Video Clipping", "Automatic Captions", "Keyword Highlighting", "Multiple Platforms", "Hashtag Generation"]
+  },
+  {
+    "name": "ContentBot",
+    "category": "Content Writing",
+    "website": "https://contentbot.ai",
+    "pricing": "Paid",
+    "description": "AI tool for creating YouTube scripts, Shorts, and video ad ideas with topic suggestions and channel analysis.",
+    "features": ["YouTube Scripts", "Topic Suggestions", "Channel Analysis", "Video Ideas", "Tone Customization"]
+  },
+  {
+    "name": "Bright Data",
+    "category": "Data Collection",
+    "website": "https://brightdata.com",
+    "pricing": "Paid",
+    "description": "AI-powered web scraping for content extraction, business prospecting, and bulk screenshot creation.",
+    "features": ["Web Scraping", "Business Prospecting", "Content Monitoring", "Screenshot Creation", "Data Extraction"]
+  },
+  {
+    "name": "NaturalReader",
+    "category": "Text-to-Speech",
+    "website": "https://naturalreaders.com",
+    "pricing": "Freemium",
+    "description": "Text-to-speech platform with natural AI voices, voice cloning, and video dubbing in 60+ languages.",
+    "features": ["Natural Voices", "Voice Cloning", "Video Dubbing", "60+ Languages", "Audio Conversion"]
+  },
+  {
+    "name": "LogoAI",
+    "category": "Design",
+    "website": "https://logoai.com",
+    "pricing": "Paid",
+    "description": "AI-powered logo maker and brand automation platform for creating professional logos and brand identities.",
+    "features": ["Logo Creation", "Brand Identity", "Automation", "Professional Design", "Brand Promotion"]
+  },
+  {
+    "name": "GPTZero Bypass",
+    "category": "Content Enhancement",
+    "website": "https://gptzer.com",
+    "pricing": "Paid",
+    "description": "Generate undetectable, unique AI-written content with rephrasing tools to avoid AI detection.",
+    "features": ["AI Content Generation", "Rephrasing Tools", "Originality Ensured", "Detection Avoidance", "Essay Writing"]
+  },
+  {
+    "name": "PostNitro",
+    "category": "Social Media Design",
+    "website": "https://postnitro.ai",
+    "pricing": "Paid",
+    "description": "Create captivating carousels with AI Writing Assistant, customizable templates, and high-quality exports.",
+    "features": ["Carousel Creation", "AI Writing", "Custom Templates", "High Quality Export", "Social Media Focus"]
+  },
+  {
+    "name": "Phrasly",
+    "category": "Content Enhancement",
+    "website": "https://phrasly.ai",
+    "pricing": "Freemium",
+    "description": "Generate and humanize AI content to bypass AI detectors like TurnItIn and GPTZero.",
+    "features": ["Content Humanization", "AI Detection Bypass", "TurnItIn Compatible", "GPTZero Bypass", "Originality Preservation"]
+  },
+  {
+    "name": "HIX Bypass",
+    "category": "Content Enhancement",
+    "website": "https://hixbypass.ai",
+    "pricing": "Paid",
+    "description": "AI content detector and remover converting AI text into undetectable, human-like content.",
+    "features": ["AI Detection", "Content Removal", "Human-like Conversion", "Meaning Preservation", "ChatGPT Integration"]
+  },
+  {
+    "name": "Apify",
+    "category": "Data Collection",
+    "website": "https://apify.com",
+    "pricing": "Freemium",
+    "description": "No-code platform simplifying web scraping for AI model training with LangChain and Pinecone integrations.",
+    "features": ["Web Scraping", "No-code Platform", "AI Training", "LangChain Integration", "Data Collection"]
+  },
+  {
+    "name": "Aitubo",
+    "category": "Image/Video Generation",
+    "website": "https://aitubo.ai",
+    "pricing": "Freemium",
+    "description": "Unified platform for AI image and video generation testing multiple models with business photography tools.",
+    "features": ["Multiple Models", "Image Generation", "Video Generation", "Business Headshots", "Product Photography"]
+  },
+  {
+    "name": "Vidnoz AI",
+    "category": "Video Generation",
+    "website": "https://vidnoz.com",
+    "pricing": "Freemium",
+    "description": "AI video creation with text-to-video conversion, lifelike avatars, and 100+ voiceovers in 23+ languages.",
+    "features": ["Text to Video", "Lifelike Avatars", "100+ Voiceovers", "200+ Templates", "23+ Languages"]
+  },
+  {
+    "name": "Klap",
+    "category": "Video Editing",
+    "website": "https://klap.app",
+    "pricing": "Paid",
+    "description": "Transform YouTube content into digestible short videos with AI curation, framing, and captions.",
+    "features": ["YouTube Transformation", "Short Video Creation", "AI Curation", "Smart Framing", "Auto Captions"]
+  },
+  {
+    "name": "Arc Browser AI",
+    "category": "Browser Assistant",
+    "website": "https://arc.net",
+    "pricing": "Freemium",
+    "description": "Browser-based AI assistant combining multiple AI models for writing, research, and analysis tasks.",
+    "features": ["Multiple AI Models", "Browser Integration", "Writing Assistant", "Research Tools", "Clean Interface"]
+  },
+  {
+    "name": "Waifu Labs",
+    "category": "AI Art",
+    "website": "https://waifulabs.com",
+    "pricing": "Freemium",
+    "description": "AI anime art generator converting text or photos into anime art with speed and high artistry.",
+    "features": ["Anime Art Generation", "Text to Anime", "Photo to Anime", "High Artistry", "No Drawing Skills"]
+  },
+  {
+    "name": "PPSPY",
+    "category": "E-commerce Analytics",
+    "website": "https://ppspy.com",
+    "pricing": "Freemium",
+    "description": "Help Shopify store owners find profitable products and analyze competitors with AI-powered analytics.",
+    "features": ["Product Research", "Competitor Analysis", "Sales Tracking", "Store Design Analysis", "Profit Analytics"]
+  },
+  {
+    "name": "HeyGen",
+    "category": "Video Generation",
+    "website": "https://heygen.com",
+    "pricing": "Paid",
+    "description": "AI video generation platform creating professional, multilingual content with URL to UGC conversion.",
+    "features": ["Professional Videos", "Multilingual Content", "URL to UGC", "Fast Generation", "Business Focus"]
+  },
+  {
+    "name": "Shortspilot",
+    "category": "Social Media",
+    "website": "https://shortspilot.ai",
+    "pricing": "Paid",
+    "description": "Create viral TikTok content by automating video production with AI-optimized titles and hashtags.",
+    "features": ["TikTok Content", "Video Automation", "Viral Optimization", "Title Generation", "Hashtag Optimization"]
+  },
+  {
+    "name": "Talkio AI",
+    "category": "Language Learning",
+    "website": "https://talkio.ai",
+    "pricing": "Paid",
+    "description": "Language learning tool providing instant practice in different languages and dialects with AI tutors.",
+    "features": ["Language Practice", "Multiple Languages", "AI Tutors", "Dialect Support", "Instant Feedback"]
+  },
+  {
+    "name": "ChatPlayground AI",
+    "category": "AI Chat",
+    "website": "https://chatplayground.ai",
+    "pricing": "Paid",
+    "description": "Platform with 25+ AI models in one place, browser integration, and customizable productivity tools.",
+    "features": ["25+ AI Models", "Browser Integration", "Customizable Tools", "Productivity Focus", "Model Comparison"]
+  },
+  {
+    "name": "SubMagic",
+    "category": "Video Editing",
+    "website": "https://submagic.co",
+    "pricing": "Paid",
+    "description": "Add life to videos with accurate transcriptions in 48 languages and trendy templates with enhanced captions.",
+    "features": ["48 Language Transcription", "Trendy Templates", "Enhanced Captions", "Emoji Support", "Keyword Highlights"]
+  },
+  {
+    "name": "Cliptalk",
+    "category": "Video Creation",
+    "website": "https://cliptalk.ai",
+    "pricing": "Freemium",
+    "description": "Rapidly convert scripts into publish-ready videos with automated edits, captions, and B-roll for social media.",
+    "features": ["Script to Video", "Automated Editing", "Auto Captions", "B-roll Integration", "Social Media Ready"]
+  },
+  {
+    "name": "Snoooz",
+    "category": "Email Management",
+    "website": "https://snoooz.ai",
+    "pricing": "Freemium",
+    "description": "Smart email management with personalized replies, sentiment tracking, and automated routing for businesses.",
+    "features": ["Smart Replies", "Sentiment Tracking", "Email Routing", "Inbox Management", "Business Communication"]
+  },
+  {
+    "name": "AutoShorts",
+    "category": "Video Creation",
+    "website": "https://autoshorts.ai",
+    "pricing": "Paid",
+    "description": "Create unique faceless videos for TikTok and YouTube with AI-powered customizable scripts and series management.",
+    "features": ["Faceless Videos", "TikTok Focus", "YouTube Compatible", "Custom Scripts", "Series Management"]
+  },
+  {
+    "name": "Bubble AI",
+    "category": "No-Code Development",
+    "website": "https://bubble.io",
+    "pricing": "Freemium",
+    "description": "Create custom web pages and apps in minutes with AI-powered design and development tools.",
+    "features": ["Custom Web Apps", "AI Design", "No-code Development", "Rapid Prototyping", "Sophisticated Apps"]
+  },
+  {
+    "name": "Vista Social",
+    "category": "Social Media Management",
+    "website": "https://vistasocial.com",
+    "pricing": "Freemium",
+    "description": "Social media management with AI Assistant for generating posts, paraphrasing content, and automated responses.",
+    "features": ["AI Assistant", "Post Generation", "Content Paraphrasing", "Automated Responses", "Fact-checked Stats"]
+  },
+  {
+    "name": "Klear",
+    "category": "Influencer Marketing",
+    "website": "https://klear.com",
+    "pricing": "Freemium",
+    "description": "AI-powered influencer marketing platform with comprehensive analytics and 200M+ creator database.",
+    "features": ["Influencer Discovery", "Campaign Management", "Analytics", "200M+ Database", "Multi-platform Support"]
+  },
+  {
+    "name": "Adobe Firefly",
+    "category": "Creative AI",
+    "website": "https://firefly.adobe.com",
+    "pricing": "Free",
+    "description": "Versatile generative AI for content creation and editing with custom vectors, brushes, and textures.",
+    "features": ["Generative AI", "Custom Vectors", "Brushes Creation", "Texture Generation", "Content Creation"]
+  },
+  {
+    "name": "MarketMuse",
+    "category": "SEO Content",
+    "website": "https://marketmuse.com",
+    "pricing": "Paid",
+    "description": "AI platform for keyword research, content briefs, writing, and optimization with custom templates.",
+    "features": ["Keyword Research", "Content Briefs", "SEO Writing", "Custom Templates", "Industry Data"]
+  },
+  {
+    "name": "Writecream",
+    "category": "Content Writing",
+    "website": "https://writecream.com",
+    "pricing": "Freemium",
+    "description": "AI writing tool for blogs, articles, ads, products, and websites with 50+ conversion-focused templates.",
+    "features": ["Blog Writing", "Ad Copy", "Product Descriptions", "50+ Templates", "Conversion Focus"]
+  },
+  {
+    "name": "Riverside.fm",
+    "category": "Podcast Recording",
+    "website": "https://riverside.fm",
+    "pricing": "Freemium",
+    "description": "Professional podcasting tools with speech enhancement, browser-based editing, and AI transcription.",
+    "features": ["Speech Enhancement", "Browser Editing", "AI Transcription", "Remote Recording", "Royalty-free Music"]
+  },
+  {
+    "name": "Heights Platform AI",
+    "category": "Course Creation",
+    "website": "https://heights.ai",
+    "pricing": "Paid",
+    "description": "Course creation copilot generating entire course drafts with catchy titles, descriptions, and AI chat support.",
+    "features": ["Course Draft Generation", "Title Ideas", "Compelling Descriptions", "AI Chat Support", "SEO Strategies"]
+  },
+  {
+    "name": "Vectorize",
+    "category": "Image Enhancement",
+    "website": "https://vectorize.ai",
+    "pricing": "Freemium",
+    "description": "Boost creativity with generative image AI, automation workflows, photo filters, and automatic prompt generation.",
+    "features": ["Generative AI", "Automation Workflows", "Photo Filters", "Prompt Generation", "Creative Enhancement"]
+  },
+  {
+    "name": "VEED AI Video",
+    "category": "Video Creation",
+    "website": "https://veed.io",
+    "pricing": "Freemium",
+    "description": "AI video platform transforming storytelling with stock media, editing features for professional content creation.",
+    "features": ["AI Storytelling", "Stock Media", "Professional Editing", "High Quality Output", "Easy Creation"]
+  },
+  {
+    "name": "AiTwoTool",
+    "category": "AI Platform",
+    "website": "https://aitool.com",
+    "pricing": "Paid",
+    "description": "All-in-one AI platform offering over 1,500 tools for a fraction of individual subscription costs.",
+    "features": ["1,500+ Tools", "Cost Effective", "All-in-one Platform", "Multiple Categories", "Subscription Alternative"]
+  },
+  {
+    "name": "DET Practice",
+    "category": "Education",
+    "website": "https://detpractice.com",
+    "pricing": "Paid",
+    "description": "AI-powered Duolingo English Test prep with instant feedback, massive question bank, and adaptive testing.",
+    "features": ["Test Preparation", "Instant Feedback", "Question Bank", "Adaptive Testing", "Weak Spot Targeting"]
+  },
+  {
+    "name": "Outgrow",
+    "category": "Interactive Content",
+    "website": "https://outgrow.co",
+    "pricing": "Freemium",
+    "description": "AI Content Maker turning static text into interactive quizzes and calculators with personalized experiences.",
+    "features": ["Interactive Content", "Quiz Creation", "Calculator Building", "Lead Generation", "Personalization"]
+  },
+  {
+    "name": "JoggAI",
+    "category": "Video Advertising",
+    "website": "https://jogg.ai",
+    "pricing": "Freemium",
+    "description": "Transform product URLs into video ads with AI avatars, templates, and automated scriptwriting.",
+    "features": ["Product Video Ads", "AI Avatars", "Template Library", "Automated Scripts", "Small Business Focus"]
+  },
+  {
+    "name": "Syllaby",
+    "category": "Video Marketing",
+    "website": "https://syllaby.io",
+    "pricing": "Paid",
+    "description": "Transform ideas into videos with customizable avatars, voice cloning, and trend-driven scripts.",
+    "features": ["Customizable Avatars", "Voice Cloning", "Trend Scripts", "Video Marketing", "Low-cost Solution"]
+  },
+  {
+    "name": "HARPA AI",
+    "category": "Browser Extension",
+    "website": "https://harpa.ai",
+    "pricing": "Freemium",
+    "description": "Chrome extension with productivity tools like YouTube summarization, SEO audits, and web automation.",
+    "features": ["YouTube Summarization", "SEO Audits", "Email Drafting", "Web Automation", "Privacy Focused"]
+  },
+  {
+    "name": "Eagle",
+    "category": "Asset Management",
+    "website": "https://eagle.cool",
+    "pricing": "Freemium",
+    "description": "All-in-one asset management for creatives with AI image enlargement, background removal, and organization.",
+    "features": ["Asset Management", "Image Enlargement", "Background Removal", "Smart Organization", "Cloud Sync"]
+  },
+  {
+    "name": "Qodex.ai",
+    "category": "API Testing",
+    "website": "https://qodex.ai",
+    "pricing": "Freemium",
+    "description": "AI-powered API testing and documentation with automation, no-code tools, and real-time monitoring.",
+    "features": ["API Testing", "Documentation", "Automation", "No-code Tools", "Real-time Monitoring"]
+  },
+  {
+    "name": "Liner",
+    "category": "Research Assistant",
+    "website": "https://liner.ai",
+    "pricing": "Freemium",
+    "description": "AI research tool for students and professionals with transparent answers, citations, and multiple AI models.",
+    "features": ["Research Assistant", "Citations", "Source Filtering", "Multiple AI Models", "Academic Focus"]
+  },
+  {
+    "name": "Postwise",
+    "category": "Social Media",
+    "website": "https://postwise.ai",
+    "pricing": "Paid",
+    "description": "AI tool for analyzing tweets, editing content, rewriting viral tweets, and scheduling on X platform.",
+    "features": ["Tweet Analysis", "Content Editing", "Viral Rewriting", "Scheduling", "Lead Finding"]
+  },
+  {
+    "name": "Fellow.app",
+    "category": "Meeting Assistant",
+    "website": "https://fellow.app",
+    "pricing": "Freemium",
+    "description": "AI meeting assistant automating notes, transcribing in 99 languages, and summarizing discussions.",
+    "features": ["Meeting Notes", "99 Language Transcription", "Discussion Summaries", "CRM Sync", "Privacy Controls"]
+  },
+  {
+    "name": "HubSpot AI",
+    "category": "CRM/Marketing",
+    "website": "https://hubspot.com",
+    "pricing": "Freemium",
+    "description": "CRM platform with AI tools for content optimization, lead discovery, reporting, and campaign creation.",
+    "features": ["Content Optimization", "Lead Discovery", "Complex Reporting", "Campaign Creation", "Marketing Automation"]
+  },
+  {
+    "name": "Super.so",
+    "category": "Website Builder",
+    "website": "https://super.so",
+    "pricing": "Freemium",
+    "description": "Transform Notion pages into fast, SEO-optimized websites with no-code simplicity and content management.",
+    "features": ["Notion Integration", "SEO Optimization", "No-code", "Fast Loading", "Content Management"]
+  },
+  {
+    "name": "BatchTable",
+    "category": "Image Metadata",
+    "website": "https://batchtable.com",
+    "pricing": "Paid",
+    "description": "Simplify image metadata generation with AI automation for keywords, titles, and descriptions at scale.",
+    "features": ["Metadata Generation", "AI Automation", "Bulk Processing", "Keywords Creation", "Stock Photography"]
+  },
+  {
+    "name": "Chance AI",
+    "category": "Visual Intelligence",
+    "website": "https://chance.ai",
+    "pricing": "Free",
+    "description": "Visual intelligence app with AI object recognition and interactive insights for art, travel, and food.",
+    "features": ["Object Recognition", "Interactive Insights", "Art Analysis", "Travel Information", "Food Recognition"]
+  },
+  {
+    "name": "Dashworks",
+    "category": "Enterprise AI",
+    "website": "https://dashworks.ai",
+    "pricing": "Paid",
+    "description": "Enterprise AI assistant unifying app data for real-time answers without security risks.",
+    "features": ["Data Unification", "Real-time Answers", "Security Focused", "Enterprise Grade", "Team Collaboration"]
+  },
+  {
+    "name": "D-ID",
+    "category": "AI Video",
+    "website": "https://d-id.com",
+    "pricing": "Paid",
+    "description": "AI video creation from documents and PDFs with realistic avatars, multiple languages, and templates.",
+    "features": ["Document to Video", "100 Avatars", "130 Languages", "55 Templates", "Professional Output"]
+  },
+  {
+    "name": "Help Scout AI",
+    "category": "Customer Support",
+    "website": "https://helpscout.com",
+    "pricing": "Paid",
+    "description": "AI-powered customer support with email summarization, response templates, and conversation automation.",
+    "features": ["Email Summarization", "Response Templates", "Auto-close Conversations", "Agent Efficiency", "Workflow Automation"]
+  },
+  {
+    "name": "LensGo",
+    "category": "Video Styling",
+    "website": "https://lensgo.ai",
+    "pricing": "Freemium",
+    "description": "AI video styling tool transforming boring videos into epic content with zero editing skills required.",
+    "features": ["Video Styling", "No Editing Skills", "Creative Filters", "Content Transformation", "Easy to Use"]
+  },
+  {
+    "name": "SEOmatic",
+    "category": "SEO Content",
+    "website": "https://seomatic.ai",
+    "pricing": "Paid",
+    "description": "Programmatic content creation for niche sites with no-code SEO-friendly page generation at scale.",
+    "features": ["Programmatic Content", "SEO-friendly Pages", "No-code Solution", "Scale Generation", "Niche Sites"]
+  },
+  {
+    "name": "BetterPic",
+    "category": "Photography",
+    "website": "https://betterpic.io",
+    "pricing": "Paid",
+    "description": "AI Headshot Generator delivering 4K professional images with 150+ styles in under an hour.",
+    "features": ["4K Headshots", "150+ Styles", "Professional Quality", "Fast Delivery", "Customization Options"]
+  },
+  {
+    "name": "BiRead",
+    "category": "Language Learning",
+    "website": "https://biread.ai",
+    "pricing": "Freemium",
+    "description": "AI-powered language learning tool with personalized insights and key phrase highlighting for comprehension.",
+    "features": ["Language Learning", "Personalized Insights", "Key Phrases", "Comprehension Boost", "Reading Enhancement"]
+  },
+  {
+    "name": "OpenAI Playground",
+    "category": "AI Development",
+    "website": "https://platform.openai.com/playground",
+    "pricing": "Paid",
+    "description": "AI productivity tool for small businesses with multiple AI models, document upload, and YouTube transcripts.",
+    "features": ["Multiple AI Models", "Document Upload", "YouTube Transcripts", "Small Business Focus", "One Interface"]
+  },
+  {
+    "name": "Coda AI",
+    "category": "Productivity",
+    "website": "https://coda.io",
+    "pricing": "Freemium",
+    "description": "AI-powered workspace with integrations, workflows, content drafting, and table generation capabilities.",
+    "features": ["Custom Workflows", "Content Drafting", "Table Generation", "Powerful Integrations", "Team Collaboration"]
+  },
+  {
+    "name": "Guidejar",
+    "category": "Documentation",
+    "website": "https://guidejar.com",
+    "pricing": "Freemium",
+    "description": "AI-powered platform for creating interactive demos and step-by-step guides for user onboarding.",
+    "features": ["Interactive Demos", "Step-by-step Guides", "User Onboarding", "Product Marketing", "Sales Enablement"]
+  },
+  {
+    "name": "Frase",
+    "category": "Content Marketing",
+    "website": "https://frase.io",
+    "pricing": "Paid",
+    "description": "Content marketing toolbox with keyword research, SERP analysis, and AI writing engine in one package.",
+    "features": ["Keyword Research", "SERP Analysis", "AI Writing", "Content Optimization", "Marketing Focus"]
+  },
+  {
+    "name": "Waymark",
+    "category": "Video Marketing",
+    "website": "https://waymark.com",
+    "pricing": "Freemium",
+    "description": "Create pro-grade marketing videos from product links or text with efficient production and customization.",
+    "features": ["Product Videos", "Marketing Focus", "Efficient Production", "Customization", "Social Media Ready"]
+  },
+  {
+    "name": "Jupitrr AI",
+    "category": "Video Enhancement",
+    "website": "https://jupitrr.com",
+    "pricing": "Freemium",
+    "description": "Auto-create relevant B-roll for content marketing videos with stock videos, GIFs, and more 10x faster.",
+    "features": ["B-roll Generation", "Stock Videos", "GIFs Integration", "Content Marketing", "10x Faster Creation"]
+  },
+  {
+    "name": "Link Whisper",
+    "category": "SEO Tools",
+    "website": "https://linkwhisper.com",
+    "pricing": "Freemium",
+    "description": "AI-powered internal linking tool identifying unlinked products and missed affiliate opportunities.",
+    "features": ["Internal Linking", "Affiliate Opportunities", "Visual Sitemap", "OpenAI Integration", "SEO Optimization"]
+  },
+  {
+    "name": "Typefully",
+    "category": "Social Media Writing",
+    "website": "https://typefully.com",
+    "pricing": "Paid",
+    "description": "Write, schedule, and optimize posts for X and LinkedIn with AI content generation and growth tools.",
+    "features": ["Content Scheduling", "AI Generation", "Growth Tools", "Multi-platform", "Follower Boost"]
+  },
+  {
+    "name": "Merlin AI",
+    "category": "Browser Assistant",
+    "website": "https://merlin.foyer.work",
+    "pricing": "Paid",
+    "description": "Chrome extension bringing AI assistance for content creation, video summarization, and email writing.",
+    "features": ["Content Creation", "Video Summarization", "Email Writing", "Platform Integration", "Multiple AI Models"]
+  },
+  {
+    "name": "MimicPC",
+    "category": "Cloud AI Tools",
+    "website": "https://mimicpc.com",
+    "pricing": "Freemium",
+    "description": "Cloud-based AI tool suite offering easy access to image generation, facial enhancement, and more.",
+    "features": ["Cloud-based Tools", "Image Generation", "Facial Enhancement", "Creative Professionals", "Easy Access"]
+  },
+  {
+    "name": "Colossyan",
+    "category": "AI Video",
+    "website": "https://colossyan.com",
+    "pricing": "Paid",
+    "description": "Generate AI avatar videos in 80+ languages with text-to-speech and professional video templates.",
+    "features": ["AI Avatars", "80+ Languages", "Text-to-Speech", "Professional Templates", "Video Editor"]
+  },
+  {
+    "name": "Copyleaks",
+    "category": "Content Detection",
+    "website": "https://copyleaks.com",
+    "pricing": "Paid",
+    "description": "AI detector and plagiarism checker for content and websites, identifying AI-generated content.",
+    "features": ["AI Detection", "Plagiarism Check", "Website Scanning", "Content Analysis", "Originality Verification"]
+  },
+  {
+    "name": "GhostContent",
+    "category": "Content Repurposing",
+    "website": "https://ghostcontent.ai",
+    "pricing": "Paid",
+    "description": "Repurpose video and audio into social posts, blog articles, and more while maintaining brand voice.",
+    "features": ["Content Repurposing", "Brand Voice Consistency", "Social Posts", "Blog Articles", "Time Saving"]
+  },
+  {
+    "name": "TurnCage",
+    "category": "Website Builder",
+    "website": "https://turncage.com",
+    "pricing": "Paid",
+    "description": "AI-powered platform building professional, SEO-friendly websites for small businesses with no coding.",
+    "features": ["Website Building", "SEO-friendly", "No Coding", "Small Business Focus", "Professional Design"]
+  },
+  {
+    "name": "Soundverse",
+    "category": "Music Generation",
+    "website": "https://soundverse.ai",
+    "pricing": "Freemium",
+    "description": "AI music generator with text-to-music, stem separation, and song beat generation for creators.",
+    "features": ["Text to Music", "Stem Separation", "Beat Generation", "Creator Focus", "High Quality Audio"]
+  },
+  {
+    "name": "Viseur AI",
+    "category": "Medical AI",
+    "website": "https://viseur.ai",
+    "pricing": "Paid",
+    "description": "AI-enabled medical image diagnostics for digital pathology and radiology workflows.",
+    "features": ["Medical Imaging", "Digital Pathology", "Radiology Support", "Diagnostic Accuracy", "Healthcare AI"]
+  },
+  {
+    "name": "LetPlant",
+    "category": "Indoor Farming",
+    "website": "https://letplant.ai",
+    "pricing": "Paid",
+    "description": "AI and sensor-based indoor plant monitoring with real-time health data and predictive insights.",
+    "features": ["Plant Monitoring", "Real-time Data", "Predictive Insights", "Indoor Farming", "Disease Detection"]
+  },
+  {
+    "name": "Arthur AI",
+    "category": "AI Monitoring",
+    "website": "https://arthur.ai",
+    "pricing": "Paid",
+    "description": "AI model monitoring and bias detection platform with model drift tracking and LLM protection.",
+    "features": ["Model Monitoring", "Bias Detection", "Model Drift", "LLM Protection", "Performance Tracking"]
+  },
+  {
+    "name": "Obviously AI",
+    "category": "AutoML",
+    "website": "https://obviously.ai",
+    "pricing": "Paid",
+    "description": "No-code machine learning platform for building predictive models with easy deployment.",
+    "features": ["No-code ML", "Predictive Models", "Data Visualization", "Model Explanation", "Easy Deployment"]
+  },
+  {
+    "name": "MonkeyLearn",
+    "category": "Text Analytics",
+    "website": "https://monkeylearn.com",
+    "pricing": "Freemium",
+    "description": "Text analytics platform with AI for sentiment analysis, text classification, and data extraction.",
+    "features": ["Sentiment Analysis", "Text Classification", "Data Extraction", "API Access", "Custom Models"]
+  },
+  {
+    "name": "Lexalytics",
+    "category": "Text Analytics",
+    "website": "https://lexalytics.com",
+    "pricing": "Paid",
+    "description": "Enterprise text analytics platform for sentiment analysis, entity recognition, and custom models.",
+    "features": ["Enterprise Analytics", "Sentiment Analysis", "Entity Recognition", "Custom Models", "API Integration"]
+  },
+  {
+    "name": "AssemblyAI",
+    "category": "Speech Recognition",
+    "website": "https://assemblyai.com",
+    "pricing": "Paid",
+    "description": "Advanced speech-to-text API with speaker diarization, sentiment analysis, and content moderation.",
+    "features": ["Speech Recognition", "Speaker Diarization", "Sentiment Analysis", "Content Moderation", "API Access"]
+  },
+  {
+    "name": "Deepgram",
+    "category": "Speech Recognition",
+    "website": "https://deepgram.com",
+    "pricing": "Paid",
+    "description": "Advanced speech recognition API with real-time transcription and custom model capabilities.",
+    "features": ["Real-time Transcription", "High Accuracy", "Multiple Languages", "Streaming", "Custom Models"]
+  },
+  {
+    "name": "Podcastle",
+    "category": "Podcast Creation",
+    "website": "https://podcastle.ai",
+    "pricing": "Freemium",
+    "description": "AI podcast creation platform with recording, editing, voice enhancement, and hosting features.",
+    "features": ["Podcast Creation", "AI Editing", "Voice Enhancement", "Hosting", "Collaboration"]
+  },
+  {
+    "name": "Brand24",
+    "category": "Social Monitoring",
+    "website": "https://brand24.com",
+    "pricing": "Paid",
+    "description": "AI-powered social media monitoring with sentiment analysis, influencer identification, and analytics.",
+    "features": ["Social Monitoring", "Sentiment Analysis", "Influencer ID", "Competitive Intelligence", "Analytics"]
+  },
+  {
+    "name": "Hootsuite Insights",
+    "category": "Social Media Analytics",
+    "website": "https://hootsuite.com",
+    "pricing": "Paid",
+    "description": "Social media management platform with AI-powered analytics, content scheduling, and team collaboration.",
+    "features": ["Social Management", "AI Analytics", "Content Scheduling", "Team Collaboration", "Reporting"]
+  },
+  {
+    "name": "Pencil",
+    "category": "Ad Creative",
+    "website": "https://trypencil.com",
+    "pricing": "Paid",
+    "description": "AI ad creative platform for generating and testing marketing visuals at scale with performance optimization.",
+    "features": ["Creative Generation", "Performance Testing", "Brand Assets", "Video Ads", "Static Ads"]
+  },
+  {
+    "name": "Constant Contact AI",
+    "category": "Email Marketing",
+    "website": "https://constantcontact.com",
+    "pricing": "Paid",
+    "description": "Email and digital marketing platform with AI-powered features for automation and recommendations.",
+    "features": ["Email Marketing", "Social Media", "Event Management", "AI Recommendations", "Automation"]
+  },
+  {
+    "name": "Salesforce Einstein",
+    "category": "CRM AI",
+    "website": "https://salesforce.com/products/einstein/",
+    "pricing": "Paid",
+    "description": "AI-powered CRM with predictive analytics, lead scoring, opportunity insights, and automation.",
+    "features": ["Predictive Analytics", "Lead Scoring", "Opportunity Insights", "Automation", "Personalization"]
+  },
+  {
+    "name": "DataRobot",
+    "category": "Enterprise ML",
+    "website": "https://datarobot.com",
+    "pricing": "Paid",
+    "description": "Enterprise AI platform for building and deploying machine learning models with AutoML capabilities.",
+    "features": ["AutoML", "Model Deployment", "MLOps", "Predictive Analytics", "Enterprise Scale"]
+  },
+  {
+    "name": "H2O.ai",
+    "category": "Machine Learning",
+    "website": "https://h2o.ai",
+    "pricing": "Freemium",
+    "description": "Open-source machine learning platform for data science and AI applications with scalable solutions.",
+    "features": ["AutoML", "Open Source", "Scalable", "Enterprise Solutions", "Model Interpretability"]
+  },
+  {
+    "name": "ChatPDF",
+    "category": "Document AI",
+    "website": "https://chatpdf.com",
+    "pricing": "Freemium",
+    "description": "AI tool for analyzing and chatting with PDF documents with multi-language support.",
+    "features": ["PDF Analysis", "Document Chat", "Question Answering", "Summarization", "Multi-language"]
+  },
+  {
+    "name": "DocuAsk",
+    "category": "Document Analysis",
+    "website": "https://docuask.com",
+    "pricing": "Freemium",
+    "description": "AI-powered document analysis and question-answering platform supporting multiple file formats.",
+    "features": ["Document Q&A", "Multiple Formats", "Analysis", "Insights", "Team Features"]
+  },
+  {
+    "name": "SciSpace",
+    "category": "Research AI",
+    "website": "https://scispace.com",
+    "pricing": "Freemium",
+    "description": "AI research assistant for reading and understanding scientific papers with citation help.",
+    "features": ["Paper Analysis", "Research Assistant", "Citation Help", "Literature Review", "Academic Writing"]
+  },
+  {
+    "name": "Elicit",
+    "category": "Research AI",
+    "website": "https://elicit.org",
+    "pricing": "Freemium",
+    "description": "AI research assistant for finding and summarizing academic papers with data extraction capabilities.",
+    "features": ["Paper Search", "Literature Review", "Research Questions", "Data Extraction", "Academic Focus"]
+  },
+  {
+    "name": "Consensus",
+    "category": "Research AI",
+    "website": "https://consensus.app",
+    "pricing": "Freemium",
+    "description": "AI-powered search engine for finding insights in scientific research with evidence-based results.",
+    "features": ["Scientific Search", "Evidence-based", "Citation Analysis", "Research Insights", "Academic Papers"]
+  },
+  {
+    "name": "Scite",
+    "category": "Research Analysis",
+    "website": "https://scite.ai",
+    "pricing": "Freemium",
+    "description": "Citation analysis tool showing how research papers are cited with supporting evidence evaluation.",
+    "features": ["Citation Analysis", "Supporting Evidence", "Research Evaluation", "Paper Discovery", "Academic Integrity"]
+  },
+  {
+    "name": "Humata",
+    "category": "Document AI",
+    "website": "https://humata.ai",
+    "pricing": "Freemium",
+    "description": "AI assistant for analyzing documents and asking questions with file analysis and team workspace features.",
+    "features": ["Document Chat", "File Analysis", "Question Answering", "Summarization", "Team Workspace"]
+  },
+  {
+    "name": "Remove.bg",
+    "category": "Image Editing",
+    "website": "https://remove.bg",
+    "pricing": "Freemium",
+    "description": "AI tool for automatically removing backgrounds from images with bulk processing and API access.",
+    "features": ["Background Removal", "Bulk Processing", "API Access", "High Quality", "Instant Results"]
+  },
+  {
+    "name": "Upscale.media",
+    "category": "Image Enhancement",
+    "website": "https://upscale.media",
+    "pricing": "Freemium",
+    "description": "AI image upscaler for enhancing and enlarging photos without quality loss with batch processing.",
+    "features": ["Image Upscaling", "Quality Enhancement", "Batch Processing", "API Access", "Multiple Formats"]
+  },
+  {
+    "name": "Cleanup.pictures",
+    "category": "Image Editing",
+    "website": "https://cleanup.pictures",
+    "pricing": "Freemium",
+    "description": "AI tool for removing unwanted objects and people from photos with instant processing.",
+    "features": ["Object Removal", "Photo Cleanup", "Instant Processing", "High Quality", "Easy to Use"]
+  },
+  {
+    "name": "Surfer SEO",
+    "category": "SEO Optimization",
+    "website": "https://surferseo.com",
+    "pricing": "Paid",
+    "description": "AI-powered SEO tool for content optimization, keyword research, and SERP analysis.",
+    "features": ["Content Optimization", "Keyword Research", "SERP Analysis", "Content Editor", "Audit Tools"]
+  },
+  {
+    "name": "Semrush",
+    "category": "Digital Marketing",
+    "website": "https://semrush.com",
+    "pricing": "Paid",
+    "description": "Comprehensive SEO and digital marketing platform with AI features for analysis and optimization.",
+    "features": ["SEO Analysis", "Keyword Research", "Content Marketing", "PPC Tools", "Social Media"]
+  },
+  {
+    "name": "Ahrefs",
+    "category": "SEO Tools",
+    "website": "https://ahrefs.com",
+    "pricing": "Paid",
+    "description": "SEO toolset for backlink analysis, keyword research, content optimization, and rank tracking.",
+    "features": ["Backlink Analysis", "Keyword Research", "Content Gap", "Rank Tracking", "Site Audit"]
+  },
+  {
+    "name": "Rev AI",
+    "category": "Transcription",
+    "website": "https://rev.ai",
+    "pricing": "Paid",
+    "description": "Professional speech-to-text API and transcription service with high accuracy and custom models.",
+    "features": ["Speech to Text", "API Access", "High Accuracy", "Multiple Languages", "Custom Models"]
+  },
+  {
+    "name": "Fathom",
+    "category": "Meeting AI",
+    "website": "https://fathom.video",
+    "pricing": "Freemium",
+    "description": "AI meeting assistant that records, transcribes, summarizes meetings with action items and CRM integration.",
+    "features": ["Meeting Recording", "Transcription", "Summaries", "Action Items", "CRM Integration"]
+  },
+  {
+    "name": "Krisp",
+    "category": "Audio Enhancement",
+    "website": "https://krisp.ai",
+    "pricing": "Freemium",
+    "description": "AI noise cancellation and audio enhancement for calls with meeting insights and recording features.",
+    "features": ["Noise Cancellation", "Voice Enhancement", "Meeting Insights", "Call Recording", "Real-time"]
+  },
+  {
+    "name": "Xero AI",
+    "category": "Accounting",
+    "website": "https://xero.com",
+    "pricing": "Paid",
+    "description": "Cloud-based accounting platform using AI to automate financial tasks, invoicing, and expense management.",
+    "features": ["Financial Automation", "Invoicing", "Expense Management", "Financial Reports", "Real-time Insights"]
+  },
+  {
+    "name": "QuickBooks AI",
+    "category": "Accounting",
+    "website": "https://quickbooks.intuit.com",
+    "pricing": "Paid",
+    "description": "AI-powered accounting platform with automated expense categorization and tax preparation assistance.",
+    "features": ["Expense Categorization", "Tax Calculations", "Financial Performance", "Mobile Access", "Business Integration"]
+  },
+  {
+    "name": "SparkToro",
+    "category": "Market Research",
+    "website": "https://sparktoro.com",
+    "pricing": "Paid",
+    "description": "AI-powered audience research tool revealing audience interests, demographics, and behaviors for marketing.",
+    "features": ["Audience Research", "Demographics Analysis", "Interest Mapping", "Behavior Insights", "Marketing Optimization"]
+  },
+  {
+    "name": "TrendWatching",
+    "category": "Trend Analysis",
+    "website": "https://trendwatching.com",
+    "pricing": "Paid",
+    "description": "AI-powered trend forecasting service identifying emerging trends and their business impact.",
+    "features": ["Trend Forecasting", "Industry Analysis", "Business Impact", "Market Changes", "Competitive Advantage"]
+  },
+  {
+    "name": "TensorFlow",
+    "category": "Machine Learning Framework",
+    "website": "https://tensorflow.org",
+    "pricing": "Free",
+    "description": "Open-source machine learning library with deep learning support and scalable architecture for large datasets.",
+    "features": ["Deep Learning", "Neural Networks", "Multi-language Support", "Scalable Architecture", "Rich Ecosystem"]
+  },
+  {
+    "name": "PyTorch",
+    "category": "Machine Learning Framework",
+    "website": "https://pytorch.org",
+    "pricing": "Free",
+    "description": "Open-source machine learning framework with dynamic computation graphs and research focus.",
+    "features": ["Dynamic Graphs", "Research Focus", "GPU Acceleration", "Python Integration", "Community Support"]
+  },
+  {
+    "name": "Hugging Face",
+    "category": "AI Models",
+    "website": "https://huggingface.co",
+    "pricing": "Freemium",
+    "description": "Platform for sharing and deploying AI models with transformers library and model hub.",
+    "features": ["Model Hub", "Transformers Library", "Model Deployment", "Community", "Pre-trained Models"]
+  },
+  {
+    "name": "RapidMiner",
+    "category": "Data Science",
+    "website": "https://rapidminer.com",
+    "pricing": "Freemium",
+    "description": "Data science platform with visual workflow design and automated machine learning capabilities.",
+    "features": ["Visual Workflows", "AutoML", "Data Preparation", "Model Deployment", "Enterprise Features"]
+  },
+  {
+    "name": "Google AI Studio",
+    "category": "AI Development",
+    "website": "https://aistudio.google.com",
+    "pricing": "Free",
+    "description": "Google's AI development platform with free access to AI tools including translation and video intelligence.",
+    "features": ["Translation API", "Speech-to-Text", "Natural Language", "Video Intelligence", "Free Usage Limits"]
+  }
+
+
+]
