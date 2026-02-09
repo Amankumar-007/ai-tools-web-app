@@ -3,16 +3,43 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import { supabase } from "@/lib/supabase-browser";
 import { highlight } from 'sugar-high';
 import Modal from 'react-modal';
 import AiInput from "@/components/ui/ai-input";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import Prism from 'prismjs';
+import { extractTextFromPdf } from "@/services/pdfService";
+import 'prismjs/themes/prism-tomorrow.css';
+import 'prismjs/components/prism-typescript';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-markdown';
+import 'prismjs/components/prism-scss';
+import 'prismjs/components/prism-sql';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-c';
+import 'prismjs/components/prism-markup';
+import 'prismjs/components/prism-css';
+import 'prismjs/components/prism-yaml';
+import 'prismjs/components/prism-go';
+import 'prismjs/components/prism-jsx';
+import 'prismjs/components/prism-tsx';
 
 // Set modal app element for accessibility
 if (typeof window !== 'undefined') {
   Modal.setAppElement('body');
 }
+
+// Dynamic import for Framer Motion to avoid SSR issues
+const MotionDiv = dynamic(() => import('framer-motion').then((mod) => ({ default: mod.motion.div })), {
+  ssr: false,
+  loading: () => <div />
+});
 
 type Role = "user" | "assistant" | "system";
 
@@ -39,10 +66,171 @@ function formatTitleFromPrompt(text: string) {
   return (text || "New chat").split("\n").slice(0, 40).join(" ") || "New chat";
 }
 
+// Code Block Component with Copy Functionality
+const CodeBlock = ({ language, value, copiedCode, onCopy }: { language: string, value: string, copiedCode: string, onCopy: (code: string, id: string) => void }) => {
+  const codeId = useMemo(() => Math.random().toString(36).substring(7), []);
+
+  useEffect(() => {
+    Prism.highlightAll();
+  }, [value, language]);
+
+  return (
+    <div className="my-4 group relative max-w-full rounded-lg overflow-hidden bg-[#1d1f21] border border-gray-700/60 shadow-lg" style={{ fontFamily: 'var(--font-mono)' }}>
+      <div className="flex items-center justify-between px-4 py-2.5 bg-[#2d2d2d] border-b border-gray-700/60">
+        <div className="flex items-center gap-2">
+          <div className="flex space-x-1.5">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
+            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
+            <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
+          </div>
+          <span className="text-xs font-mono text-gray-300 px-2 py-0.5 rounded bg-[#3e3e3e] border border-gray-600/50">
+            {language}
+          </span>
+        </div>
+        <button
+          onClick={() => onCopy(value, codeId)}
+          className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-gray-300 hover:text-white hover:bg-gray-600/50 rounded transition-colors"
+        >
+          {copiedCode === codeId ? (
+            <>
+              <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              <span>Copied</span>
+            </>
+          ) : (
+            <>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span>Copy</span>
+            </>
+          )}
+        </button>
+      </div>
+      <pre className={`language-${language}`} style={{ margin: 0, padding: '1.5rem', fontSize: '0.875rem', lineHeight: '1.5', background: 'transparent' }}>
+        <code className={`language-${language}`}>{value}</code>
+      </pre>
+    </div>
+  );
+};
+
+// Model Selection Modal Component
+function ModelSelectionModal({ isOpen, onClose, selectedModel, onSelectModel }: { 
+  isOpen: boolean; 
+  onClose: () => void;
+  selectedModel: string;
+  onSelectModel: (model: string) => void;
+}) {
+  const models = [
+    { id: "arcee-ai/trinity-large-preview:free", name: "Trinity Large Preview", description: "Advanced reasoning model", free: true },
+    { id: "tngtech/deepseek-r1t2-chimera:free", name: "DeepSeek R1T2 Chimera", description: "Advanced reasoning model", free: true },
+    { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air", description: "Fast and efficient model", free: true },
+    { id: "tngtech/deepseek-r1t-chimera:free", name: "DeepSeek R1T Chimera", description: "Advanced reasoning model", free: true },
+    { id: "deepseek/deepseek-r1-0528:free", name: "DeepSeek R1", description: "DeepSeek reasoning model", free: true },
+    { id: "nvidia/nemotron-3-nano-30b-a3b:free", name: "Nemotron 3 Nano 30B", description: "NVIDIA compact model", free: true },
+    { id: "stepfun/step-3.5-flash:free", name: "Step 3.5 Flash", description: "Fast multimodal model", free: true },
+    { id: "tngtech/tng-r1t-chimera:free", name: "TNG R1T Chimera", description: "Advanced reasoning model", free: true },
+    { id: "openai/gpt-oss-120b:free", name: "GPT OSS 120B", description: "Large open source model", free: true },
+    { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B", description: "Meta's latest model", free: true },
+    { id: "upstage/solar-pro-3:free", name: "Solar Pro 3", description: "Professional grade model", free: true },
+    { id: "qwen/qwen3-coder:free", name: "Qwen 3 Coder", description: "Specialized coding model", free: true },
+    { id: "google/gemma-3-27b-it:free", name: "Gemma 3 27B", description: "Google's instruction model", free: true },
+    { id: "arcee-ai/trinity-mini:free", name: "Trinity Mini", description: "Compact reasoning model", free: true },
+    { id: "qwen/qwen3-next-80b-a3b-instruct:free", name: "Qwen 3 Next 80B", description: "Next generation model", free: true },
+    { id: "openai/gpt-oss-20b:free", name: "GPT OSS 20B", description: "Open source GPT model", free: true },
+    { id: "nvidia/nemotron-nano-12b-2-vl:free", name: "Nemotron Nano 12B VL", description: "Vision-language model", free: true },
+    { id: "allenai/molmo2-8b:free", name: "Molmo 2 8B", description: "Multimodal model", free: true },
+    { id: "nvidia/nemotron-nano-9b-v2:free", name: "Nemotron Nano 9B v2", description: "Compact NVIDIA model", free: true },
+    { id: "venice/uncensored:free", name: "Venice Uncensored", description: "Uncensored model", free: true },
+    { id: "liquidai/lfm2.5-1.2b-thinking:free", name: "LFM 2.5 1.2B Thinking", description: "Thinking specialized model", free: true },
+    { id: "liquidai/lfm2.5-1.2b-instruct:free", name: "LFM 2.5 1.2B Instruct", description: "Instruction following model", free: true },
+    { id: "nousresearch/hermes-3-405b-instruct:free", name: "Hermes 3 405B", description: "Large instruction model", free: true },
+    { id: "mistralai/mistral-small-3.1-24b:free", name: "Mistral Small 3.1 24B", description: "Efficient small model", free: true },
+    { id: "qwen/qwen3-4b:free", name: "Qwen 3 4B", description: "Compact Qwen model", free: true },
+    { id: "google/gemma-3n-2b:free", name: "Gemma 3N 2B", description: "Compact Gemma model", free: true },
+    { id: "meta-llama/llama-3.2-3b-instruct:free", name: "Llama 3.2 3B", description: "Compact Llama model", free: true },
+    { id: "google/gemma-3-12b-it:free", name: "Gemma 3 12B", description: "Balanced Gemma model", free: true },
+    { id: "google/gemma-3-4b:free", name: "Gemma 3 4B", description: "Small Gemma model", free: true },
+    { id: "qwen/qwen2.5-vl-7b-instruct:free", name: "Qwen 2.5 VL 7B", description: "Vision-language model", free: true },
+    { id: "google/gemma-3n-4b:free", name: "Gemma 3N 4B", description: "Compact Gemma model", free: true },
+    { id: "meta-llama/llama-3.1-405b-instruct:free", name: "Llama 3.1 405B", description: "Large Llama model", free: true },
+    { id: "openrouter/free:free", name: "OpenRouter Free", description: "Default free model", free: true },
+  ];
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onClose}
+      className="fixed inset-0 flex items-center justify-center p-4 z-50"
+      overlayClassName="fixed inset-0 bg-black bg-opacity-50 z-50"
+    >
+      <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-200/50 dark:border-gray-700/50 max-h-[80vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Select AI Model</h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors"
+          >
+            <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          {models.map((model) => (
+            <button
+              key={model.id}
+              onClick={() => {
+                onSelectModel(model.id);
+                onClose();
+              }}
+              className={`w-full text-left p-4 rounded-xl transition-all duration-200 border ${
+                selectedModel === model.id
+                  ? "bg-blue-50/50 dark:bg-blue-900/20 border-blue-200/50 dark:border-blue-700/50"
+                  : "bg-gray-50/50 dark:bg-gray-700/30 border-gray-200/30 dark:border-gray-600/30 hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
+              }`}
+            >
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{model.name}</h3>
+                    {model.free && (
+                      <span className="px-2 py-1 text-xs bg-green-100/80 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-medium">
+                        Free
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{model.description}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 font-mono">{model.id}</p>
+                </div>
+                {selectedModel === model.id && (
+                  <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-gray-200/30 dark:border-gray-700/30">
+          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+            Free models have usage limits. Paid models require API credits.
+          </p>
+        </div>
+      </div>
+    </Modal>
+  );
+}
+
 // Login Popup Component
 function LoginPopup({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const router = useRouter();
-  
+
   return (
     <Modal
       isOpen={isOpen}
@@ -59,7 +247,7 @@ function LoginPopup({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
             Please login or create an account to continue
           </p>
         </div>
-        
+
         <div className="space-y-4">
           <button
             onClick={() => router.push('/login')}
@@ -67,7 +255,7 @@ function LoginPopup({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
           >
             Login
           </button>
-          
+
           <button
             onClick={() => router.push('/register')}
             className="w-full bg-green-600/90 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-all duration-300 font-medium backdrop-blur-sm"
@@ -75,7 +263,7 @@ function LoginPopup({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
             Sign Up
           </button>
         </div>
-        
+
         <button
           onClick={onClose}
           className="w-full mt-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors text-sm"
@@ -101,8 +289,13 @@ export default function ChatGPTPage() {
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [copiedCode, setCopiedCode] = useState<string>("");
   const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [attachment, setAttachment] = useState<{ type: 'image' | 'text', content?: string, url?: string, name: string } | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectedModel, setSelectedModel] = useState("tngtech/deepseek-r1t2-chimera:free");
+  const [showModelModal, setShowModelModal] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
 
   // Copy code to clipboard function
@@ -138,7 +331,7 @@ export default function ChatGPTPage() {
     const savedTheme = localStorage.getItem("theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const shouldUseDark = savedTheme === "dark" || (!savedTheme && prefersDark);
-    
+
     setIsDarkMode(shouldUseDark);
     document.documentElement.classList.toggle("dark", shouldUseDark);
   }, []);
@@ -152,7 +345,7 @@ export default function ChatGPTPage() {
   // Load conversations from localStorage
   useEffect(() => {
     if (!user) return;
-    
+
     try {
       const raw = localStorage.getItem(`chatgpt_convos_v1_${user.id}`);
       if (raw) {
@@ -163,16 +356,16 @@ export default function ChatGPTPage() {
           setHasStartedChat(true);
         }
       }
-    } catch {}
+    } catch { }
   }, [user]);
 
   // Persist conversations to localStorage
   useEffect(() => {
     if (!user) return;
-    
+
     try {
       localStorage.setItem(`chatgpt_convos_v1_${user.id}`, JSON.stringify(convos));
-    } catch {}
+    } catch { }
   }, [convos, user]);
 
   const active = useMemo(
@@ -183,9 +376,9 @@ export default function ChatGPTPage() {
   // Scroll to bottom of messages
   useEffect(() => {
     if (listRef.current) {
-      listRef.current.scrollTo({ 
-        top: listRef.current.scrollHeight, 
-        behavior: "smooth" 
+      listRef.current.scrollTo({
+        top: listRef.current.scrollHeight,
+        behavior: "smooth"
       });
     }
   }, [active?.messages.length]);
@@ -205,13 +398,13 @@ export default function ChatGPTPage() {
       title: formatTitleFromPrompt(seed || "New chat"),
       messages: seed
         ? [
-            {
-              id: uid(),
-              role: "user",
-              content: seed,
-              createdAt: now,
-            },
-          ]
+          {
+            id: uid(),
+            role: "user",
+            content: seed,
+            createdAt: now,
+          },
+        ]
         : [],
       createdAt: now,
       updatedAt: now,
@@ -238,9 +431,61 @@ export default function ChatGPTPage() {
     }));
   }
 
-  async function sendMessage(e?: React.FormEvent) {
-    e?.preventDefault();
-    const text = input.trim();
+  const processFile = async (file: File) => {
+    setIsUploading(true);
+    try {
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = async () => {
+          const base64Image = reader.result as string;
+          const res = await fetch('/api/upload-image', {
+            method: 'POST',
+            body: JSON.stringify({ image: base64Image }),
+          });
+          const data = await res.json();
+          if (data.url) {
+            setAttachment({ type: 'image', url: data.url, name: file.name });
+          }
+          setIsUploading(false);
+        };
+      } else if (file.type === 'application/pdf') {
+        const text = await extractTextFromPdf(file);
+        setAttachment({ type: 'text', content: text, name: file.name });
+        setIsUploading(false);
+      } else {
+        // Plain text
+        const text = await file.text();
+        setAttachment({ type: 'text', content: text, name: file.name });
+        setIsUploading(false);
+      }
+    } catch (err) {
+      console.error("File upload error", err);
+      setIsUploading(false);
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) processFile(file);
+    // Reset input so same file can be selected again if needed
+    e.target.value = "";
+  };
+
+  const handleAiInputFileSelect = (file: File | null) => {
+    if (file) {
+      processFile(file);
+    } else {
+      setAttachment(null);
+    }
+  };
+
+  const removeAttachment = () => {
+    setAttachment(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  async function submitMessage(text: string) {
     if (!text) return;
 
     if (!user) {
@@ -250,6 +495,8 @@ export default function ChatGPTPage() {
 
     setLoading(true);
     setInput("");
+    if (fileInputRef.current) fileInputRef.current.value = "";
+
     if (!hasStartedChat) setHasStartedChat(true);
 
     let convo = active;
@@ -257,10 +504,16 @@ export default function ChatGPTPage() {
       convo = createNewChat();
     }
 
-    const userMsg: Message = { id: uid(), role: "user", content: text, createdAt: Date.now() };
+    const messageContent = attachment?.type === 'image' && attachment.url
+      ? `![${attachment.name}](${attachment.url})\n\n${text}`
+      : attachment?.type === 'text' && attachment.content
+        ? `${text}\n\n[Attached File: ${attachment.name}]\n${attachment.content}`
+        : text;
+
+    const userMsg: Message = { id: uid(), role: "user", content: messageContent, createdAt: Date.now() };
     setMessageAnimations(prev => new Set([...prev, userMsg.id]));
+
     setConvos(prev => {
-      // If this is a new conversation, add it to the beginning of the list
       if (!prev.some(c => c.id === convo?.id) && convo) {
         return [{
           ...convo,
@@ -269,33 +522,49 @@ export default function ChatGPTPage() {
           updatedAt: Date.now(),
         }, ...prev];
       }
-    
-      // Otherwise, update the existing conversation
-      return prev.map(c => 
-        c.id === convo?.id 
+      return prev.map(c =>
+        c.id === convo?.id
           ? {
-              ...c,
-              title: c.messages.length === 0 ? formatTitleFromPrompt(text) : c.title,
-              messages: [...c.messages, userMsg],
-              updatedAt: Date.now(),
-            }
+            ...c,
+            title: c.messages.length === 0 ? formatTitleFromPrompt(text) : c.title,
+            messages: [...c.messages, userMsg],
+            updatedAt: Date.now(),
+          }
           : c
       );
     });
 
-    // Streaming request
+    // Clear attachment state (optimistic)
+    setAttachment(null);
+
     const assistantId = uid();
     setMessageAnimations(prev => new Set([...prev, assistantId]));
     upsertAssistantStreaming(convo!.id, assistantId, "", true);
 
+    let apiMessages = [
+      { role: "system", content: "You are TomatoAI, a helpful and professional AI assistant." },
+      ...convo!.messages.map((m) => ({ role: m.role, content: m.content })),
+    ];
+
+    let lastMessageContent: any = text;
+    let modelToUse = selectedModel;
+
+    if (attachment?.type === 'image' && attachment.url) {
+      lastMessageContent = [
+        { type: 'text', text: text },
+        { type: 'image_url', image_url: { url: attachment.url } }
+      ];
+      modelToUse = "google/gemini-2.0-flash-exp:free";
+    } else if (attachment?.type === 'text' && attachment.content) {
+      lastMessageContent = `${text}\n\n[Attached File Content]:\n${attachment.content}`;
+    }
+
+    apiMessages.push({ role: "user", content: lastMessageContent });
+
     try {
       const payload = {
-        messages: [
-          { role: "system", content: "You are TomatoAI, a helpful and professional AI assistant." },
-          ...convo!.messages.map((m) => ({ role: m.role, content: m.content })),
-          { role: "user", content: text },
-        ],
-        model: "openai/gpt-4o-mini",
+        messages: apiMessages,
+        model: modelToUse,
         temperature: 0.6,
       };
 
@@ -322,143 +591,46 @@ export default function ChatGPTPage() {
         if (done) break;
         if (value) {
           const chunk = decoder.decode(value, { stream: true });
-          // Append chunk to assistant message
           upsertAssistantStreaming(convo!.id, assistantId, chunk);
         }
       }
     } catch (err: any) {
-      // Replace assistant placeholder with error
       setConvos(prev =>
         prev.map(c =>
           c.id === convo!.id
             ? {
-                ...c,
-                messages: c.messages.map(m =>
-                  m.id === assistantId
-                    ? { ...m, content: `Error: ${err?.message || "Something went wrong"}` }
-                    : m
-                ),
-                updatedAt: Date.now(),
-              }
+              ...c,
+              messages: c.messages.map(m =>
+                m.id === assistantId
+                  ? { ...m, content: `Error: ${err?.message || "Something went wrong"}` }
+                  : m
+              ),
+              updatedAt: Date.now(),
+            }
             : c
         )
       );
     } finally {
       setLoading(false);
     }
+  }
+
+  async function sendMessage(e?: React.FormEvent) {
+    e?.preventDefault();
+    submitMessage(input.trim());
+  }
+
+  async function sendText(text: string) {
+    submitMessage(text.trim());
   }
 
   // Helper to submit arbitrary text (used by AiInput and quick prompts)
-  async function sendText(text: string) {
-    const trimmed = text.trim();
-    if (!trimmed) return;
 
-    if (!user) {
-      setShowLoginPopup(true);
-      return;
-    }
-
-    setLoading(true);
-    if (!hasStartedChat) setHasStartedChat(true);
-
-    let convo = active;
-    if (!convo) {
-      convo = createNewChat();
-    }
-
-    const userMsg: Message = { id: uid(), role: "user", content: trimmed, createdAt: Date.now() };
-    setMessageAnimations(prev => new Set([...prev, userMsg.id]));
-    setConvos(prev => {
-      const updatedConvos = prev.map(c => {
-        if (c.id !== convo?.id) return c;
-        
-        return {
-          ...c,
-          title: c.messages.length === 0 ? formatTitleFromPrompt(trimmed) : c.title,
-          messages: [...c.messages, userMsg],
-          updatedAt: Date.now(),
-        };
-      });
-      
-      // If the conversation wasn't found in prev, create a new one
-      if (!prev.some(c => c.id === convo?.id) && convo) {
-        return [{
-          ...convo,
-          title: formatTitleFromPrompt(trimmed),
-          messages: [...convo.messages, userMsg],
-          updatedAt: Date.now(),
-        }, ...prev];
-      }
-      
-      return updatedConvos;
-    });
-
-    const assistantId = uid();
-    setMessageAnimations(prev => new Set([...prev, assistantId]));
-    upsertAssistantStreaming(convo!.id, assistantId, "", true);
-
-    try {
-      const payload = {
-        messages: [
-          { role: "system", content: "You are TomatoAI, a helpful and professional AI assistant." },
-          ...convo!.messages.map((m) => ({ role: m.role, content: m.content })),
-          { role: "user", content: trimmed },
-        ],
-        model: "openai/gpt-4o-mini",
-        temperature: 0.6,
-      };
-
-      const res = await fetch("/api/chatgpt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText);
-      }
-
-      if (!res.body) {
-        throw new Error("Readable stream not supported by browser/route.");
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        if (value) {
-          const chunk = decoder.decode(value, { stream: true });
-          upsertAssistantStreaming(convo!.id, assistantId, chunk);
-        }
-      }
-    } catch (err: any) {
-      setConvos(prev =>
-        prev.map(c =>
-          c.id === (convo?.id || "")
-            ? {
-                ...c,
-                messages: c.messages.map(m =>
-                  m.id === assistantId
-                    ? { ...m, content: `Error: ${err?.message || "Something went wrong"}` }
-                    : m
-                ),
-                updatedAt: Date.now(),
-              }
-            : c
-        )
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
 
   function deleteConvo(id: string) {
     setConvos((prevConvos) => {
       const updatedConvos = prevConvos.filter((c) => c.id !== id);
-      
+
       if (user) {
         if (updatedConvos.length === 0) {
           localStorage.removeItem(`chatgpt_convos_v1_${user.id}`);
@@ -466,12 +638,12 @@ export default function ChatGPTPage() {
           localStorage.setItem(`chatgpt_convos_v1_${user.id}`, JSON.stringify(updatedConvos));
         }
       }
-      
+
       if (activeId === id) {
         setActiveId(updatedConvos.length > 0 ? updatedConvos[0].id : null);
         setHasStartedChat(updatedConvos.length > 0);
       }
-      
+
       return updatedConvos;
     });
   }
@@ -480,7 +652,7 @@ export default function ChatGPTPage() {
     setConvos([]);
     setActiveId(null);
     setHasStartedChat(false);
-    
+
     if (user) {
       localStorage.removeItem(`chatgpt_convos_v1_${user.id}`);
     }
@@ -493,167 +665,89 @@ export default function ChatGPTPage() {
     setMessageAnimations(new Set());
   }
 
-  function formatMessage(content: string) {
-    // Fixed regex: looking for ```language\ncode\n``` pattern
-    const codeBlockRegex = /```(\w*)\n?([\s\S]*?)```/g;
-    const inlineCodeRegex = /`([^`]+)`/g;
-    const parts = [];
-    let lastIndex = 0;
-    let match;
+  const MarkdownRenderer = ({ content }: { content: string }) => {
+    const [copiedCode, setCopiedCode] = useState<string>("");
 
-    while ((match = codeBlockRegex.exec(content)) !== null) {
-      // Add text before code block
-      if (match.index > lastIndex) {
-        let textContent = content.slice(lastIndex, match.index);
-        
-        // Handle inline code in text content
-        textContent = textContent.replace(inlineCodeRegex, (_, code) => 
-          `<code class="inline-code">${code}</code>`
-        );
-        
-       // Process headlines and make them bold
-let processedContent = textContent
-.replace(/^(#{1,6})\s+(.*$)/gm, '<h$1 class="font-bold text-lg mb-2">$2</h$1>')
-.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold">$1</strong>')
-.replace(/\n/g, '<br />');
+    const onCopy = (code: string, id: string) => {
+      navigator.clipboard.writeText(code);
+      setCopiedCode(id);
+      setTimeout(() => setCopiedCode(""), 2000);
+    };
 
-parts.push(
-<div 
-  key={`text-${lastIndex}`} 
-  className="prose prose-gray dark:prose-invert max-w-none mb-4"
-  dangerouslySetInnerHTML={{ __html: processedContent }}
-/>
-);
-      }
-
-      const language = match[1] || 'text';
-      const code = match[2].trim();
-      const codeId = `code-${match.index}`;
-      const highlightedCode = highlight(code);
-      
-      parts.push(
-        <div key={codeId} className="my-6 group relative max-w-full">
-          <div className={`relative rounded-lg overflow-hidden bg-[#1e1e1e] border border-gray-700/60 shadow-lg ${copiedCode === codeId ? 'ring-2 ring-blue-500/50' : ''}`}>
-            {/* Header with language and actions */}
-            <div className="flex items-center justify-between px-4 py-2.5 bg-[#1e1e1e] border-b border-gray-700/60">
-              <div className="flex items-center gap-2">
-                <div className="flex space-x-1.5">
-                  <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-                  <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-                  <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
-                </div>
-                <span className="text-xs font-mono text-gray-300 px-2 py-0.5 rounded bg-[#2d2d2d] border border-gray-700/50">
-                  {language}
-                </span>
-              </div>
-              <button
-                onClick={() => copyToClipboard(code, codeId)}
-                className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-gray-300 hover:text-white hover:bg-gray-700/50 rounded transition-colors"
-                aria-label={copiedCode === codeId ? 'Copied' : 'Copy code'}
-              >
-                {copiedCode === codeId ? (
-                  <>
-                    <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                    <span>Copied</span>
-                  </>
-                ) : (
-                  <>
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                    <span>Copy</span>
-                  </>
-                )}
-              </button>
+    return (
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          code({ node, className, children, ...props }: any) {
+            const match = /language-(\w+)/.exec(className || "");
+            const inline = props.inline;
+            return !inline && match ? (
+              <CodeBlock
+                language={match[1]}
+                value={String(children).replace(/\n$/, "")}
+                copiedCode={copiedCode}
+                onCopy={onCopy}
+              />
+            ) : (
+              <code className="inline-code" {...props}>
+                {children}
+              </code>
+            );
+          },
+          p: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>,
+          a: ({ href, children }) => (
+            <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+              {children}
+            </a>
+          ),
+          ul: ({ children }) => <ul className="list-disc list-inside mb-4 pl-4">{children}</ul>,
+          ol: ({ children }) => <ol className="list-decimal list-inside mb-4 pl-4">{children}</ol>,
+          li: ({ children }) => <li className="mb-1">{children}</li>,
+          h1: ({ children }) => <h1 className="text-3xl font-bold mb-4 mt-6">{children}</h1>,
+          h2: ({ children }) => <h2 className="text-2xl font-bold mb-3 mt-5">{children}</h2>,
+          h3: ({ children }) => <h3 className="text-xl font-bold mb-2 mt-4">{children}</h3>,
+          blockquote: ({ children }) => (
+            <blockquote className="border-l-4 border-gray-300 pl-4 py-2 italic text-gray-600 dark:text-gray-400 my-4">
+              {children}
+            </blockquote>
+          ),
+          table: ({ children }) => (
+            <div className="overflow-x-auto my-4">
+              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg">
+                {children}
+              </table>
             </div>
-            
-            {/* Code content */}
-            <div className="overflow-x-auto">
-              <pre className="p-4 text-[13px] leading-relaxed text-gray-200 min-w-0 font-mono" style={{
-                fontFeatureSettings: '"liga" 0, "calt" 0',
-                WebkitFontSmoothing: 'antialiased',
-                fontVariant: 'no-contextual',
-                backgroundColor: '#1e1e1e',
-                lineHeight: '1.5',
-                tabSize: 2
-              }}>
-                <code 
-                  className="font-mono"
-                  style={{
-                    fontFamily: 'var(--font-mono)',
-                    whiteSpace: 'pre',
-                    wordWrap: 'normal',
-                    color: '#d4d4d4'
-                  }}
-                  dangerouslySetInnerHTML={{ 
-                    __html: highlightedCode
-                      // VS Code color scheme for sugar-high tokens
-                      .replace(/<span class="sh_comment"/g, '<span style="color: #6A9955"')
-                      .replace(/<span class="sh_keyword"/g, '<span style="color: #569cd6"')
-                      .replace(/<span class="sh_string"/g, '<span style="color: #ce9178"')
-                      .replace(/<span class="sh_number"/g, '<span style="color: #b5cea8"')
-                      .replace(/<span class="sh_property"/g, '<span style="color: #9cdcfe"')
-                      .replace(/<span class="sh_operator"/g, '<span style="color: #d4d4d4"')
-                      .replace(/<span class="sh_punctuation"/g, '<span style="color: #d4d4d4"')
-                      .replace(/<span class="sh_function"/g, '<span style="color: #dcdcaa"')
-                      .replace(/<span class="sh_selector"/g, '<span style="color: #d7ba7d"')
-                      .replace(/<span class="sh_attr-name"/g, '<span style="color: #9cdcfe"')
-                      .replace(/<span class="sh_attr-value"/g, '<span style="color: #ce9178"')
-                      .replace(/<span class="sh_tag"/g, '<span style="color: #569cd6"')
-                      .replace(/<span class="sh_selector-class"/g, '<span style="color: #d7ba7d"')
-                      .replace(/<span class="sh_selector-id"/g, '<span style="color: #d7ba7d"')
-                      // Fallback for any other tokens
-                      .replace(/<span class="sh_[^"]*"/g, '<span style="color: #d4d4d4"')
-                  }}
-                />
-              </pre>
-            </div>
-          </div>
-        </div>
-      );
-
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Add remaining text after last code block
-    if (lastIndex < content.length) {
-      let textContent = content.slice(lastIndex);
-      
-      // Handle inline code in remaining text
-      textContent = textContent.replace(inlineCodeRegex, (_, code) => 
-        `<code class="inline-code">${code}</code>`
-      );
-      
-      parts.push(
-        <div 
-          key={`text-${lastIndex}`} 
-          className="prose prose-gray dark:prose-invert max-w-none"
-          dangerouslySetInnerHTML={{
-            __html: textContent.replace(/\n/g, '<br />')
-          }}
-        />
-      );
-    }
-
-    // If no parts were created, return the original content
-    return parts.length > 0 ? parts : (
-      <div className="prose prose-gray dark:prose-invert max-w-none">
-        <div className="text-gray-800 dark:text-gray-200 leading-relaxed whitespace-pre-wrap font-['Inter','system-ui','-apple-system','BlinkMacSystemFont','Segoe_UI','Roboto','sans-serif'] text-[15px] font-normal">
-          {content}
-        </div>
-      </div>
+          ),
+          thead: ({ children }) => <thead className="bg-gray-50 dark:bg-gray-800">{children}</thead>,
+          tbody: ({ children }) => <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">{children}</tbody>,
+          tr: ({ children }) => <tr className="hover:bg-gray-50 dark:hover:bg-gray-800">{children}</tr>,
+          th: ({ children }) => (
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+              {children}
+            </th>
+          ),
+          td: ({ children }) => (
+            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+              {children}
+            </td>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
     );
-  }
+  };
+
+
+
 
   if (isAuthChecking) {
     return (
-      <div 
+      <div
         className="flex items-center justify-center min-h-screen bg-no-repeat bg-center bg-cover transition-all duration-1000 ease-in-out"
         style={{
-          backgroundImage: isDarkMode 
-            ? "url('/chatbot2.png')" 
+          backgroundImage: isDarkMode
+            ? "url('/chatbot2.png')"
             : "url('/chatbot1.png')",
           transition: 'background-image 1s ease-in-out'
         }}
@@ -667,12 +761,12 @@ parts.push(
   }
 
   return (
-    <div 
+    <div
       className="flex h-screen font-['Inter','system-ui','-apple-system','BlinkMacSystemFont','Segoe_UI','Roboto','sans-serif'] relative overflow-hidden antialiased transition-all duration-1000 ease-in-out"
       style={{
         backgroundColor: hasStartedChat ? (isDarkMode ? '#111827' : '#FFFFFF') : 'transparent',
-        backgroundImage: !hasStartedChat 
-          ? isDarkMode 
+        backgroundImage: !hasStartedChat
+          ? isDarkMode
             ? 'url(/chatbot2.png)'
             : 'url(/chatbot1.png)'
           : 'none',
@@ -812,9 +906,17 @@ parts.push(
       `}</style>
 
       {/* Login Popup */}
-      <LoginPopup 
-        isOpen={showLoginPopup} 
+      <LoginPopup
+        isOpen={showLoginPopup}
         onClose={() => setShowLoginPopup(false)}
+      />
+
+      {/* Model Selection Modal */}
+      <ModelSelectionModal
+        isOpen={showModelModal}
+        onClose={() => setShowModelModal(false)}
+        selectedModel={selectedModel}
+        onSelectModel={setSelectedModel}
       />
 
       {/* Transparent Navbar */}
@@ -828,19 +930,28 @@ parts.push(
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          
+
           <div className="flex items-center gap-2">
-            <motion.div
+            <MotionDiv
               whileHover={{ scale: 1.07, rotate: 5 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 320, damping: 18 }}
             >
               <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-lg shadow-sm" />
-            </motion.div>
+            </MotionDiv>
             <span className="font-bold text-gray-900 dark:text-gray-100">TomatoAI</span>
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowModelModal(true)}
+              className="p-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors backdrop-blur-sm"
+              title="Select AI Model"
+            >
+              <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </button>
             <button
               onClick={() => setIsDarkMode(!isDarkMode)}
               className="p-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors backdrop-blur-sm"
@@ -856,7 +967,7 @@ parts.push(
                 </svg>
               )}
             </button>
-            
+
             {user ? (
               <button
                 onClick={handleSignOut}
@@ -879,9 +990,8 @@ parts.push(
       {/* Transparent Sidebar Toggle Button */}
       <button
         onClick={() => setSidebarOpen(true)}
-        className={`hidden md:block fixed top-20 left-5 z-40 p-3 rounded-xl bg-white/30 dark:bg-gray-800/30 shadow-lg border border-gray-200/30 dark:border-gray-700/30 hover:border-gray-300/50 dark:hover:border-gray-600/50 hover:shadow-xl transition-all duration-300 transform hover:scale-105 group backdrop-blur-sm ${
-          sidebarOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
-        }`}
+        className={`hidden md:block fixed top-20 left-5 z-40 p-3 rounded-xl bg-white/30 dark:bg-gray-800/30 shadow-lg border border-gray-200/30 dark:border-gray-700/30 hover:border-gray-300/50 dark:hover:border-gray-600/50 hover:shadow-xl transition-all duration-300 transform hover:scale-105 group backdrop-blur-sm ${sidebarOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
+          }`}
       >
         <svg className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -891,8 +1001,8 @@ parts.push(
       {/* Transparent Sidebar */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50">
-          <div 
-            className="absolute inset-0 bg-black/10 dark:bg-black/20 backdrop-blur-sm transition-all duration-300" 
+          <div
+            className="absolute inset-0 bg-black/10 dark:bg-black/20 backdrop-blur-sm transition-all duration-300"
             onClick={() => setSidebarOpen(false)}
           />
           <div className="absolute left-0 top-0 bottom-0 w-80 bg-white/20 dark:bg-gray-800/20 backdrop-blur-lg border-r border-gray-200/30 dark:border-gray-600/30 shadow-2xl transform transition-all duration-300 ease-out">
@@ -900,13 +1010,13 @@ parts.push(
               <div className="p-6 border-b border-gray-100/30 dark:border-gray-700/30 bg-white/10 dark:bg-gray-700/10 backdrop-blur-sm">
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center gap-3">
-                    <motion.div
+                    <MotionDiv
                       whileHover={{ scale: 1.07, rotate: 5 }}
                       whileTap={{ scale: 0.98 }}
                       transition={{ type: "spring", stiffness: 320, damping: 18 }}
                     >
                       <Image src="/logo.png" alt="TomatoAI" width={40} height={40} className="rounded-xl shadow-lg" />
-                    </motion.div>
+                    </MotionDiv>
                     <div>
                       <h1 className="text-3xl font-extrabold">TomatoAI</h1>
                       <p className="text-xs text-gray-500 dark:text-gray-400 font-['Inter','system-ui','-apple-system','sans-serif']">Professional AI Assistant</p>
@@ -957,11 +1067,10 @@ parts.push(
                             setHasStartedChat(true);
                             setSidebarOpen(false);
                           }}
-                          className={`w-full text-left p-4 rounded-xl transition-all duration-300 transform hover:scale-102 hover:shadow-sm border backdrop-blur-sm ${
-                            activeId === c.id 
-                              ? "bg-gray-50/50 dark:bg-gray-600/50 text-gray-900 dark:text-gray-100 shadow-md border-gray-200/50 dark:border-gray-500/50" 
-                              : "text-gray-600 dark:text-gray-300 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-100 border-transparent hover:border-gray-200/50 dark:hover:border-gray-600/50"
-                          }`}
+                          className={`w-full text-left p-4 rounded-xl transition-all duration-300 transform hover:scale-102 hover:shadow-sm border backdrop-blur-sm ${activeId === c.id
+                            ? "bg-gray-50/50 dark:bg-gray-600/50 text-gray-900 dark:text-gray-100 shadow-md border-gray-200/50 dark:border-gray-500/50"
+                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-100 border-transparent hover:border-gray-200/50 dark:hover:border-gray-600/50"
+                            }`}
                         >
                           <div className="flex items-start gap-3">
                             <div className="w-2 h-2 rounded-full bg-gray-400/80 dark:bg-gray-500/80 mt-2 flex-shrink-0"></div>
@@ -1019,21 +1128,21 @@ parts.push(
             <div className="flex flex-col items-center justify-center h-full px-4 relative">
               <div className="max-w-2xl w-full text-center mb-12">
                 <div className="mb-8 bounce-in">
-                  <motion.div
+                  <MotionDiv
                     whileHover={{ scale: 1.07, rotate: 5 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 320, damping: 18 }}
                     className="mx-auto mb-6"
                     style={{ width: 64, height: 64 }}
                   >
-                    <Image 
-                      src="/logo.png" 
-                      alt="TomatoAI" 
-                      width={64} 
-                      height={64} 
-                      className="rounded-2xl shadow-xl" 
+                    <Image
+                      src="/logo.png"
+                      alt="TomatoAI"
+                      width={64}
+                      height={64}
+                      className="rounded-2xl shadow-xl"
                     />
-                  </motion.div>
+                  </MotionDiv>
                   <h1 className="text-5xl font-bold mb-4 text-gray-900 dark:text-gray-100 fade-in font-['Inter','system-ui','-apple-system','sans-serif'] tracking-tight">
                     Hi, I'm TomatoAI
                   </h1>
@@ -1051,6 +1160,8 @@ parts.push(
                     }}
                     submitting={loading}
                     disabled={loading}
+                    onModelSelect={() => setShowModelModal(true)}
+                    selectedModel={selectedModel}
                   />
                 </div>
               </div>
@@ -1058,8 +1169,8 @@ parts.push(
           ) : (
             <div className="w-full max-w-4xl mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8">
               {active?.messages.map((m) => (
-                <div 
-                  key={m.id} 
+                <div
+                  key={m.id}
                   className={`space-y-4 ${messageAnimations.has(m.id) ? 'message-enter' : ''}`}
                 >
                   {m.role === "user" ? (
@@ -1074,7 +1185,7 @@ parts.push(
                     <div className="space-y-3 w-full">
                       <div className="ml-0 md:ml-11 overflow-x-auto">
                         <div className="max-w-full">
-                          {formatMessage(m.content)}
+                          <MarkdownRenderer content={m.content} />
                         </div>
                       </div>
                     </div>
@@ -1116,6 +1227,9 @@ parts.push(
                   }}
                   submitting={loading}
                   disabled={loading}
+                  onFileSelect={handleAiInputFileSelect}
+                  onModelSelect={() => setShowModelModal(true)}
+                  selectedModel={selectedModel}
                 />
               </div>
             </div>
@@ -1125,8 +1239,46 @@ parts.push(
 
       {/* Enhanced Mobile Input Bar with Integrated Send Button */}
       <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 border-t border-gray-200/80 dark:border-gray-700/80 p-3 md:hidden z-10 backdrop-blur-lg">
+        {attachment && (
+          <div className="flex items-center gap-2 mb-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg max-w-[200px] relative group">
+            <span className="text-xs truncate max-w-full text-gray-600 dark:text-gray-300">
+              {attachment.name}
+            </span>
+            <button
+              onClick={removeAttachment}
+              className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
+            >
+              ✕
+            </button>
+          </div>
+        )}
         <form onSubmit={sendMessage} className="relative w-full">
           <div className="relative flex items-end bg-gray-100/90 dark:bg-gray-700/90 rounded-2xl shadow-sm transition-all duration-300 focus-within:ring-2 focus-within:ring-green-500/50">
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="p-3 text-gray-500 hover:text-green-500 dark:text-gray-400 dark:hover:text-green-400 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowModelModal(true)}
+              className="p-3 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors relative group"
+              title="Select AI Model"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </button>
             <textarea
               value={input}
               onChange={(e) => {
@@ -1150,7 +1302,7 @@ parts.push(
                 paddingRight: '60px',
               }}
             />
-            
+
             {/* Send Button - Integrated Inside Input */}
             <div className="absolute right-2 bottom-1.5 flex items-center space-x-1">
               {input && (
@@ -1168,28 +1320,27 @@ parts.push(
                   </svg>
                 </button>
               )}
-              
+
               <button
                 type="submit"
                 disabled={!input.trim() || loading}
-                className={`p-2 rounded-full transition-all duration-200 ${
-                  input.trim() 
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105' 
-                    : 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                }`}
+                className={`p-2 rounded-full transition-all duration-200 ${input.trim()
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+                  : 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                  }`}
               >
                 {loading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="20" 
-                    height="20" 
-                    viewBox="0 0 24 24" 
-                    fill="none" 
-                    stroke="currentColor" 
-                    strokeWidth="2" 
-                    strokeLinecap="round" 
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
                     strokeLinejoin="round"
                     className="transform rotate-0 transition-transform duration-200 group-hover:rotate-12"
                   >

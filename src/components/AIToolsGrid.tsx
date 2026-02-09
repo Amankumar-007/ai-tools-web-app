@@ -29,13 +29,13 @@ const features: Feature[] = [
     title: "Content Generator",
     bgColor: "bg-gradient-to-r from-purple-600 via-violet-700 to-indigo-800",
     imageSrc: "/feature3.png",
-    link: "/content-generator",
+    link: "/outlier",
   },
   {
-    title: "Outlier",
+    title: "Score And Fix Your Resume",
     bgColor: "bg-gradient-to-r from-green-400 via-teal-500 to-cyan-600",
-    imageSrc: "/feature4.png",
-    link: "/outlier",
+    imageSrc: "/feature-4.png",
+    link: "/resume-analyzer",
   },
   {
     title: "Resume Builder",

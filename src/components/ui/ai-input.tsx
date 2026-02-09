@@ -3,11 +3,51 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
-import { Globe, Paperclip, Plus, Send } from "lucide-react"
+import { Globe, Paperclip, Plus, Send, Lightbulb } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
+
+// Helper function to get readable model name
+const getModelName = (modelId: string): string => {
+  const modelNames: Record<string, string> = {
+    "arcee-ai/trinity-large-preview:free": "Trinity Large Preview",
+    "tngtech/deepseek-r1t2-chimera:free": "DeepSeek R1T2 Chimera",
+    "z-ai/glm-4.5-air:free": "GLM 4.5 Air",
+    "tngtech/deepseek-r1t-chimera:free": "DeepSeek R1T Chimera",
+    "deepseek/deepseek-r1-0528:free": "DeepSeek R1",
+    "nvidia/nemotron-3-nano-30b-a3b:free": "Nemotron 3 Nano 30B",
+    "stepfun/step-3.5-flash:free": "Step 3.5 Flash",
+    "tngtech/tng-r1t-chimera:free": "TNG R1T Chimera",
+    "openai/gpt-oss-120b:free": "GPT OSS 120B",
+    "meta-llama/llama-3.3-70b-instruct:free": "Llama 3.3 70B",
+    "upstage/solar-pro-3:free": "Solar Pro 3",
+    "qwen/qwen3-coder:free": "Qwen 3 Coder",
+    "google/gemma-3-27b-it:free": "Gemma 3 27B",
+    "arcee-ai/trinity-mini:free": "Trinity Mini",
+    "qwen/qwen3-next-80b-a3b-instruct:free": "Qwen 3 Next 80B",
+    "openai/gpt-oss-20b:free": "GPT OSS 20B",
+    "nvidia/nemotron-nano-12b-2-vl:free": "Nemotron Nano 12B VL",
+    "allenai/molmo2-8b:free": "Molmo 2 8B",
+    "nvidia/nemotron-nano-9b-v2:free": "Nemotron Nano 9B v2",
+    "venice/uncensored:free": "Venice Uncensored",
+    "liquidai/lfm2.5-1.2b-thinking:free": "LFM 2.5 1.2B Thinking",
+    "liquidai/lfm2.5-1.2b-instruct:free": "LFM 2.5 1.2B Instruct",
+    "nousresearch/hermes-3-405b-instruct:free": "Hermes 3 405B",
+    "mistralai/mistral-small-3.1-24b:free": "Mistral Small 3.1 24B",
+    "qwen/qwen3-4b:free": "Qwen 3 4B",
+    "google/gemma-3n-2b:free": "Gemma 3N 2B",
+    "meta-llama/llama-3.2-3b-instruct:free": "Llama 3.2 3B",
+    "google/gemma-3-12b-it:free": "Gemma 3 12B",
+    "google/gemma-3-4b:free": "Gemma 3 4B",
+    "qwen/qwen2.5-vl-7b-instruct:free": "Qwen 2.5 VL 7B",
+    "google/gemma-3n-4b:free": "Gemma 3N 4B",
+    "meta-llama/llama-3.1-405b-instruct:free": "Llama 3.1 405B",
+    "openrouter/free:free": "OpenRouter Free",
+  }
+  return modelNames[modelId] || modelId.split("/")[1] || modelId
+}
 
 interface UseAutoResizeTextareaProps {
   minHeight: number
@@ -78,12 +118,15 @@ const AnimatedPlaceholder = ({ showSearch }: { showSearch: boolean }) => (
 type AiInputProps = {
   onSubmit?: (text: string) => void
   onSubmitWithMode?: (text: string, isSearch: boolean) => void
+  onFileSelect?: (file: File | null) => void
+  onModelSelect?: () => void
   placeholder?: string
   submitting?: boolean
   disabled?: boolean
+  selectedModel?: string
 }
 
-export default function AiInput({ onSubmit, onSubmitWithMode, placeholder, submitting, disabled }: AiInputProps) {
+export default function AiInput({ onSubmit, onSubmitWithMode, onFileSelect, onModelSelect, placeholder, submitting, disabled, selectedModel }: AiInputProps) {
   const [value, setValue] = useState("")
   const { textareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: MIN_HEIGHT,
@@ -91,8 +134,9 @@ export default function AiInput({ onSubmit, onSubmitWithMode, placeholder, submi
   })
   const [showSearch, setShowSearch] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [fileName, setFileName] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-const router = useRouter()
+  const router = useRouter()
 
   const handelClose = (e: any) => {
     e.preventDefault()
@@ -100,13 +144,22 @@ const router = useRouter()
     if (fileInputRef.current) {
       fileInputRef.current.value = "" // Reset file input
     }
-    setImagePreview(null) // Use null instead of empty string
+    setImagePreview(null)
+    setFileName(null)
+    if (onFileSelect) onFileSelect(null)
   }
 
   const handelChange = (e: any) => {
     const file = e.target.files ? e.target.files[0] : null
     if (file) {
-      setImagePreview(URL.createObjectURL(file))
+      if (file.type.startsWith('image/')) {
+        setImagePreview(URL.createObjectURL(file))
+        setFileName(null)
+      } else {
+        setImagePreview(null)
+        setFileName(file.name)
+      }
+      if (onFileSelect) onFileSelect(file)
     }
   }
 
@@ -128,6 +181,14 @@ const router = useRouter()
     // Clear the input and reset height
     setValue("")
     adjustHeight(true)
+
+    // Clear file input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+    setImagePreview(null)
+    setFileName(null)
+    if (onFileSelect) onFileSelect(null)
   }
 
 
@@ -175,6 +236,21 @@ const router = useRouter()
 
           <div className="h-12 bg-black/5 dark:bg-white/5 rounded-b-xl">
             <div className="absolute left-3 bottom-3 flex items-center gap-2">
+              {onModelSelect && (
+                <button
+                  type="button"
+                  onClick={onModelSelect}
+                  className="rounded-full p-2 bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white transition-colors relative group"
+                  title="Select AI Model"
+                >
+                  <Lightbulb className="w-4 h-4" />
+                  {selectedModel && (
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-gray-900 dark:bg-gray-700 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                      {getModelName(selectedModel)}
+                    </div>
+                  )}
+                </button>
+              )}
               <label
                 className={cn(
                   "cursor-pointer relative rounded-full p-2 bg-black/5 dark:bg-white/5",
@@ -195,20 +271,29 @@ const router = useRouter()
                     imagePreview && "text-[#ff3f17]"
                   )}
                 />
-                {imagePreview && (
-                  <div className="absolute w-[100px] h-[100px] top-14 -left-4">
-                    <Image
-                      className="object-cover rounded-2xl"
-                      src={imagePreview || "/picture1.jpeg"}
-                      height={500}
-                      width={500}
-                      alt="additional image"
-                    />
+                {(imagePreview || fileName) && (
+                  <div className="absolute w-[100px] h-[100px] top-14 -left-4 bg-white dark:bg-black rounded-2xl shadow-lg">
+                    {imagePreview ? (
+                      <Image
+                        className="object-cover rounded-2xl w-full h-full"
+                        src={imagePreview}
+                        height={100}
+                        width={100}
+                        alt="preview"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-gray-100 dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700">
+                        <Paperclip className="w-6 h-6 mb-1 text-gray-500" />
+                        <span className="text-[10px] leading-tight line-clamp-2 text-gray-600 dark:text-gray-300 break-all">
+                          {fileName}
+                        </span>
+                      </div>
+                    )}
                     <button
                       onClick={handelClose}
-                      className="bg-[#e8e8e8] text-[#464646] absolute -top-1 -left-1 shadow-3xl rounded-full rotate-45"
+                      className="bg-[#e8e8e8] text-[#464646] hover:bg-red-500 hover:text-white transition-colors absolute -top-2 -right-2 shadow-md rounded-full w-6 h-6 flex items-center justify-center z-10"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-4 h-4 rotate-45" />
                     </button>
                   </div>
                 )}

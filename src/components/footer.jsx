@@ -1,111 +1,91 @@
 "use client"
 
-import { motion, useAnimation } from "framer-motion"
+import { motion } from "framer-motion"
 import Link from "next/link"
-import { Mail, Github, Linkedin, Send } from "lucide-react"
-import { useState } from "react"
+import { Github, Linkedin, Twitter, Mail, ArrowUpRight } from "lucide-react"
+import Image from "next/image"
 
 export default function Footer() {
-  const [email, setEmail] = useState("")
-  const controls = useAnimation()
+  const links = [
+    { name: "AI Tools", href: "/ai-tools" },
+    { name: "N8n Automation", href: "/n8n-templates" },
+    { name: "Resume", href: "/resume-analyzer" },
+    { name: "Summarizer", href: "/summarization" },
+  ]
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    // Add newsletter subscription logic here
-    setEmail("")
-    controls.start({ scale: [1, 1.1, 1], transition: { duration: 0.3, ease: "easeInOut" } })
-  }
-
-  const socialVariants = {
-    hover: { scale: 1.2, transition: { duration: 0.2, ease: "easeOut" } },
-    initial: { scale: 1 }
-  }
+  const socials = [
+    { icon: Github, href: "https://github.com/Amankumar-007" },
+    { icon: Linkedin, href: "https://linkedin.com/in/aman-kumar-web" },
+    { icon: Twitter, href: "https://twitter.com/AmanCodex" },
+  ]
 
   return (
-    <motion.footer
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
-      className="px-6 py-10 bt-black"
-      style={{ fontFamily: "'Inter', sans-serif" }}
-    >
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Branding Section */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <h2 className="text-2xl font-semibold text-amber-300">Aman Kumar</h2>
-          <p className="text-sm mt-2 max-w-xs">
-            MERN Stack Developer delivering innovative and efficient web solutions.
-          </p>
-        </motion.div>
+    <footer className="w-full bg-[#02040a] dark:bg-[#e6ebe0] text-white dark:text-black pt-24 pb-12 relative overflow-hidden font-sans">
+      {/* Sharp top border with glow */}
+      <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/50 to-transparent shadow-[0_0_15px_rgba(99,102,241,0.3)]"></div>
 
-        {/* Newsletter Signup */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-        >
-          <h3 className="text-2xl font-semibold text-amber-300">Newsletter</h3>
-          <p className="text-sm  mt-1 mb-3">
-            Subscribe for updates on web development trends.
-          </p>
-          <div className="flex w-full max-w-sm">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Your email address"
-              className="flex-1 px-3 py-2 text-sm  rounded-l-md focus:ring-1 focus:ring-amber-300 transition-all duration-200"
-            />
-            <motion.button
-              animate={controls}
-              onClick={handleSubmit}
-              className="px-4 py-2 bg-amber-300 rounded-r-md hover:bg-amber-400 transition-all duration-200"
-            >
-              <Send size={16} />
-            </motion.button>
+      <div className="max-w-7xl mx-auto px-8">
+        <div className="flex flex-col md:flex-row justify-between items-start gap-16 mb-24">
+          {/* Logo & Vision */}
+          <div className="flex flex-col gap-6 max-w-xs">
+            <Link href="/" className="flex items-center gap-3 text-2xl font-bold tracking-tighter hover:opacity-80 transition-opacity">
+              <Image src="/logo.png" alt="TomatoAI Logo" width={32} height={32} className="rounded-md" />
+              <span>TOMATOAI<span className="text-indigo-500 text-3xl leading-[0]">.</span></span>
+            </Link>
+            <p className="text-neutral-500 text-sm font-medium leading-relaxed">
+              Synthesizing intelligence into intuitive tools. Precise automation for the modern creator.
+            </p>
           </div>
-        </motion.div>
 
-        {/* Social Links */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="flex flex-col items-center md:items-end"
-        >
-          <h3 className="text-2xl font-semibold text-amber-300">Connect</h3>
-          <div className="flex items-center gap-6">
-            <motion.div variants={socialVariants} whileHover="hover" initial="initial">
-              <Link href="mailto:your@email.com" className=" hover:text-amber-300 transition-all duration-200">
-                <Mail size={20} />
-              </Link>
-            </motion.div>
-            <motion.div variants={socialVariants} whileHover="hover" initial="initial">
-              <Link href="https://github.com/yourusername" target="_blank" className=" hover:text-amber-300 transition-all duration-200">
-                <Github size={20} />
-              </Link>
-            </motion.div>
-            <motion.div variants={socialVariants} whileHover="hover" initial="initial">
-              <Link href="https://linkedin.com/in/yourusername" target="_blank" className=" hover:text-amber-300 transition-all duration-200">
-                <Linkedin size={20} />
-              </Link>
-            </motion.div>
+          {/* Minimalist Nav */}
+          <div className="flex flex-wrap gap-x-20 gap-y-12">
+            <div className="space-y-6">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-600">Product</h4>
+              <div className="flex flex-col gap-4">
+                {links.map((link) => (
+                  <Link
+                    key={link.name}
+                    href={link.href}
+                    className="text-sm text-neutral-400 dark:text-neutral-600 hover:text-white dark:hover:text-black transition-all duration-300"
+                  >
+                    {link.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-neutral-600">Connect</h4>
+              <div className="flex flex-col gap-4">
+                {socials.map((social, i) => (
+                  <a
+                    key={i}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-neutral-400 dark:text-neutral-600 hover:text-white dark:hover:text-black transition-all duration-300"
+                  >
+                    {social.href.includes("github") ? "GitHub" : social.href.includes("linkedin") ? "LinkedIn" : "Twitter"}
+                  </a>
+                ))}
+                <a href="mailto:contact@tomatoai.com" className="text-sm text-neutral-400 dark:text-neutral-600 hover:text-white dark:hover:text-black transition-all duration-300">
+                  Mail
+                </a>
+              </div>
+            </div>
           </div>
-        </motion.div>
+        </div>
+
+        {/* Legal & Status */}
+        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-8 text-[10px] font-bold tracking-[0.2em] text-neutral-600 dark:text-neutral-400">
+            <span>© 2026 TOMATO AI INC.</span>
+            <Link href="/privacy" className="hover:text-white dark:hover:text-black transition-colors">PRIVACY</Link>
+            <Link href="/terms" className="hover:text-white dark:hover:text-black transition-colors">TERMS</Link>
+          </div>
+
+        </div>
       </div>
-
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
-        className="mt-10 text-sm text-center text-neutral-900"
-      >
-        © {new Date().getFullYear()} Aman Kumar. All Rights Reserved.
-      </motion.div>
-    </motion.footer>
+    </footer>
   )
 }

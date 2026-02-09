@@ -38,26 +38,26 @@ export default function Login() {
 
   // Google login
   const handleGoogleLogin = async () => {
-  setError(null);
-  setLoading(true);
+    setError(null);
+    setLoading(true);
 
-  try {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: 'https://ai-tools-web-app-topaz.vercel.app/tomato-ai',
-      },
-    });
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: 'https://ai-tools-web-app-topaz.vercel.app/tomato-ai',
+        },
+      });
 
-    if (error) {
-      setError(error.message);
+      if (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    } catch (err) {
+      setError("Failed to sign in with Google");
       setLoading(false);
     }
-  } catch (err) {
-    setError("Failed to sign in with Google");
-    setLoading(false);
-  }
-};
+  };
 
 
   // ✅ Generate tomato positions once (not every render)
@@ -199,7 +199,7 @@ export default function Login() {
           transition={{ delay: 0.2, duration: 0.5 }}
           className="text-3xl font-bold text-gray-800 dark:text-white mb-8 text-center tracking-tight"
         >
-           Welcome Back!
+          Welcome Back!
         </motion.h1>
 
         {/* Google Login Button */}
@@ -259,9 +259,9 @@ export default function Login() {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   Password
                 </label>
-                <a href="#" className="text-xs font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300">
+                <Link href="/forgot-password" className="text-xs font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300">
                   Forgot password?
-                </a>
+                </Link>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -305,9 +305,8 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-base font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 ${
-                loading ? "opacity-80 cursor-not-allowed" : ""
-              }`}
+              className={`w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-base font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 ${loading ? "opacity-80 cursor-not-allowed" : ""
+                }`}
             >
               {loading ? (
                 <>

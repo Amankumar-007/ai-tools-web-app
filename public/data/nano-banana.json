@@ -1,0 +1,452 @@
+[
+  {
+    "id": "1",
+    "title": "2000s Mirror Selfie",
+    "category": "Photorealism",
+    "author": "AmanKumar",
+    "description": "Authentic early-2000s aesthetic with flash photography.",
+    "content": "{ 'subject': 'Young woman', 'style': 'Y2K Mirror Selfie', 'lighting': 'Strong Flash', 'details': 'Digital camera noise, dirty mirror' }"
+  },
+  {
+    "id": "2",
+    "title": "Cyberpunk Street Food",
+    "category": "Cinematic",
+    "author": "Gemini",
+    "description": "Neon-lit urban scene with steam and rain reflections.",
+    "content": "{ 'subject': 'Noodle stall', 'style': 'Cyberpunk Night', 'lighting': 'Pink and Cyan Neon', 'atmosphere': 'Rainy, misty steam' }"
+  },
+  {
+    "id": "3",
+    "title": "Royal Indian Portrait",
+    "category": "Photorealism",
+    "author": "Gemini",
+    "description": "High-fidelity traditional royal attire with soft glow.",
+    "content": "{ 'subject': 'Man in Sherwani', 'style': 'Royal Portrait', 'lighting': 'Warm Golden Hour', 'details': 'Intricate embroidery, 8k texture' }"
+  },
+  {
+    "id": "4",
+    "title": "Minimalist Tech Logo",
+    "category": "Design",
+    "author": "Gemini",
+    "description": "Clean vector-style logo for a modern startup.",
+    "content": "{ 'subject': 'Abstract Geometric Shape', 'style': 'Minimalist Vector', 'colors': 'Cool Blue and White', 'text': 'NEXUS' }"
+  },
+  {
+    "id": "5",
+    "title": "Retro 70s Studio",
+    "category": "Retro",
+    "author": "Gemini",
+    "description": "Soft-focus vintage studio look with warm grain.",
+    "content": "{ 'subject': 'Young man with afro', 'style': '1970s Film', 'lighting': 'Softbox Warm', 'lens': '35mm vintage' }"
+  },
+  {
+    "id": "6",
+    "title": "Future Cityscape Hero",
+    "category": "Digital Art",
+    "author": "Gemini",
+    "description": "Sweeping wide shot of a floating city.",
+    "content": "{ 'subject': 'Floating Skyscrapers', 'style': 'Sci-Fi Concept Art', 'lighting': 'Bioluminescent', 'framing': 'Wide Angle' }"
+  },
+  {
+    "id": "7",
+    "title": "Macro Raindrop on Leaf",
+    "category": "Photorealism",
+    "author": "Gemini",
+    "description": "Extreme close-up focusing on reflections inside a drop.",
+    "content": "{ 'subject': 'Raindrop', 'style': 'Macro Photography', 'lighting': 'Natural Sunlight', 'focus': 'Shallow depth of field' }"
+  },
+  {
+    "id": "8",
+    "title": "Abstract Fluid Marble",
+    "category": "Abstract",
+    "author": "Gemini",
+    "description": "Swirling liquid textures with metallic accents.",
+    "content": "{ 'subject': 'Liquid Gold and Ink', 'style': 'Fluid Art', 'colors': 'Gold, Black, Teal', 'texture': 'Glossy' }"
+  },
+  {
+    "id": "9",
+    "title": "Cozy Rainy Library",
+    "category": "Cinematic",
+    "author": "Gemini",
+    "description": "Atmospheric indoor scene with warm lamps.",
+    "content": "{ 'subject': 'Old Library', 'style': 'Moody Dark Academia', 'lighting': 'Candlelight and Lamp', 'details': 'Dust motes in light' }"
+  },
+  {
+    "id": "10",
+    "title": "Hyper-Realistic Burger",
+    "category": "Commercial",
+    "author": "Gemini",
+    "description": "Professional food photography for advertising.",
+    "content": "{ 'subject': 'Gourmet Cheeseburger', 'style': 'Food Advertising', 'lighting': 'Top-down Studio', 'details': 'Melting cheese, water droplets on lettuce' }"
+  },
+  {
+    "id": "11",
+    "title": "Studio Ghibli Landscape",
+    "category": "Anime",
+    "author": "Gemini",
+    "description": "Hand-painted aesthetic inspired by classic anime.",
+    "content": "{ 'subject': 'Meadow with Cottage', 'style': 'Studio Ghibli', 'colors': 'Vibrant Greens and Blues', 'mood': 'Peaceful' }"
+  },
+  {
+    "id": "12",
+    "title": "Futuristic Sneaker Design",
+    "category": "Design",
+    "author": "Gemini",
+    "description": "3D render of a concept athletic shoe.",
+    "content": "{ 'subject': 'Techwear Sneaker', 'style': '3D C4D Render', 'lighting': 'Rim Lighting', 'materials': 'Carbon fiber and mesh' }"
+  },
+  {
+    "id": "13",
+    "title": "Golden Hour Desert",
+    "category": "Photorealism",
+    "author": "Gemini",
+    "description": "Sharp textures of sand dunes during sunset.",
+    "content": "{ 'subject': 'Sahara Dunes', 'style': 'Landscape Photo', 'lighting': 'Long Shadows, Golden Hour', 'details': 'Sand ripples' }"
+  },
+  {
+    "id": "14",
+    "title": "Vaporwave Statue",
+    "category": "Surrealism",
+    "author": "Gemini",
+    "description": "Classical bust with glitch and neon effects.",
+    "content": "{ 'subject': 'David Statue', 'style': 'Vaporwave Glitch', 'colors': 'Hot Pink, Lavender', 'background': 'Grid sunset' }"
+  },
+  {
+    "id": "15",
+    "title": "Professional LinkedIn Headshot",
+    "category": "Photorealism",
+    "author": "Gemini",
+    "description": "Clean, corporate portrait for professional use.",
+    "content": "{ 'subject': 'Woman in Blazer', 'style': 'Corporate Portrait', 'lighting': 'Butterfly Lighting', 'background': 'Blurred Office' }"
+  },
+  {
+    "id": "16",
+    "title": "Mythical Forest Dragon",
+    "category": "Fantasy",
+    "author": "Gemini",
+    "description": "Detailed creature hidden in dense foliage.",
+    "content": "{ 'subject': 'Green Dragon', 'style': 'Digital Illustration', 'lighting': 'Dappled Sunlight', 'atmosphere': 'Mystical' }"
+  },
+  {
+    "id": "17",
+    "title": "Analog Film Street Scene",
+    "category": "Retro",
+    "author": "Gemini",
+    "description": "Candid shot with Kodachrome film colors.",
+    "content": "{ 'subject': 'Busy Tokyo Crossing', 'style': 'Analog 35mm Film', 'colors': 'Kodachrome', 'details': 'Film grain, slight motion blur' }"
+  },
+  {
+    "id": "18",
+    "title": "Cybernetic Eye Close-up",
+    "category": "Sci-Fi",
+    "author": "Gemini",
+    "description": "Detailed macro of a bionic eye with UI overlays.",
+    "content": "{ 'subject': 'Human Eye with Circuits', 'style': 'Hyper-realism', 'lighting': 'Blue LED Glow', 'details': 'Microchips in iris' }"
+  },
+  {
+    "id": "19",
+    "title": "Ancient Temple Ruins",
+    "category": "Cinematic",
+    "author": "Gemini",
+    "description": "Overgrown stone structures in a jungle.",
+    "content": "{ 'subject': 'Mayan Temple', 'style': 'Adventure Film Still', 'lighting': 'High Contrast', 'details': 'Vines and Moss' }"
+  },
+  {
+    "id": "20",
+    "title": "Cute 3D Chibi Character",
+    "category": "3D",
+    "author": "Gemini",
+    "description": "Toy-like character with soft clay textures.",
+    "content": "{ 'subject': 'Astronaut Cat', 'style': '3D Chibi Toy', 'lighting': 'Soft Studio', 'materials': 'Matte Plastic' }"
+  },
+  {
+    "id": "21",
+    "title": "Noir Detective Office",
+    "category": "Cinematic",
+    "author": "Gemini",
+    "description": "Black and white scene with venetian blind shadows.",
+    "content": "{ 'subject': 'Private Eye Office', 'style': 'Film Noir', 'lighting': 'Hard Shadows', 'color': 'Monochrome' }"
+  },
+  {
+    "id": "22",
+    "title": "Underwater Coral Kingdom",
+    "category": "Photorealism",
+    "author": "Gemini",
+    "description": "Vibrant marine life with volumetric light rays.",
+    "content": "{ 'subject': 'Coral Reef', 'style': 'National Geographic', 'lighting': 'God Rays', 'details': 'Bubbles and small fish' }"
+  },
+  {
+    "id": "23",
+    "title": "Steampunk Airship",
+    "category": "Fantasy",
+    "author": "Gemini",
+    "description": "Victorian-era flying machine with brass details.",
+    "content": "{ 'subject': 'Steam Airship', 'style': 'Steampunk Art', 'lighting': 'Sunset Clouds', 'details': 'Gears and Smoke' }"
+  },
+  {
+    "id": "24",
+    "title": "Nordic Cabin Interior",
+    "category": "Interior",
+    "author": "Gemini",
+    "description": "Minimalist hygge aesthetic with a fireplace.",
+    "content": "{ 'subject': 'Modern Cabin Living Room', 'style': 'Scandinavian Design', 'lighting': 'Fireplace Warmth', 'details': 'Wool textures' }"
+  },
+  {
+    "id": "25",
+    "title": "Pop Art Comic Hero",
+    "category": "Illustrative",
+    "author": "Gemini",
+    "description": "Bold lines and Ben-Day dots style.",
+    "content": "{ 'subject': 'Superwoman', 'style': 'Roy Lichtenstein Pop Art', 'colors': 'Primary Red and Yellow', 'details': 'Halftone dots' }"
+  },
+  {
+    "id": "26",
+    "title": "Old Parchment Map",
+    "category": "Design",
+    "author": "Gemini",
+    "description": "Antique fantasy map with burnt edges.",
+    "content": "{ 'subject': 'Treasure Map', 'style': 'Vintage Illustration', 'lighting': 'Flat Lay', 'details': 'Calligraphy, ink stains' }"
+  },
+  {
+    "id": "27",
+    "title": "Neon Bio-Laboratory",
+    "category": "Sci-Fi",
+    "author": "Gemini",
+    "description": "Futuristic plants in glowing glass tubes.",
+    "content": "{ 'subject': 'Botanical Lab', 'style': 'High-Tech Sci-Fi', 'lighting': 'Green UV Glow', 'details': 'Liquid and bubbles' }"
+  },
+  {
+    "id": "28",
+    "title": "Renaissance Oil Painting",
+    "category": "Art",
+    "author": "Gemini",
+    "description": "Classic portrait with Chiaroscuro lighting.",
+    "content": "{ 'subject': 'Noblewoman', 'style': 'Baroque Oil Painting', 'lighting': 'Chiaroscuro', 'details': 'Cracked paint texture' }"
+  },
+  {
+    "id": "29",
+    "title": "Abandoned Carnival",
+    "category": "Cinematic",
+    "author": "Gemini",
+    "description": "Eerie scene of a rusted Ferris wheel at dusk.",
+    "content": "{ 'subject': 'Fairground', 'style': 'Horror Aesthetic', 'lighting': 'Dim Twilight', 'atmosphere': 'Foggy and haunting' }"
+  },
+  {
+    "id": "30",
+    "title": "Paper Cutout Art",
+    "category": "Design",
+    "author": "Gemini",
+    "description": "Layered 3D paper craft scene.",
+    "content": "{ 'subject': 'Mountain and Deer', 'style': 'Paper Cutout', 'lighting': 'Internal Depth Shadows', 'colors': 'Pastel gradients' }"
+  },
+  {
+    "id": "31",
+    "title": "Luxury Watch Close-up",
+    "category": "Photorealism",
+    "author": "Gemini",
+    "description": "Focus on the intricate gears of a skeleton watch.",
+    "content": "{ 'subject': 'Swiss Watch', 'style': 'Macro Advertising', 'lighting': 'Reflective Metal', 'details': 'Diamond encrusted' }"
+  },
+  {
+    "id": "32",
+    "title": "Surreal Floating Fruit",
+    "category": "Surrealism",
+    "author": "Gemini",
+    "description": "Exploding citrus fruit in mid-air with juice splashes.",
+    "content": "{ 'subject': 'Orange Slices', 'style': 'High Speed Photo', 'lighting': 'Bright Studio', 'details': 'Water droplets, sharp focus' }"
+  },
+  {
+    "id": "33",
+    "title": "Gothic Cathedral Interior",
+    "category": "Architecture",
+    "author": "Gemini",
+    "description": "Dramatic light coming through stained glass.",
+    "content": "{ 'subject': 'Cathedral Altar', 'style': 'Epic Cinematography', 'lighting': 'Multi-colored God Rays', 'details': 'Dust and shadows' }"
+  },
+  {
+    "id": "34",
+    "title": "Futuristic VR Gamer",
+    "category": "Sci-Fi",
+    "author": "Gemini",
+    "description": "Person wearing a sleek VR headset with holograms.",
+    "content": "{ 'subject': 'Gamer', 'style': 'Cyberpunk Digital Art', 'lighting': 'Holographic Blue', 'details': 'Data streams' }"
+  },
+  {
+    "id": "35",
+    "title": "Watercolor Autumn Park",
+    "category": "Art",
+    "author": "Gemini",
+    "description": "Soft bleeding colors of a park in October.",
+    "content": "{ 'subject': 'Park Bench', 'style': 'Traditional Watercolor', 'colors': 'Orange, Red, Ochre', 'mood': 'Melancholic' }"
+  },
+  {
+    "id": "36",
+    "title": "Isometric Game Room",
+    "category": "3D",
+    "author": "Gemini",
+    "description": "Cute tiny room with gaming setup from above.",
+    "content": "{ 'subject': 'Bedroom', 'style': 'Isometric 3D Render', 'lighting': 'Soft Ambient', 'details': 'Miniature PC and posters' }"
+  },
+  {
+    "id": "37",
+    "title": "Traditional Japanese Ink",
+    "category": "Art",
+    "author": "Gemini",
+    "description": "Sumi-e style mountain range with minimal strokes.",
+    "content": "{ 'subject': 'Mount Fuji', 'style': 'Sumi-e Ink Wash', 'colors': 'Black and White', 'details': 'Paper texture' }"
+  },
+  {
+    "id": "38",
+    "title": "Cozy Hobbit Hole",
+    "category": "Fantasy",
+    "author": "Gemini",
+    "description": "Round door with flowers and a warm interior glow.",
+    "content": "{ 'subject': 'Hobbit House', 'style': 'Cinematic Fantasy', 'lighting': 'Morning Sunlight', 'details': 'Garden and smoke' }"
+  },
+  {
+    "id": "39",
+    "title": "Streetwear Fashion Shoot",
+    "category": "Photorealism",
+    "author": "Gemini",
+    "description": "Model in urban clothing against a concrete wall.",
+    "content": "{ 'subject': 'Man in Oversized Hoodie', 'style': 'Editorial Photography', 'lighting': 'Hard Noon Sun', 'framing': 'Full Body' }"
+  },
+  {
+    "id": "40",
+    "title": "Cyber-Samurai Duel",
+    "category": "Sci-Fi",
+    "author": "Gemini",
+    "description": "Two figures with glowing swords in the rain.",
+    "content": "{ 'subject': 'Samurai', 'style': 'Concept Art', 'lighting': 'Blade Glow', 'atmosphere': 'Dramatic Rain' }"
+  },
+  {
+    "id": "41",
+    "title": "Retro 80s Synthwave",
+    "category": "Design",
+    "author": "Gemini",
+    "description": "Purple wireframe landscape with a large sun.",
+    "content": "{ 'subject': 'Grid Valley', 'style': 'Synthwave Aesthetic', 'colors': 'Neon Purple and Chrome', 'details': 'VHS Scanlines' }"
+  },
+  {
+    "id": "42",
+    "title": "Macro Butterfly Wing",
+    "category": "Photorealism",
+    "author": "Gemini",
+    "description": "Detailed scales and iridescent colors of a wing.",
+    "content": "{ 'subject': 'Morpho Butterfly', 'style': 'Extreme Macro', 'lighting': 'Daylight', 'details': 'Microscopic texture' }"
+  },
+  {
+    "id": "43",
+    "title": "Industrial Loft Design",
+    "category": "Interior",
+    "author": "Gemini",
+    "description": "Exposed brick, metal beams, and large windows.",
+    "content": "{ 'subject': 'Modern Apartment', 'style': 'Industrial Chic', 'lighting': 'Natural Window Light', 'details': 'Leather sofa' }"
+  },
+  {
+    "id": "44",
+    "title": "Pixar-Style Robot",
+    "category": "3D",
+    "author": "Gemini",
+    "description": "Expressive small robot with large glass eyes.",
+    "content": "{ 'subject': 'Helper Bot', 'style': 'Pixar Animation', 'lighting': 'Bright and Friendly', 'materials': 'Shiny Paint' }"
+  },
+  {
+    "id": "45",
+    "title": "Midnight Paris Street",
+    "category": "Cinematic",
+    "author": "Gemini",
+    "description": "Wet cobblestones reflecting yellow streetlights.",
+    "content": "{ 'subject': 'Paris Alley', 'style': 'Classic Cinema', 'lighting': 'Nighttime Streetlamp', 'details': 'Eiffel Tower in distance' }"
+  },
+  {
+    "id": "46",
+    "title": "Minimalist Coffee Shop",
+    "category": "Interior",
+    "author": "Gemini",
+    "description": "White walls, light wood, and a single plant.",
+    "content": "{ 'subject': 'Cafe Counter', 'style': 'Minimalist Photography', 'lighting': 'Soft diffused', 'details': 'Latte art' }"
+  },
+  {
+    "id": "47",
+    "title": "Space Explorer Portrait",
+    "category": "Sci-Fi",
+    "author": "Gemini",
+    "description": "Close-up of an astronaut with a galaxy reflection in the visor.",
+    "content": "{ 'subject': 'Astronaut', 'style': 'Cinematic Sci-Fi', 'lighting': 'Starfield Glow', 'details': 'High detail suit' }"
+  },
+  {
+    "id": "48",
+    "title": "Vintage Travel Poster",
+    "category": "Design",
+    "author": "Gemini",
+    "description": "Flat color illustration for a mountain resort.",
+    "content": "{ 'subject': 'Swiss Alps', 'style': '1950s Travel Poster', 'colors': 'Bold flat tones', 'text': 'SWITZERLAND' }"
+  },
+  {
+    "id": "49",
+    "title": "Fantasy Alchemist Table",
+    "category": "Fantasy",
+    "author": "Gemini",
+    "description": "Bubbling potions, old books, and crystal shards.",
+    "content": "{ 'subject': 'Potions', 'style': 'Detailed Digital Art', 'lighting': 'Glow from bottles', 'atmosphere': 'Mysterious' }"
+  },
+  {
+    "id": "50",
+    "title": "Pencil Sketch Portrait",
+    "category": "Art",
+    "author": "Gemini",
+    "description": "Rough graphite lines with cross-hatching.",
+    "content": "{ 'subject': 'Elderly Man', 'style': 'Realistic Pencil Sketch', 'details': 'Lead smudges, paper grain' }"
+  },
+  { "id": "51", "title": "Volcanic Dragon", "category": "Fantasy", "author": "Gemini", "description": "Lava scales and smoke.", "content": "{ 'subject': 'Lava Dragon', 'style': 'Dark Fantasy', 'lighting': 'Magma Glow' }" },
+  { "id": "52", "title": "Zen Garden", "category": "Photorealism", "author": "Gemini", "description": "Raked sand and stones.", "content": "{ 'subject': 'Kyoto Garden', 'style': 'High Res Photo', 'lighting': 'Soft Morning' }" },
+  { "id": "53", "title": "Cyberpunk Car", "category": "Sci-Fi", "author": "Gemini", "description": "Hover car with neon trims.", "content": "{ 'subject': 'DeLorean 2099', 'style': '3D Render', 'lighting': 'Underglow Neon' }" },
+  { "id": "54", "title": "Victorian Greenhouse", "category": "Architecture", "author": "Gemini", "description": "Glass and iron conservatory.", "content": "{ 'subject': 'Glass House', 'style': 'Vintage Photo', 'lighting': 'Sunlight' }" },
+  { "id": "55", "title": "Glitch Art Face", "category": "Abstract", "author": "Gemini", "description": "Human face distorted by data.", "content": "{ 'subject': 'Portrait', 'style': 'Glitch Art', 'colors': 'RGB Split' }" },
+  { "id": "56", "title": "Snowy Village", "category": "Cinematic", "author": "Gemini", "description": "Warm windows in a blizzard.", "content": "{ 'subject': 'Swiss Village', 'style': 'Winter Holiday', 'lighting': 'Cozy Glow' }" },
+  { "id": "57", "title": "Steampunk Clock", "category": "3D", "author": "Gemini", "description": "Gold and copper gears.", "content": "{ 'subject': 'Pocket Watch', 'style': 'Hyper-realistic', 'materials': 'Polished Brass' }" },
+  { "id": "58", "title": "Neon Jellyfish", "category": "Photorealism", "author": "Gemini", "description": "Deep sea bioluminescence.", "content": "{ 'subject': 'Jellyfish', 'style': 'Macro Photo', 'lighting': 'Electric Blue' }" },
+  { "id": "59", "title": "Retro Game Console", "category": "3D", "author": "Gemini", "description": "N64 style console on a rug.", "content": "{ 'subject': 'Gaming Console', 'style': '90s Aesthetic', 'lighting': 'Flash' }" },
+  { "id": "60", "title": "Cottagecore Tea", "category": "Photorealism", "author": "Gemini", "description": "Tea set in a flower field.", "content": "{ 'subject': 'Tea Cup', 'style': 'Soft Focus', 'mood': 'Whimsical' }" },
+  { "id": "61", "title": "Future Medical Bay", "category": "Sci-Fi", "author": "Gemini", "description": "Sterile white and blue lab.", "content": "{ 'subject': 'Healing Pod', 'style': 'Clean Sci-Fi', 'lighting': 'Cold LED' }" },
+  { "id": "62", "title": "Ukiyo-e Wave", "category": "Art", "author": "Gemini", "description": "Japanese woodblock style.", "content": "{ 'subject': 'Great Wave', 'style': 'Ukiyo-e', 'colors': 'Indigo and White' }" },
+  { "id": "63", "title": "Liminal Space Hallway", "category": "Surrealism", "author": "Gemini", "description": "Eerie empty hotel corridor.", "content": "{ 'subject': 'Backrooms', 'style': 'Vaporwave', 'lighting': 'Fluorescent' }" },
+  { "id": "64", "title": "Origami Bird", "category": "Design", "author": "Gemini", "description": "Paper crane with complex folds.", "content": "{ 'subject': 'Crane', 'style': 'Paper Art', 'background': 'Minimalist' }" },
+  { "id": "65", "title": "Lava Lamp close-up", "category": "Retro", "author": "Gemini", "description": "Glowing wax blobs in motion.", "content": "{ 'subject': 'Lava Lamp', 'style': 'Macro 60s', 'colors': 'Orange/Green' }" },
+  { "id": "66", "title": "Bonsai Tree on Cliff", "category": "Fantasy", "author": "Gemini", "description": "Tiny tree on a floating rock.", "content": "{ 'subject': 'Bonsai', 'style': 'Epic Fantasy', 'lighting': 'Sunbeam' }" },
+  { "id": "67", "title": "Claymation Monster", "category": "3D", "author": "Gemini", "description": "Wallace and Gromit style beast.", "content": "{ 'subject': 'Ogre', 'style': 'Claymation', 'details': 'Fingerprints on clay' }" },
+  { "id": "68", "title": "Cybernetic Forest", "category": "Sci-Fi", "author": "Gemini", "description": "Trees with fiber optic leaves.", "content": "{ 'subject': 'Jungle', 'style': 'Neon Nature', 'lighting': 'Bioluminescence' }" },
+  { "id": "69", "title": "Impressionist Sunflowers", "category": "Art", "author": "Gemini", "description": "Van Gogh inspired brushwork.", "content": "{ 'subject': 'Flowers', 'style': 'Impressionism', 'colors': 'Thick Yellow Impasto' }" },
+  { "id": "70", "title": "Viking Longship", "category": "Cinematic", "author": "Gemini", "description": "Ship in a foggy fjord.", "content": "{ 'subject': 'Drakkar', 'style': 'Historical Film', 'atmosphere': 'Misty' }" },
+  { "id": "71", "title": "Pastel Cloud Castle", "category": "Fantasy", "author": "Gemini", "description": "Soft pink castle in the sky.", "content": "{ 'subject': 'Castle', 'style': 'Dreamy Fantasy', 'colors': 'Candy Pink' }" },
+  { "id": "72", "title": "Modern Brutalist Museum", "category": "Architecture", "author": "Gemini", "description": "Raw concrete and sharp angles.", "content": "{ 'subject': 'Building', 'style': 'Architectural Photography', 'lighting': 'Hard Noon' }" },
+  { "id": "73", "title": "Microscopic Bacteria", "category": "Photorealism", "author": "Gemini", "description": "SEM image of complex cells.", "content": "{ 'subject': 'Cell', 'style': 'Scientific Macro', 'colors': 'False color neon' }" },
+  { "id": "74", "title": "Art Deco Cinema", "category": "Architecture", "author": "Gemini", "description": "1920s theater with gold leaf.", "content": "{ 'subject': 'Theater', 'style': 'Art Deco', 'lighting': 'Glamorous' }" },
+  { "id": "75", "title": "Cyberpunk Samurai Mask", "category": "Design", "author": "Gemini", "description": "Carbon fiber Oni mask.", "content": "{ 'subject': 'Mask', 'style': '3D Asset', 'lighting': 'Red LED' }" },
+  { "id": "76", "title": "Low Poly Island", "category": "3D", "author": "Gemini", "description": "Flat shaded geometric world.", "content": "{ 'subject': 'Island', 'style': 'Low Poly Art', 'colors': 'Vibrant' }" },
+  { "id": "77", "title": "Charcoal Portrait", "category": "Art", "author": "Gemini", "description": "Smudged black and white sketch.", "content": "{ 'subject': 'Face', 'style': 'Fine Art Charcoal', 'contrast': 'High' }" },
+  { "id": "78", "title": "Enchanted Library", "category": "Fantasy", "author": "Gemini", "description": "Flying books and magic dust.", "content": "{ 'subject': 'Bookshelf', 'style': 'Magic Realism', 'lighting': 'Sparkles' }" },
+  { "id": "79", "title": "Post-Apocalyptic City", "category": "Cinematic", "author": "Gemini", "description": "Vines growing on skyscrapers.", "content": "{ 'subject': 'New York Ruins', 'style': 'Last of Us', 'atmosphere': 'Overgrown' }" },
+  { "id": "80", "title": "Gummy Bear Kingdom", "category": "Surrealism", "author": "Gemini", "description": "Transparent candy landscape.", "content": "{ 'subject': 'World of Candy', 'style': 'Macro Food', 'lighting': 'Backlit Gel' }" },
+  { "id": "81", "title": "Polaroid Beach Trip", "category": "Retro", "author": "Gemini", "description": "Sun-bleached photo with white border.", "content": "{ 'subject': 'Palm Trees', 'style': 'Polaroid 600', 'colors': 'Faded' }" },
+  { "id": "82", "title": "Neon Ramen Shop", "category": "Cinematic", "author": "Gemini", "description": "Cyberpunk vibes in a small hut.", "content": "{ 'subject': 'Noodle Bar', 'style': 'Urban Night', 'lighting': 'Pink/Blue' }" },
+  { "id": "83", "title": "Minimalist Ceramic Vase", "category": "Design", "author": "Gemini", "description": "Smooth wabi-sabi pottery.", "content": "{ 'subject': 'Pottery', 'style': 'Studio Photo', 'lighting': 'Soft shadows' }" },
+  { "id": "84", "title": "Space Nebula Dragon", "category": "Sci-Fi", "author": "Gemini", "description": "Creature made of stars and gas.", "content": "{ 'subject': 'Galaxy Dragon', 'style': 'Digital Art', 'colors': 'Deep Purple' }" },
+  { "id": "85", "title": "Street Graffiti Artist", "category": "Photorealism", "author": "Gemini", "description": "Mid-spray action shot.", "content": "{ 'subject': 'Artist', 'style': 'Candid Photo', 'details': 'Paint splatters' }" },
+  { "id": "86", "title": "Medieval Feast", "category": "Cinematic", "author": "Gemini", "description": "Candlelit table with roasted food.", "content": "{ 'subject': 'Tavern Table', 'style': 'Historical', 'lighting': 'Candlelight' }" },
+  { "id": "87", "title": "Holographic Sneakers", "category": "Design", "author": "Gemini", "description": "Rainbow reflective material.", "content": "{ 'subject': 'Shoes', 'style': 'Product Render', 'lighting': 'Disco' }" },
+  { "id": "88", "title": "Abstract Geometric 3D", "category": "Abstract", "author": "Gemini", "description": "Floating spheres and cubes.", "content": "{ 'subject': 'Shapes', 'style': 'Cinema 4D', 'colors': 'Pastel' }" },
+  { "id": "89", "title": "Fairy Tale Cottage", "category": "Fantasy", "author": "Gemini", "description": "Mushrooms and smoke chimney.", "content": "{ 'subject': 'House', 'style': 'Whimsical Illustration', 'mood': 'Cute' }" },
+  { "id": "90", "title": "Future Cyber-Punk Bike", "category": "Sci-Fi", "author": "Gemini", "description": "Tron style motorcycle.", "content": "{ 'subject': 'Motorbike', 'style': 'Speed Painting', 'lighting': 'Motion Blur' }" },
+  { "id": "91", "title": "Cinematic Volcanic Ash", "category": "Cinematic", "author": "Gemini", "description": "Grey sky and red embers.", "content": "{ 'subject': 'Volcano', 'style': 'Apocalyptic', 'lighting': 'Gloomy' }" },
+  { "id": "92", "title": "Knitted Wool World", "category": "3D", "author": "Gemini", "description": "Everything is made of yarn.", "content": "{ 'subject': 'Forest', 'style': 'Macro Yarn', 'details': 'Stitch texture' }" },
+  { "id": "93", "title": "Pop Art Soda Can", "category": "Design", "author": "Gemini", "description": "Warhol style repeated icons.", "content": "{ 'subject': 'Coke Can', 'style': 'Pop Art', 'colors': 'Red/White' }" },
+  { "id": "94", "title": "Majestic White Owl", "category": "Photorealism", "author": "Gemini", "description": "Flight shot in a snowy forest.", "content": "{ 'subject': 'Owl', 'style': 'Wildlife Photo', 'details': 'Feather detail' }" },
+  { "id": "95", "title": "Synthwave Sunset", "category": "Retro", "author": "Gemini", "description": "80s retro grid sun.", "content": "{ 'subject': 'Skyline', 'style': 'Retrowave', 'colors': 'Magenta' }" },
+  { "id": "96", "title": "Deep Jungle Shaman", "category": "Fantasy", "author": "Gemini", "description": "Ancient masks and feathers.", "content": "{ 'subject': 'Shaman', 'style': 'Cinematic', 'lighting': 'Campfire' }" },
+  { "id": "97", "title": "Gold Filigree Watch", "category": "Design", "author": "Gemini", "description": "Intricate gold carvings.", "content": "{ 'subject': 'Jewelry', 'style': 'Macro Lux', 'lighting': 'Rim Light' }" },
+  { "id": "98", "title": "Cyberpunk Rain Taxi", "category": "Sci-Fi", "author": "Gemini", "description": "Yellow taxi in neon rain.", "content": "{ 'subject': 'Car', 'style': 'Futuristic Street', 'lighting': 'Puddle Reflect' }" },
+  { "id": "99", "title": "Autumn Leaf macro", "category": "Photorealism", "author": "Gemini", "description": "Veins of a maple leaf.", "content": "{ 'subject': 'Leaf', 'style': 'Macro High Res', 'colors': 'Orange/Red' }" },
+  { "id": "100", "title": "Steampunk Compass", "category": "Design", "author": "Gemini", "description": "Brass and leather gadget.", "content": "{ 'subject': 'Compass', 'style': 'Concept Design', 'details': 'Engraved symbols' }" }
+]

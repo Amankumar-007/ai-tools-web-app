@@ -5,7 +5,7 @@ export const runtime = "nodejs";
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, temperature } = await req.json();
+    const { messages, temperature, model } = await req.json();
 
     if (!process.env.OPENROUTER_API_KEY) {
       return new Response(
@@ -35,10 +35,10 @@ export async function POST(req: NextRequest) {
           : {}),
       },
       body: JSON.stringify({
-        model:  "cognitivecomputations/dolphin-mistral-24b-venice-edition:free",
+        model: model || "tngtech/deepseek-r1t2-chimera:free",
         messages,
         temperature: temperature ?? 0.7,
-        max_tokens: 4096,
+        max_tokens: 8192,
         stream: true,
       }),
     });
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
         function onStreamDone() {
           try {
             controller.close();
-          } catch {}
+          } catch { }
         }
 
         function feed({ done, value }: ReadableStreamReadResult<Uint8Array>): Promise<void> | void {
@@ -125,4 +125,12 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+{/*
+const text = `${movie.title}. ${movie.description}. Genres: ${movie.genres.join(", ")}`;
+
+const embedding = await getEmbedding(text);
+
+movie.embedding = embedding;
+await movie.save();*/
 }

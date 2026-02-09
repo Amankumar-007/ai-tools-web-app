@@ -1,0 +1,5 @@
+{
+  "name": "Resume Intelligence AI",
+  "description": "A high-performance resume analyzer that uses Gemini 3.0 Pro to extract PDF text, score resumes, and provide actionable improvement points with detailed professional feedback.",
+  "requestFramePermissions": []
+}

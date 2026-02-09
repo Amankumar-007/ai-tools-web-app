@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
     }
 
     const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-    
+
     if (!apiKey) {
       return NextResponse.json(
         { error: 'NEXT_PUBLIC_GEMINI_API_KEY is not configured' },
@@ -24,18 +24,39 @@ export async function POST(req: NextRequest) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
-    const prompt = `Generate a comprehensive, detailed, and well-structured prompt about "${topic}". The prompt should be:
+    const metaPrompt = `You are an expert Prompt Engineer with deep knowledge of LLM behavior, prompt optimization, and instructional design. 
     
-1. Detailed and specific (at least 200-300 words)
-2. Well-organized with clear sections
-3. Include relevant context, requirements, and constraints
-4. Be suitable for AI content generation, creative writing, or technical tasks
-5. Include examples or specific details where appropriate
-6. Be professional and comprehensive
+    Your task is to take the user's input topic: "${topic}" and transform it into a highly effective, professional-grade prompt that can be used with advanced AI models (like GPT-4, Claude 3, Gemini 1.5).
 
-Format the prompt with clear headings and structure. Make it actionable and detailed enough to guide someone in creating high-quality content about this topic.`;
+    The generated prompt must be:
+    1.  **Comprehensive**: Cover all aspects of the topic.
+    2.  **Structured**: Use clear Markdown headings (e.g., # Role, ## Context, ## Task, ## Constraints, ## Output Format).
+    3.  **Specific**: Avoid vague language. Define the exact goal.
+    4.  **Persona-driven**: Assign a specific role to the AI (e.g., "Act as a Senior Data Scientist" or "Act as a Creative Director").
+    5.  **Long and Detailed**: The output prompt should be substantial (approx. 300-500 words) to ensure high-quality results.
 
-    const result = await model.generateContent(prompt);
+    Do NOT just output the prompt. Structure the response as follows:
+    
+    # [Topic Name] Prompt
+
+    **Prompt Goal:** [Brief explanation of what this prompt achieves]
+
+    ---
+    
+    [The Actual Prompt Content Goes Here - fully ready to copy and paste]
+    
+    ---
+
+    Make sure the prompt includes sections for:
+    - **Role/Persona**: Who the AI is acting as.
+    - **Context/Background**: Essential information.
+    - **Step-by-Step Instructions**: What the AI should do.
+    - **Constraints/Guidelines**: What to avoid or strictly follow.
+    - **Output Format**: How the result should look (e.g., JSON, table, essay).
+    
+    Generate the best possible prompt now.`;
+
+    const result = await model.generateContent(metaPrompt);
     const response = await result.response;
     const generatedPrompt = response.text();
 

@@ -3,10 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import FlipLink from "@/components/ui/text-effect-flipper";
-import { motion } from "framer-motion";
-import ThemeToggleButton from "@/components/ui/theme-toggle-button";
+import { motion, AnimatePresence } from "framer-motion";
 import WrapButton from "@/components/ui/wrap-button";
-import { AnimatePresence } from "framer-motion";
 import { Globe, SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import AIToolsGrid from '../components/AIToolsGrid';
@@ -19,6 +17,46 @@ import { getCurrentUser, signOut } from "@/lib/supabase";
 import { Badge } from "@/components/ui/badge";
 import Chatbot from "../components/chatBot";
 import Image from "next/image";
+import { Particles } from "@/components/ui/particles";
+import { useTheme } from "next-themes";
+import MainNavbar from "@/components/MainNavbar";
+import { FeatureSteps } from "@/components/blocks/feature-section";
+import { TestimonialSection } from "@/components/clean-testimonial";
+import TomatoMorph from "@/components/TomatoMorph";
+import AgentManager from "@/components/AgentManager";
+import ToolMarquee from "@/components/ToolMarquee";
+
+const features = [
+  {
+    step: 'Step 1',
+    title: 'Build Your Resume',
+    content: 'Create professional resumes with AI-powered templates and optimize your ATS score to land more interviews.',
+    image: '/resume.png'
+  },
+  {
+    step: 'Step 2',
+    title: 'Automate Workflows',
+    content: 'Explore n8n automation templates to streamline your workflows and connect your favorite tools seamlessly.',
+    image: '/n8n.png'
+  },
+  {
+    step: 'Step 3',
+    title: 'Summarize Content',
+    content: 'Use AI summarization tools to quickly extract key insights from documents, articles, videos, and audio files.',
+    image: '/summ.png'
+  },
+]
+
+function FeatureStepsDemo() {
+  return (
+    <FeatureSteps
+      features={features}
+      title="Your Journey Starts Here"
+      autoPlayInterval={4000}
+      imageHeight="h-[500px]"
+    />
+  )
+}
 
 // Define types for user and video
 interface User {
@@ -40,20 +78,20 @@ interface IconProps {
 
 // Define Icons object with typed components
 // Responsive text component that uses FlipLink on desktop and professional text on mobile
-const ResponsiveText: React.FC<{ children: string; href?: string; className?: string }> = ({ 
-  children, 
-  href = "", 
-  className = "" 
+const ResponsiveText: React.FC<{ children: string; href?: string; className?: string }> = ({
+  children,
+  href = "",
+  className = ""
 }) => {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
-    
+
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 640);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
@@ -213,8 +251,6 @@ const Icons: {
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
-  const [navOpen, setNavOpen] = useState(false);
-const [isScrolled, setIsScrolled] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -224,24 +260,16 @@ const [isScrolled, setIsScrolled] = useState(false);
     fetchUser();
   }, []);
 
-  // Add scroll listener for navbar animation and mobile menu
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 100);
-      
-      // Close mobile menu when scrolling
-      if (navOpen) {
-        setNavOpen(false);
-      }
-    };
+  const { theme } = useTheme()
+  const [color, setColor] = useState("#ffffff")
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [navOpen]);
+  useEffect(() => {
+    setColor(theme === "dark" ? "#ffffff" : "#000000")
+  }, [theme])
 
 
   const handleProtectedLink = (
-    e: React.MouseEvent<HTMLAnchorElement | HTMLDivElement>, 
+    e: React.MouseEvent<HTMLAnchorElement | HTMLDivElement>,
     href: string
   ) => {
     e.preventDefault();
@@ -304,21 +332,21 @@ const [isScrolled, setIsScrolled] = useState(false);
 
   // Update the sectionVariants object
   const sectionVariants = {
-    hidden: { 
-      opacity: 0, 
-      scale: 0.95 
+    hidden: {
+      opacity: 0,
+      scale: 0.95
     },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
-      transition: { 
-        duration: 0.5, 
+    visible: {
+      opacity: 1,
+      scale: 1,
+      transition: {
+        duration: 0.5,
         ease: [0.4, 0, 0.2, 1] // Using a cubic-bezier easing
         // Alternatively, you can use predefined easings:
         // ease: "easeOut"
         // ease: "easeInOut"
         // ease: "linear"
-      } 
+      }
     }
   } as const;
 
@@ -339,17 +367,7 @@ const [isScrolled, setIsScrolled] = useState(false);
         />
       </div>
       {/* Fixed background images for light/dark modes */}
-      <div
-        aria-hidden
-        className="fixed inset-0 -z-10 dark:hidden"
-        style={{
-          backgroundImage: "url('/generated-image.png')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-        }}
-      />
+
       <div
         aria-hidden
         className="fixed inset-0 -z-10 hidden dark:block"
@@ -362,372 +380,89 @@ const [isScrolled, setIsScrolled] = useState(false);
         }}
       />
       {/* Navbar */}
-   <motion.nav 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-out ${
-          isScrolled 
-            ? 'py-2' 
-            : 'py-4'
-        }`}
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-      >
-        <div className="flex items-center justify-between px-6 relative">
-          {/* Hamburger for mobile */}
-          <button
-            className="md:hidden flex items-center px-2 py-1 border rounded text-gray-600 z-30"
-            onClick={() => setNavOpen(!navOpen)}
-            aria-label="Toggle navigation"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={
-                  navOpen
-                    ? "M6 18L18 6M6 6l12 12"
-                    : "M4 6h16M4 12h16M4 18h16"
-                }
-              />
-            </svg>
-          </button>
-
-          {/* Logo - Hidden on scroll for desktop, always visible on mobile */}
-          <AnimatePresence>
-            {(!isScrolled || window.innerWidth < 768) && (
-              <motion.div
-                className="px-2 py-2 md:p-0 flex items-center z-30"
-                initial={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Image
-                  src="/logo.png"
-                  alt="QuickAI Logo"
-                  width={40}
-                  height={40}
-                  priority
-                  className="inline-block w-8 h-8 md:w-10 md:h-10"
-                />
-                <span className="ml-3 font-bold tracking-wide bg-gradient-to-r from-[#ff512f] to-[#dd2476] bg-clip-text text-transparent drop-shadow-sm font-[Montserrat] text-base sm:text-lg md:text-2xl">
-                  tomato<span className="font-light">Tool</span>
-                </span>
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          {/* Liquid Glass Navigation Links */}
-        <motion.div
-  className={`fixed inset-x-0 ${navOpen ? 'top-16' : 'top-full'} md:top-4 md:left-1/2 md:inset-x-auto md:-translate-x-1/2 z-20 transition-all duration-500 ease-out ${
-    navOpen ? "flex" : "hidden"
-  } md:flex`}
-  animate={isScrolled ? { scale: 0.95, y: -5 } : { scale: 1, y: 0 }}
-  transition={{ duration: 0.4, ease: "easeOut" }}
->
-
-            <div className="w-full md:w-auto mx-4 md:mx-0 flex flex-col md:flex-row items-center gap-2 md:gap-4 
-              backdrop-blur-2xl bg-white/5 dark:bg-black/5 
-              border border-white/20 dark:border-white/10
-              shadow-2xl shadow-black/5 dark:shadow-black/20
-              rounded-2xl md:rounded-full px-6 py-3
-              relative overflow-hidden group
-              hover:bg-white/10 hover:dark:bg-black/10
-              hover:border-white/30 hover:dark:border-white/20
-              hover:shadow-3xl hover:scale-[1.02]
-              transition-all duration-500 ease-out
-              before:absolute before:inset-0 before:rounded-2xl md:before:rounded-full 
-              before:bg-gradient-to-r before:from-white/10 before:via-transparent before:to-white/10
-              before:opacity-0 before:group-hover:opacity-100
-              before:transition-opacity before:duration-500
-              after:absolute after:inset-0 after:rounded-2xl md:after:rounded-full
-              after:bg-gradient-to-b after:from-white/5 after:to-transparent
-              after:pointer-events-none"
-            >
-              {/* Logo inside nav for scrolled state */}
-              <AnimatePresence>
-  {isScrolled && (
-    <motion.div
-      className="hidden md:flex items-center mr-2"
-      initial={{ opacity: 0, scale: 0.7, x: -16 }}
-      animate={{ opacity: 1, scale: 1, x: 0 }}
-      exit={{ opacity: 0, scale: 0.7, x: -16 }}
-      transition={{ 
-        duration: 0.35, 
-        ease: [0.23, 1, 0.32, 1], // Custom bezier curve for ultra smooth motion
-        type: "tween"
-      }}
-    >
-      <Image
-        src="/logo.png"
-        alt="QuickAI Logo"
-        width={32}
-        height={32}
-        priority
-        className="inline-block w-5 h-5 md:w-7 md:h-7"
+      <MainNavbar
+        user={user}
+        onSignOut={handleSignOut}
+        onProtectedLink={handleProtectedLink}
       />
-    </motion.div>
-  )}
-</AnimatePresence>
 
-{/* Beta Badge */}
-<motion.span 
-  className="text-xs bg-gradient-to-r from-orange-500 to-orange-600 
-    text-white px-2.5 py-1 rounded-full mx-0 font-medium
-    shadow-lg shadow-orange-500/30
-    hover:shadow-orange-500/50 hover:scale-105
-    transition-all duration-200 relative z-10"
-  whileHover={{ 
-    scale: 1.03,
-    transition: { duration: 0.15, ease: "easeOut" }
-  }}
-  whileTap={{ 
-    scale: 0.97,
-    transition: { duration: 0.1, ease: "easeInOut" }
-  }}
->
-  Beta
-</motion.span>
+      {/* Hero Section */}
+      <section className="relative h-screen flex items-center justify-center overflow-hidden pt-25">
+        <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
+          {/* Particles background - changes color based on theme */}
+          <div className="absolute inset-0 z-0">
+            <Particles
+              className="h-full w-full"
+              quantity={100}
+              ease={80}
+              color={theme === 'dark' ? '#ffffff' : '#000000'}
+              refresh
+            />
+          </div>
 
-{/* Navigation Links with Enhanced Glass Effect */}
-<Link
-  href="/ai-tools"
-  onClick={(e) => handleProtectedLink(e, "/ai-tools")}
-  className="relative text-gray-700 dark:text-gray-300 
-    hover:text-black dark:hover:text-white 
-    px-3.5 py-2 rounded-full font-medium text-sm
-    transition-all duration-200 ease-out
-    hover:bg-white/20 hover:dark:bg-white/5
-    hover:backdrop-blur-sm hover:scale-102
-    active:scale-98
-    before:absolute before:inset-0 before:rounded-full
-    before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
-    before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-200
-    after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
-    after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-200
-    z-10"
->
-  AI Tools
-</Link>
+          <div className="relative z-10 text-center px-4 w-full max-w-4xl mx-auto">
+            <motion.h1
+              className="text-5xl md:text-7xl font-bold mb-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <span className="bg-gradient-to-b from-black to-gray-300/80 bg-clip-text text-transparent dark:from-white dark:to-slate-900/10">
+                Fresh AI Tools
+              </span>
+            </motion.h1>
+            <WrapButton className="mt-5" href="/ai-tools" onClick={(e) => handleProtectedLink(e, "/tomato-ai")}>
+              <Globe className="animate-spin" />
+              Explore Tools
+            </WrapButton>
 
-<a
-  href="#categories"
-  className="relative text-gray-700 dark:text-gray-300 
-    hover:text-black dark:hover:text-white 
-    px-3.5 py-2 rounded-full font-medium text-sm
-    transition-all duration-200 ease-out
-    hover:bg-white/20 hover:dark:bg-white/5
-    hover:backdrop-blur-sm hover:scale-102
-    active:scale-98
-    before:absolute before:inset-0 before:rounded-full
-    before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
-    before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-200
-    after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
-    after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-200
-    z-10"
->
-  Categories
-</a>
-
-<a
-  href="#trending"
-  className="relative text-gray-700 dark:text-gray-300 
-    hover:text-black dark:hover:text-white 
-    px-3.5 py-2 rounded-full font-medium text-sm
-    transition-all duration-200 ease-out
-    hover:bg-white/20 hover:dark:bg-white/5
-    hover:backdrop-blur-sm hover:scale-102
-    active:scale-98
-    before:absolute before:inset-0 before:rounded-full
-    before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
-    before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-200
-    after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
-    after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-200
-    z-10"
->
-  Trending
-</a>
-
-<Link
-  href="/About"
-  onClick={(e) => handleProtectedLink(e, "/about")}
-  className="relative text-gray-700 dark:text-gray-300 
-    hover:text-black dark:hover:text-white 
-    px-3.5 py-2 rounded-full font-medium text-sm
-    transition-all duration-200 ease-out
-    hover:bg-white/20 hover:dark:bg-white/5
-    hover:backdrop-blur-sm hover:scale-102
-    active:scale-98
-    before:absolute before:inset-0 before:rounded-full
-    before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
-    before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-200
-    after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
-    after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-200
-    z-10"
->
-  About
-</Link>
-
-<Link
-  href="/pricing"
-  className="relative text-gray-700 dark:text-gray-300 
-    hover:text-black dark:hover:text-white 
-    px-3.5 py-2 rounded-full font-medium text-sm
-    transition-all duration-200 ease-out
-    hover:bg-white/20 hover:dark:bg-white/5
-    hover:backdrop-blur-sm hover:scale-102
-    active:scale-98
-    before:absolute before:inset-0 before:rounded-full
-    before:bg-gradient-to-r before:from-white/10 before:via-white/5 before:to-white/10
-    before:opacity-0 hover:before:opacity-100 before:transition-all before:duration-200
-    after:absolute after:inset-0 after:rounded-full after:border after:border-white/10
-    after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-200
-    z-10"
->
-  Pricing
-</Link>
-
-
-              {/* Auth actions for mobile inside dropdown */}
-              {user ? (
-                <div className="md:hidden w-full flex items-center justify-center gap-3 pt-2 border-t border-white/20 dark:border-white/10 mt-1">
-                  <span className="text-xs bg-blue-500/20 backdrop-blur-sm text-blue-800 dark:text-blue-200 px-3 py-1.5 rounded-full border border-blue-500/30">
-                    {user.subscription_tier}
-                  </span>
-                  <button
-                    onClick={() => { setNavOpen(false); handleSignOut(); }}
-                    className="text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-full hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
-                  >
-                    Logout
-                  </button>
-                </div>
-              ) : (
-                <div className="md:hidden w-full flex items-center justify-center gap-3 pt-2 border-t border-white/20 dark:border-white/10 mt-1">
-                  <Link
-                    href="/login"
-                    className="text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-full hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
-                    onClick={() => setNavOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="text-gray-700 dark:text-gray-200 px-3 py-1.5 rounded-full hover:bg-white/20 dark:hover:bg-white/10 transition-all duration-200"
-                    onClick={() => setNavOpen(false)}
-                  >
-                    Register
-                  </Link>
-                </div>
-              )}
+            <div className="mt-4 flex flex-col items-center">
+              <svg width="100" height="50" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="fill-black dark:fill-white">
+                <path d="M68.6958 5.40679C67.3329 12.7082 68.5287 20.1216 68.5197 27.4583C68.5189 29.5382 68.404 31.6054 68.1147 33.682C67.9844 34.592 69.4111 34.751 69.5414 33.8411C70.5618 26.5016 69.2488 19.104 69.4639 11.7325C69.5218 9.65887 69.7222 7.6012 70.0939 5.56265C70.1638 5.1949 69.831 4.81112 69.4601 4.76976C69.0891 4.72841 68.7689 5.01049 68.6958 5.40679Z" />
+                <path d="M74.0117 26.1349C73.2662 27.1206 72.5493 28.1096 72.0194 29.235C71.5688 30.167 71.2007 31.137 70.7216 32.0658C70.4995 32.5033 70.252 32.9091 69.9475 33.3085C69.8142 33.4669 69.6779 33.654 69.5161 33.8093C69.4527 33.86 68.9199 34.2339 68.9167 34.2624C68.9263 34.1768 69.0752 34.3957 69.0055 34.2434C68.958 34.1515 68.8534 34.0531 68.8058 33.9612C68.6347 33.6821 68.4637 33.403 68.264 33.1208L67.1612 31.3512C66.3532 30.0477 65.5199 28.7126 64.7119 27.4093C64.5185 27.0699 63.9701 27.0666 63.7131 27.2979C63.396 27.5514 63.4053 27.9858 63.6018 28.2966C64.3845 29.5683 65.1956 30.8431 65.9783 32.1149L67.1572 33.9796C67.5025 34.5093 67.8225 35.2671 68.428 35.5368C69.6136 36.0446 70.7841 34.615 71.3424 33.7529C71.9992 32.786 72.4085 31.705 72.9035 30.6336C73.4842 29.3116 74.2774 28.1578 75.1306 26.9818C75.7047 26.2369 74.5573 25.3868 74.0117 26.1349ZM55.1301 12.2849C54.6936 18.274 54.6565 24.3076 55.0284 30.3003C55.1293 31.987 55.2555 33.7056 55.4419 35.4019C55.5431 36.3087 56.9541 36.0905 56.8529 35.1837C56.2654 29.3115 56.0868 23.3982 56.2824 17.4978C56.3528 15.8301 56.4263 14.1339 56.5537 12.4725C56.6301 11.5276 55.2034 11.3686 55.1301 12.2849Z" />
+                <path d="M59.2642 30.6571C58.8264 31.475 58.36 32.2896 57.9222 33.1075C57.7032 33.5164 57.4843 33.9253 57.2369 34.3311C57.0528 34.6861 56.8656 35.0697 56.6278 35.3898C56.596 35.4152 56.5611 35.4691 56.5294 35.4944C56.4881 35.6054 56.5041 35.4627 56.5548 35.5261C56.7481 35.6055 56.8337 35.6151 56.7545 35.5484L56.6784 35.4533C56.6023 35.3581 56.5263 35.263 56.4534 35.1393C56.1778 34.7619 55.8734 34.3814 55.5946 34.0324C55.0146 33.2744 54.4315 32.545 53.8515 31.787C53.2685 31.0576 52.1584 31.945 52.7415 32.6744C53.4229 33.5592 54.1042 34.4441 54.7888 35.3004C55.1184 35.7127 55.4321 36.2677 55.8569 36.6039C56.3069 36.9719 56.884 36.9784 57.3533 36.6551C57.7624 36.3542 57.9845 35.9167 58.2067 35.4792C58.4636 34.9878 58.746 34.5282 59.003 34.0369C59.5423 33.0859 60.0563 32.1032 60.5957 31.1522C60.7765 30.8257 60.5104 30.3627 60.2092 30.2135C59.8161 30.112 59.4451 30.3305 59.2642 30.6571ZM44.5918 10.1569L42.2324 37.5406C42.0032 40.1151 41.8057 42.6641 41.5764 45.2386C41.5032 46.1549 42.9299 46.314 43.0032 45.3977L45.3626 18.014C45.5918 15.4396 45.7893 12.8905 46.0186 10.316C46.1235 9.37433 44.6968 9.21532 44.5918 10.1569Z" />
+                <path d="M48.101 37.7616C46.7404 38.8232 45.8267 40.2814 44.9163 41.7109C44.0407 43.0866 43.1365 44.4592 41.738 45.3434C42.1247 45.5019 42.5146 45.6321 42.9014 45.7908C42.1324 41.8051 41.04 37.8699 39.6781 34.0203C39.545 33.6589 39.0695 33.5191 38.7365 33.6553C38.3719 33.817 38.2385 34.2353 38.3716 34.5969C39.7209 38.3007 40.7404 42.1121 41.4904 46.009C41.6012 46.5703 42.1877 46.7512 42.6539 46.4565C45.5462 44.6124 46.3877 40.9506 49.0169 38.8748C49.7178 38.2884 48.8304 37.1784 48.101 37.7616ZM25.9671 13.1014C25.7028 16.2497 26.0758 19.3824 26.5091 22.4929C26.9645 25.6636 27.4166 28.863 27.872 32.0337C28.1346 33.8253 28.3971 35.6167 28.631 37.4051C28.7607 38.3151 30.1717 38.0968 30.042 37.1868C29.5866 34.016 29.1281 30.8738 28.7012 27.7062C28.2647 24.6242 27.7396 21.5612 27.449 18.4666C27.2943 16.7449 27.2283 15.0042 27.3653 13.2572C27.4671 12.3442 26.0404 12.1851 25.9671 13.1014Z" />
+                <path d="M30.5625 27.3357C29.9525 30.7343 29.3425 34.133 28.704 37.5284C29.1225 37.4018 29.5411 37.2751 29.9882 37.1516C28.6034 35.0617 27.2504 32.9465 25.8655 30.8565C25.6406 30.5425 25.1523 30.517 24.8669 30.7451C24.5497 30.9987 24.5305 31.4299 24.7555 31.7439C26.1403 33.8338 27.4933 35.9491 28.8781 38.039C29.2489 38.6003 30.0417 38.2265 30.1624 37.6621C30.7724 34.2635 31.3824 30.8648 32.0209 27.4694C32.0908 27.1016 31.758 26.7178 31.3871 26.6765C30.9559 26.6573 30.6324 26.9679 30.5625 27.3357Z" />
+              </svg>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">Curated collection of the most powerful AI tools for every need</p>
             </div>
-          </motion.div>
 
-          {/* Right side */}
-          <div className="flex items-center space-x-2 ml-auto z-30">
-            <ThemeToggleButton variant="circle-blur" start="top-right" />
-            {user ? (
-              <div className="hidden md:flex items-center space-x-2">
-                <span className="text-xs bg-blue-500/20 backdrop-blur-sm text-blue-800 dark:text-blue-200 px-3 py-1.5 rounded-full border border-blue-500/30">
-                  {user.subscription_tier}
-                </span>
-                <button
-                  onClick={handleSignOut}
-                  className="text-gray-600 hover:text-black dark:hover:text-white transition-colors duration-200"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <div className="hidden md:flex items-center space-x-2">
-                <Link
-                  href="/login"
-                  className="text-gray-600 hover:text-black dark:hover:text-white transition-colors duration-200"
-                >
-                  Login
-                </Link>
-                <Link
-                  href="/register"
-                  className="text-gray-600 hover:text-black dark:hover:text-white transition-colors duration-200"
-                >
-                  Register
-                </Link>
-              </div>
-            )}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="w-full max-w-2xl mx-auto my-8"
+            >
+              <AiInput />
+            </motion.div>
+
+
           </div>
         </div>
-      </motion.nav>
-      {/* Hero Section */}
-      <main className="flex flex-col items-center justify-center text-center mt-30">
-        <motion.div
-          initial={{ opacity: 0, y: -50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-        />
-        <motion.h1
-          className="text-7xl font-bold"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-        >
-          <ResponsiveText href="">The fresh </ResponsiveText>
-          <ResponsiveText href="">way to</ResponsiveText>
-          <ResponsiveText href="">work with AI</ResponsiveText>
-        </motion.h1>
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
-          className="mt-10 flex flex-col items-center"
-        >
-          <WrapButton className="mt-5" href="/ai-tools" onClick={(e) => handleProtectedLink(e, "/tomato-ai")}>
-            <Globe className="animate-spin" />
-            Explore Tools
-          </WrapButton>
-          <div className="mt-4 flex flex-col items-center">
-            <svg width="100" height="50" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="fill-black dark:fill-white">
-              <path d="M68.6958 5.40679C67.3329 12.7082 68.5287 20.1216 68.5197 27.4583C68.5189 29.5382 68.404 31.6054 68.1147 33.682C67.9844 34.592 69.4111 34.751 69.5414 33.8411C70.5618 26.5016 69.2488 19.104 69.4639 11.7325C69.5218 9.65887 69.7222 7.6012 70.0939 5.56265C70.1638 5.1949 69.831 4.81112 69.4601 4.76976C69.0891 4.72841 68.7689 5.01049 68.6958 5.40679Z" />
-              <path d="M74.0117 26.1349C73.2662 27.1206 72.5493 28.1096 72.0194 29.235C71.5688 30.167 71.2007 31.137 70.7216 32.0658C70.4995 32.5033 70.252 32.9091 69.9475 33.3085C69.8142 33.4669 69.6779 33.654 69.5161 33.8093C69.4527 33.86 68.9199 34.2339 68.9167 34.2624C68.9263 34.1768 69.0752 34.3957 69.0055 34.2434C68.958 34.1515 68.8534 34.0531 68.8058 33.9612C68.6347 33.6821 68.4637 33.403 68.264 33.1208L67.1612 31.3512C66.3532 30.0477 65.5199 28.7126 64.7119 27.4093C64.5185 27.0699 63.9701 27.0666 63.7131 27.2979C63.396 27.5514 63.4053 27.9858 63.6018 28.2966C64.3845 29.5683 65.1956 30.8431 65.9783 32.1149L67.1572 33.9796C67.5025 34.5093 67.8225 35.2671 68.428 35.5368C69.6136 36.0446 70.7841 34.615 71.3424 33.7529C71.9992 32.786 72.4085 31.705 72.9035 30.6336C73.4842 29.3116 74.2774 28.1578 75.1306 26.9818C75.7047 26.2369 74.5573 25.3868 74.0117 26.1349ZM55.1301 12.2849C54.6936 18.274 54.6565 24.3076 55.0284 30.3003C55.1293 31.987 55.2555 33.7056 55.4419 35.4019C55.5431 36.3087 56.9541 36.0905 56.8529 35.1837C56.2654 29.3115 56.0868 23.3982 56.2824 17.4978C56.3528 15.8301 56.4263 14.1339 56.5537 12.4725C56.6301 11.5276 55.2034 11.3686 55.1301 12.2849Z" />
-              <path d="M59.2642 30.6571C58.8264 31.475 58.36 32.2896 57.9222 33.1075C57.7032 33.5164 57.4843 33.9253 57.2369 34.3311C57.0528 34.6861 56.8656 35.0697 56.6278 35.3898C56.596 35.4152 56.5611 35.4691 56.5294 35.4944C56.4881 35.6054 56.5041 35.4627 56.5548 35.5261C56.7481 35.6055 56.8337 35.6151 56.7545 35.5484L56.6784 35.4533C56.6023 35.3581 56.5263 35.263 56.4534 35.1393C56.1778 34.7619 55.8734 34.3814 55.5946 34.0324C55.0146 33.2744 54.4315 32.545 53.8515 31.787C53.2685 31.0576 52.1584 31.945 52.7415 32.6744C53.4229 33.5592 54.1042 34.4441 54.7888 35.3004C55.1184 35.7127 55.4321 36.2677 55.8569 36.6039C56.3069 36.9719 56.884 36.9784 57.3533 36.6551C57.7624 36.3542 57.9845 35.9167 58.2067 35.4792C58.4636 34.9878 58.746 34.5282 59.003 34.0369C59.5423 33.0859 60.0563 32.1032 60.5957 31.1522C60.7765 30.8257 60.5104 30.3627 60.2092 30.2135C59.8161 30.112 59.4451 30.3305 59.2642 30.6571ZM44.5918 10.1569L42.2324 37.5406C42.0032 40.1151 41.8057 42.6641 41.5764 45.2386C41.5032 46.1549 42.9299 46.314 43.0032 45.3977L45.3626 18.014C45.5918 15.4396 45.7893 12.8905 46.0186 10.316C46.1235 9.37433 44.6968 9.21532 44.5918 10.1569Z" />
-              <path d="M48.101 37.7616C46.7404 38.8232 45.8267 40.2814 44.9163 41.7109C44.0407 43.0866 43.1365 44.4592 41.738 45.3434C42.1247 45.5019 42.5146 45.6321 42.9014 45.7908C42.1324 41.8051 41.04 37.8699 39.6781 34.0203C39.545 33.6589 39.0695 33.5191 38.7365 33.6553C38.3719 33.817 38.2385 34.2353 38.3716 34.5969C39.7209 38.3007 40.7404 42.1121 41.4904 46.009C41.6012 46.5703 42.1877 46.7512 42.6539 46.4565C45.5462 44.6124 46.3877 40.9506 49.0169 38.8748C49.7178 38.2884 48.8304 37.1784 48.101 37.7616ZM25.9671 13.1014C25.7028 16.2497 26.0758 19.3824 26.5091 22.4929C26.9645 25.6636 27.4166 28.863 27.872 32.0337C28.1346 33.8253 28.3971 35.6167 28.631 37.4051C28.7607 38.3151 30.1717 38.0968 30.042 37.1868C29.5866 34.016 29.1281 30.8738 28.7012 27.7062C28.2647 24.6242 27.7396 21.5612 27.449 18.4666C27.2943 16.7449 27.2283 15.0042 27.3653 13.2572C27.4671 12.3442 26.0404 12.1851 25.9671 13.1014Z" />
-              <path d="M30.5625 27.3357C29.9525 30.7343 29.3425 34.133 28.704 37.5284C29.1225 37.4018 29.5411 37.2751 29.9882 37.1516C28.6034 35.0617 27.2504 32.9465 25.8655 30.8565C25.6406 30.5425 25.1523 30.517 24.8669 30.7451C24.5497 30.9987 24.5305 31.4299 24.7555 31.7439C26.1403 33.8338 27.4933 35.9491 28.8781 38.039C29.2489 38.6003 30.0417 38.2265 30.1624 37.6621C30.7724 34.2635 31.3824 30.8648 32.0209 27.4694C32.0908 27.1016 31.758 26.7178 31.3871 26.6765C30.9559 26.6573 30.6324 26.9679 30.5625 27.3357Z" />
-            </svg>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">Curated collection of the most powerful AI tools for every need</p>
-          </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="mt-5 w-full max-w-3xl mx-auto px-4"
-        >
-          <AiInput />
-        </motion.div>
+      </section>
+
+      {/* Main Content */}
+      <main className="container mx-auto px-4 py-5">
         <AIToolsGrid />
-        <TextScroll
-          className="font-display text-center text-4xl font-semibold tracking-tighter text-black dark:text-white md:text-7xl md:leading-[5rem]"
-          text="Discover AI Tools "
-          default_velocity={2}
-        />
-        <svg width="100" height="50" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="fill-black dark:fill-white">
-          <path d="M68.6958 5.40679C67.3329 12.7082 68.5287 20.1216 68.5197 27.4583C68.5189 29.5382 68.404 31.6054 68.1147 33.682C67.9844 34.592 69.4111 34.751 69.5414 33.8411C70.5618 26.5016 69.2488 19.104 69.4639 11.7325C69.5218 9.65887 69.7222 7.6012 70.0939 5.56265C70.1638 5.1949 69.831 4.81112 69.4601 4.76976C69.0891 4.72841 68.7689 5.01049 68.6958 5.40679Z" />
-          <path d="M74.0117 26.1349C73.2662 27.1206 72.5493 28.1096 72.0194 29.235C71.5688 30.167 71.2007 31.137 70.7216 32.0658C70.4995 32.5033 70.252 32.9091 69.9475 33.3085C69.8142 33.4669 69.6779 33.654 69.5161 33.8093C69.4527 33.86 68.9199 34.2339 68.9167 34.2624C68.9263 34.1768 69.0752 34.3957 69.0055 34.2434C68.958 34.1515 68.8534 34.0531 68.8058 33.9612C68.6347 33.6821 68.4637 33.403 68.264 33.1208L67.1612 31.3512C66.3532 30.0477 65.5199 28.7126 64.7119 27.4093C64.5185 27.0699 63.9701 27.0666 63.7131 27.2979C63.396 27.5514 63.4053 27.9858 63.6018 28.2966C64.3845 29.5683 65.1956 30.8431 65.9783 32.1149L67.1572 33.9796C67.5025 34.5093 67.8225 35.2671 68.428 35.5368C69.6136 36.0446 70.7841 34.615 71.3424 33.7529C71.9992 32.786 72.4085 31.705 72.9035 30.6336C73.4842 29.3116 74.2774 28.1578 75.1306 26.9818C75.7047 26.2369 74.5573 25.3868 74.0117 26.1349ZM55.1301 12.2849C54.6936 18.274 54.6565 24.3076 55.0284 30.3003C55.1293 31.987 55.2555 33.7056 55.4419 35.4019C55.5431 36.3087 56.9541 36.0905 56.8529 35.1837C56.2654 29.3115 56.0868 23.3982 56.2824 17.4978C56.3528 15.8301 56.4263 14.1339 56.5537 12.4725C56.6301 11.5276 55.2034 11.3686 55.1301 12.2849Z" />
-          <path d="M59.2642 30.6571C58.8264 31.475 58.36 32.2896 57.9222 33.1075C57.7032 33.5164 57.4843 33.9253 57.2369 34.3311C57.0528 34.6861 56.8656 35.0697 56.6278 35.3898C56.596 35.4152 56.5611 35.4691 56.5294 35.4944C56.4881 35.6054 56.5041 35.4627 56.5548 35.5261C56.7481 35.6055 56.8337 35.6151 56.7545 35.5484L56.6784 35.4533C56.6023 35.3581 56.5263 35.263 56.4534 35.1393C56.1778 34.7619 55.8734 34.3814 55.5946 34.0324C55.0146 33.2744 54.4315 32.545 53.8515 31.787C53.2685 31.0576 52.1584 31.945 52.7415 32.6744C53.4229 33.5592 54.1042 34.4441 54.7888 35.3004C55.1184 35.7127 55.4321 36.2677 55.8569 36.6039C56.3069 36.9719 56.884 36.9784 57.3533 36.6551C57.7624 36.3542 57.9845 35.9167 58.2067 35.4792C58.4636 34.9878 58.746 34.5282 59.003 34.0369C59.5423 33.0859 60.0563 32.1032 60.5957 31.1522C60.7765 30.8257 60.5104 30.3627 60.2092 30.2135C59.8161 30.112 59.4451 30.3305 59.2642 30.6571ZM44.5918 10.1569L42.2324 37.5406C42.0032 40.1151 41.8057 42.6641 41.5764 45.2386C41.5032 46.1549 42.9299 46.314 43.0032 45.3977L45.3626 18.014C45.5918 15.4396 45.7893 12.8905 46.0186 10.316C46.1235 9.37433 44.6968 9.21532 44.5918 10.1569Z" />
-          <path d="M48.101 37.7616C46.7404 38.8232 45.8267 40.2814 44.9163 41.7109C44.0407 43.0866 43.1365 44.4592 41.738 45.3434C42.1247 45.5019 42.5146 45.6321 42.9014 45.7908C42.1324 41.8051 41.04 37.8699 39.6781 34.0203C39.545 33.6589 39.0695 33.5191 38.7365 33.6553C38.3719 33.817 38.2385 34.2353 38.3716 34.5969C39.7209 38.3007 40.7404 42.1121 41.4904 46.009C41.6012 46.5703 42.1877 46.7512 42.6539 46.4565C45.5462 44.6124 46.3877 40.9506 49.0169 38.8748C49.7178 38.2884 48.8304 37.1784 48.101 37.7616ZM25.9671 13.1014C25.7028 16.2497 26.0758 19.3824 26.5091 22.4929C26.9645 25.6636 27.4166 28.863 27.872 32.0337C28.1346 33.8253 28.3971 35.6167 28.631 37.4051C28.7607 38.3151 30.1717 38.0968 30.042 37.1868C29.5866 34.016 29.1281 30.8738 28.7012 27.7062C28.2647 24.6242 27.7396 21.5612 27.449 18.4666C27.2943 16.7449 27.2283 15.0042 27.3653 13.2572C27.4671 12.3442 26.0404 12.1851 25.9671 13.1014Z" />
-          <path d="M30.5625 27.3357C29.9525 30.7343 29.3425 34.133 28.704 37.5284C29.1225 37.4018 29.5411 37.2751 29.9882 37.1516C28.6034 35.0617 27.2504 32.9465 25.8655 30.8565C25.6406 30.5425 25.1523 30.517 24.8669 30.7451C24.5497 30.9987 24.5305 31.4299 24.7555 31.7439C26.1403 33.8338 27.4933 35.9491 28.8781 38.039C29.2489 38.6003 30.0417 38.2265 30.1624 37.6621C30.7724 34.2635 31.3824 30.8648 32.0209 27.4694C32.0908 27.1016 31.758 26.7178 31.3871 26.6765C30.9559 26.6573 30.6324 26.9679 30.5625 27.3357Z" />
-        </svg>
-       
-       
+        <ToolMarquee/>
+        <div className="flex justify-center">
+          <svg width="100" height="50" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="fill-black dark:fill-white">
+            <path d="M68.6958 5.40679C67.3329 12.7082 68.5287 20.1216 68.5197 27.4583C68.5189 29.5382 68.404 31.6054 68.1147 33.682C67.9844 34.592 69.4111 34.751 69.5414 33.8411C70.5618 26.5016 69.2488 19.104 69.4639 11.7325C69.5218 9.65887 69.7222 7.6012 70.0939 5.56265C70.1638 5.1949 69.831 4.81112 69.4601 4.76976C69.0891 4.72841 68.7689 5.01049 68.6958 5.40679Z" />
+            <path d="M74.0117 26.1349C73.2662 27.1206 72.5493 28.1096 72.0194 29.235C71.5688 30.167 71.2007 31.137 70.7216 32.0658C70.4995 32.5033 70.252 32.9091 69.9475 33.3085C69.8142 33.4669 69.6779 33.654 69.5161 33.8093C69.4527 33.86 68.9199 34.2339 68.9167 34.2624C68.9263 34.1768 69.0752 34.3957 69.0055 34.2434C68.958 34.1515 68.8534 34.0531 68.8058 33.9612C68.6347 33.6821 68.4637 33.403 68.264 33.1208L67.1612 31.3512C66.3532 30.0477 65.5199 28.7126 64.7119 27.4093C64.5185 27.0699 63.9701 27.0666 63.7131 27.2979C63.396 27.5514 63.4053 27.9858 63.6018 28.2966C64.3845 29.5683 65.1956 30.8431 65.9783 32.1149L67.1572 33.9796C67.5025 34.5093 67.8225 35.2671 68.428 35.5368C69.6136 36.0446 70.7841 34.615 71.3424 33.7529C71.9992 32.786 72.4085 31.705 72.9035 30.6336C73.4842 29.3116 74.2774 28.1578 75.1306 26.9818C75.7047 26.2369 74.5573 25.3868 74.0117 26.1349ZM55.1301 12.2849C54.6936 18.274 54.6565 24.3076 55.0284 30.3003C55.1293 31.987 55.2555 33.7056 55.4419 35.4019C55.5431 36.3087 56.9541 36.0905 56.8529 35.1837C56.2654 29.3115 56.0868 23.3982 56.2824 17.4978C56.3528 15.8301 56.4263 14.1339 56.5537 12.4725C56.6301 11.5276 55.2034 11.3686 55.1301 12.2849Z" />
+            <path d="M59.2642 30.6571C58.8264 31.475 58.36 32.2896 57.9222 33.1075C57.7032 33.5164 57.4843 33.9253 57.2369 34.3311C57.0528 34.6861 56.8656 35.0697 56.6278 35.3898C56.596 35.4152 56.5611 35.4691 56.5294 35.4944C56.4881 35.6054 56.5041 35.4627 56.5548 35.5261C56.7481 35.6055 56.8337 35.6151 56.7545 35.5484L56.6784 35.4533C56.6023 35.3581 56.5263 35.263 56.4534 35.1393C56.1778 34.7619 55.8734 34.3814 55.5946 34.0324C55.0146 33.2744 54.4315 32.545 53.8515 31.787C53.2685 31.0576 52.1584 31.945 52.7415 32.6744C53.4229 33.5592 54.1042 34.4441 54.7888 35.3004C55.1184 35.7127 55.4321 36.2677 55.8569 36.6039C56.3069 36.9719 56.884 36.9784 57.3533 36.6551C57.7624 36.3542 57.9845 35.9167 58.2067 35.4792C58.4636 34.9878 58.746 34.5282 59.003 34.0369C59.5423 33.0859 60.0563 32.1032 60.5957 31.1522C60.7765 30.8257 60.5104 30.3627 60.2092 30.2135C59.8161 30.112 59.4451 30.3305 59.2642 30.6571ZM44.5918 10.1569L42.2324 37.5406C42.0032 40.1151 41.8057 42.6641 41.5764 45.2386C41.5032 46.1549 42.9299 46.314 43.0032 45.3977L45.3626 18.014C45.5918 15.4396 45.7893 12.8905 46.0186 10.316C46.1235 9.37433 44.6968 9.21532 44.5918 10.1569Z" />
+            <path d="M48.101 37.7616C46.7404 38.8232 45.8267 40.2814 44.9163 41.7109C44.0407 43.0866 43.1365 44.4592 41.738 45.3434C42.1247 45.5019 42.5146 45.6321 42.9014 45.7908C42.1324 41.8051 41.04 37.8699 39.6781 34.0203C39.545 33.6589 39.0695 33.5191 38.7365 33.6553C38.3719 33.817 38.2385 34.2353 38.3716 34.5969C39.7209 38.3007 40.7404 42.1121 41.4904 46.009C41.6012 46.5703 42.1877 46.7512 42.6539 46.4565C45.5462 44.6124 46.3877 40.9506 49.0169 38.8748C49.7178 38.2884 48.8304 37.1784 48.101 37.7616ZM25.9671 13.1014C25.7028 16.2497 26.0758 19.3824 26.5091 22.4929C26.9645 25.6636 27.4166 28.863 27.872 32.0337C28.1346 33.8253 28.3971 35.6167 28.631 37.4051C28.7607 38.3151 30.1717 38.0968 30.042 37.1868C29.5866 34.016 29.1281 30.8738 28.7012 27.7062C28.2647 24.6242 27.7396 21.5612 27.449 18.4666C27.2943 16.7449 27.2283 15.0042 27.3653 13.2572C27.4671 12.3442 26.0404 12.1851 25.9671 13.1014Z" />
+            <path d="M30.5625 27.3357C29.9525 30.7343 29.3425 34.133 28.704 37.5284C29.1225 37.4018 29.5411 37.2751 29.9882 37.1516C28.6034 35.0617 27.2504 32.9465 25.8655 30.8565C25.6406 30.5425 25.1523 30.517 24.8669 30.7451C24.5497 30.9987 24.5305 31.4299 24.7555 31.7439C26.1403 33.8338 27.4933 35.9491 28.8781 38.039C29.2489 38.6003 30.0417 38.2265 30.1624 37.6621C30.7724 34.2635 31.3824 30.8648 32.0209 27.4694C32.0908 27.1016 31.758 26.7178 31.3871 26.6765C30.9559 26.6573 30.6324 26.9679 30.5625 27.3357Z" />
+          </svg>
+        </div>
+
+
         <motion.div
           id="categories"
           variants={sectionVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
+          className="flex flex-col items-center"
         >
           {user ? (
             <Categories />
@@ -740,46 +475,58 @@ const [isScrolled, setIsScrolled] = useState(false);
             </div>
           )}
         </motion.div>
-        <motion.h1
-          className="text-6xl font-bold mb-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-        >
-          <Badge
-            variant="outline"
-            className="mb-3 rounded-[14px] border border-black/10 bg-white text-base dark:border-white/5 dark:bg-neutral-800/5 md:left-6"
+        <FeatureStepsDemo />
+      </main>
+
+      <section className="w-full bg-neutral-50/50 dark:bg-neutral-900/10 py-10 border-y border-neutral-100 dark:border-neutral-800/50">
+        <TestimonialSection />
+      </section>
+
+      <main className="container mx-auto px-4 py-2">
+        {/* <div className="py-5">
+          <motion.h1
+            className="text-6xl font-bold mb-10 flex flex-col items-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.8 }}
           >
-            <SparklesIcon className="fill-[#EEBDE0] stroke-1 text-neutral-800" />{" "}
-            Hover Over Links
-          </Badge>
-          <div className="group flex items-center justify-center">
-            <Icons.linkedin />
-            <FlipLink href="https://www.linkedin.com/in/amankumarweb/">Linkedin</FlipLink>
-          </div>
-          <div className="group flex items-center justify-center">
-            <FlipLink href="https://aman-kumar-dev.netlify.app/">Portfolio</FlipLink>
-            <Icons.be />
-          </div>
-          <div className="group flex items-center justify-center">
-            <Icons.github fill="red" />
-            <FlipLink href="https://github.com/Amankumar-007">Github</FlipLink>
-          </div>
-          <div className="group flex items-center justify-center">
-            <FlipLink href="https://x.com/AmanCodex">Dribble</FlipLink>
-            <Icons.dribble />
-          </div>
-        </motion.h1>
+            <Badge
+              variant="outline"
+              className="mb-3 rounded-[14px] border border-black/10 bg-white text-base dark:border-white/5 dark:bg-neutral-800/5 md:left-6"
+            >
+              <SparklesIcon className="fill-[#EEBDE0] stroke-1 text-neutral-800" />{" "}
+              Hover Over Links
+            </Badge>
+            <div className="group flex items-center justify-center">
+              <Icons.linkedin />
+              <FlipLink href="https://www.linkedin.com/in/amankumarweb/">Linkedin</FlipLink>
+            </div>
+            <div className="group flex items-center justify-center">
+              <FlipLink href="https://aman-kumar-dev.netlify.app/">Portfolio</FlipLink>
+              <Icons.be />
+            </div>
+            <div className="group flex items-center justify-center">
+              <Icons.github fill="red" />
+              <FlipLink href="https://github.com/Amankumar-007">Github</FlipLink>
+            </div>
+            <div className="group flex items-center justify-center">
+              <FlipLink href="https://x.com/AmanCodex">Dribble</FlipLink>
+              <Icons.dribble />
+            </div>
+          </motion.h1> </div> */}
+          <TomatoMorph />
+          <AgentManager/>
         <Footer />
         <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="fixed bottom-6 right-6"
-      >
-        <Chatbot />
-      </motion.div>
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="fixed bottom-6 right-6"
+        >
+          <Chatbot />
+
+        </motion.div>
       </main>
-    </div>
+    </div >
   );
 }

@@ -5,21 +5,45 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Copy, Download, ExternalLink, Play, Check, Search } from "lucide-react";
+import { Copy, Download, ExternalLink, Play, Check, Search, Bot, Mail, MessageCircle, Database, FileText, Users, Calendar, Settings, Globe, Brain, Code, Folder, Send } from "lucide-react";
 import { getAllTemplates, ParsedTemplate } from "@/lib/n8n-templates";
 
 
 const categories = [
   "All",
-  "AI Agents",
-  "Marketing",
-  "Content Creation",
-  "Web Scraping",
+  "AI & LLMs",
+  "AI Research & Data Analysis",
+  "Communication",
+  "CMS",
+  "Database & Storage",
+  "DevOps",
+  "Document Processing",
   "Email Automation",
-  "Social Media",
-  "Video Production",
-  "Business Automation"
+  "Forms & Surveys",
+  "Google Workspace",
+  "HR & Recruitment",
+  "Other",
+  "Productivity",
+  "Social Media"
 ];
+
+const categoryIcons: Record<string, any> = {
+  "All": Folder,
+  "AI & LLMs": Brain,
+  "AI Research & Data Analysis": Brain,
+  "Communication": MessageCircle,
+  "CMS": Globe,
+  "Database & Storage": Database,
+  "DevOps": Code,
+  "Document Processing": FileText,
+  "Email Automation": Mail,
+  "Forms & Surveys": FileText,
+  "Google Workspace": Settings,
+  "HR & Recruitment": Users,
+  "Other": Settings,
+  "Productivity": Calendar,
+  "Social Media": Send
+};
 
 export default function N8nTemplatesPage() {
   const [templates, setTemplates] = useState<ParsedTemplate[]>([]);
@@ -202,17 +226,21 @@ export default function N8nTemplatesPage() {
             </div>
             
             {/* Category Filter */}
-            <div className="flex flex-wrap gap-2 justify-center">
-              {categories.map((category) => (
-                <Button
-                  key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
-                  onClick={() => setSelectedCategory(category)}
-                  className="mb-2"
-                >
-                  {category}
-                </Button>
-              ))}
+            <div className="flex flex-wrap gap-3 justify-center">
+              {categories.map((category) => {
+                const Icon = categoryIcons[category] || Folder;
+                return (
+                  <Button
+                    key={category}
+                    variant={selectedCategory === category ? "default" : "outline"}
+                    onClick={() => setSelectedCategory(category)}
+                    className="mb-2 flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:scale-105"
+                  >
+                    <Icon className="w-4 h-4" />
+                    {category}
+                  </Button>
+                );
+              })}
             </div>
           </div>
 
@@ -225,25 +253,38 @@ export default function N8nTemplatesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Card className="h-full flex flex-col hover:shadow-lg transition-shadow">
-                  <CardHeader>
+                <Card className="h-full flex flex-col hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-background to-muted/20">
+                  <CardHeader className="pb-3">
                     <div className="flex items-start justify-between">
-                      <CardTitle className="text-lg">{template.name}</CardTitle>
-                      <Badge variant="secondary">{template.category}</Badge>
+                      <div className="flex items-center gap-2">
+                        {(() => {
+                          const CategoryIcon = categoryIcons[template.category] || Folder;
+                          return <CategoryIcon className="w-5 h-5 text-primary" />;
+                        })()}
+                        <CardTitle className="text-lg font-semibold">{template.name}</CardTitle>
+                      </div>
+                      <Badge variant="secondary" className="text-xs px-2 py-1 bg-primary/10 text-primary border-primary/20">
+                        {template.category}
+                      </Badge>
                     </div>
-                    <CardDescription className="text-sm">
+                    <CardDescription className="text-sm text-muted-foreground leading-relaxed">
                       {template.description}
                     </CardDescription>
                   </CardHeader>
                   
                   <CardContent className="flex-1 flex flex-col">
                     {/* Tags */}
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {template.tags.map((tag) => (
-                        <Badge key={tag} variant="outline" className="text-xs">
+                    <div className="flex flex-wrap gap-1 mb-4 max-h-20 overflow-y-auto">
+                      {template.tags.slice(0, 6).map((tag) => (
+                        <Badge key={tag} variant="outline" className="text-xs px-2 py-0.5 bg-muted/30 border-muted/50">
                           {tag}
                         </Badge>
                       ))}
+                      {template.tags.length > 6 && (
+                        <Badge variant="outline" className="text-xs px-2 py-0.5 bg-muted/30 border-muted/50">
+                          +{template.tags.length - 6}
+                        </Badge>
+                      )}
                     </div>
 
                     {/* Actions */}
@@ -251,7 +292,7 @@ export default function N8nTemplatesPage() {
                       <Button
                         size="sm"
                         onClick={() => handleCopyTemplate(template)}
-                        className="flex-1"
+                        className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200"
                       >
                         {copiedTemplate === template.id ? (
                           <Check className="w-4 h-4 mr-2" />
@@ -265,6 +306,7 @@ export default function N8nTemplatesPage() {
                         size="sm"
                         variant="outline"
                         onClick={() => handleDownloadTemplate(template)}
+                        className="hover:bg-muted/50 transition-all duration-200"
                       >
                         <Download className="w-4 h-4" />
                       </Button>
@@ -274,6 +316,7 @@ export default function N8nTemplatesPage() {
                           size="sm"
                           variant="outline"
                           onClick={() => window.open(template.videoUrl, '_blank')}
+                          className="hover:bg-muted/50 transition-all duration-200"
                         >
                           <Play className="w-4 h-4" />
                         </Button>
