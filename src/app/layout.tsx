@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Poppins, Montserrat, Inter } from "next/font/google"
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { supabase } from "@/lib/supabase";
+import Script from "next/script";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 
@@ -43,10 +44,15 @@ export const metadata: Metadata = {
   title: "tomatoTool",
   description: "Discover the best AI tools for every need",
   icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
+  manifest: "/site.webmanifest",
 };
 
 export default function RootLayout({
@@ -63,6 +69,16 @@ export default function RootLayout({
         <link rel="preconnect" href="https://images.unsplash.com" />
         <link rel="preconnect" href="https://assets.lummi.ai" />
       </head>
+      <Script async src="https://www.googletagmanager.com/gtag/js?id=G-YDZ0RQNZ2M" strategy="afterInteractive" />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+
+          gtag('config', 'G-YDZ0RQNZ2M');
+        `}
+      </Script>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${montserrat.variable} ${inter.variable} antialiased`}
       >
