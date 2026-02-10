@@ -78,10 +78,12 @@ export default function ThemeToggleButton({
       return
     }
 
-    document.startViewTransition(() => {
-      switchTheme()
-    }).finished.finally(() => {
-      isTogglingRef.current = false
+    requestAnimationFrame(() => {
+      document.startViewTransition(() => {
+        switchTheme()
+      }).finished.finally(() => {
+        isTogglingRef.current = false
+      })
     })
   }, [theme, setTheme, variant, start, url, updateStyles, disableTransitionsTemporarily])
 

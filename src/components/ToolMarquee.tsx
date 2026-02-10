@@ -16,15 +16,15 @@ const TOOLS = [
 
 const ToolCard = ({ tool, index }: { tool: typeof TOOLS[0], index: number }) => {
   // Increased wave amplitude for a more dramatic curved effect
-  const yOffset = Math.sin(index * 0.7) * 35; 
+  const yOffset = Math.sin(index * 0.7) * 35;
 
   return (
     <motion.div
       style={{ y: yOffset }}
-      whileHover={{ 
-        y: yOffset - 10, 
+      whileHover={{
+        y: yOffset - 10,
         scale: 1.1,
-        transition: { type: "spring", stiffness: 400, damping: 10 } 
+        transition: { type: "spring", stiffness: 400, damping: 10 }
       }}
       className={`
         relative flex items-center gap-4 px-8 py-5 rounded-3xl
@@ -43,7 +43,7 @@ const ToolCard = ({ tool, index }: { tool: typeof TOOLS[0], index: number }) => 
           className="w-full h-full object-contain"
         />
       </div>
-      
+
       <div className="relative flex flex-col">
         <span className="text-slate-900 font-bold text-lg tracking-tight">
           {tool.name}
@@ -68,7 +68,7 @@ export default function EnhancedMarquee() {
         <div className="absolute top-1/2 right-1/4 -translate-y-1/2 w-[500px] h-[500px] " />
       </div>
 
-    
+
 
       <div className="relative flex items-center">
         {/* Superior Edge Fading with Gradual Transparency */}
@@ -76,7 +76,7 @@ export default function EnhancedMarquee() {
         <div className="absolute inset-y-0 right-0 w-64  pointer-events-none" />
 
         <motion.div
-          className="flex gap-8 py-20 px-4"
+          className="flex gap-4 md:gap-8 py-15 md:py-20 px-4"
           animate={{
             x: ["0%", "-25%"],
           }}
@@ -87,10 +87,10 @@ export default function EnhancedMarquee() {
           }}
         >
           {duplicatedTools.map((tool, i) => (
-            <ToolCard 
-              key={`${tool.name}-${i}`} 
-              tool={tool} 
-              index={i} 
+            <ToolCard
+              key={`${tool.name}-${i}`}
+              tool={tool}
+              index={i}
             />
           ))}
         </motion.div>

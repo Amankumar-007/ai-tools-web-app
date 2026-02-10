@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
-import { 
-  TrendingUp, 
-  ArrowUpRight, 
-  Flame, 
-  Zap, 
-  Globe, 
-  Code, 
-  Video, 
-  Search, 
+import {
+  TrendingUp,
+  ArrowUpRight,
+  Flame,
+  Zap,
+  Globe,
+  Code,
+  Video,
+  Search,
   Activity,
   ExternalLink,
   Filter,
@@ -19,8 +18,17 @@ import {
   Cpu,
   Briefcase,
   Palette,
-  LucideIcon
+  LucideIcon,
+  CheckCircle2,
+  Trash2,
+  X
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import MainNavbar from '@/components/MainNavbar';
+import { getCurrentUser, signOut, User } from "@/lib/supabase";
+import Image from 'next/image';
 
 // --- TYPES ---
 interface Tool {
@@ -134,7 +142,7 @@ const NEWS_ITEMS = [
     source: "TechCrunch",
     time: "2 hours ago",
     tag: "Models",
-    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800" 
+    image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&q=80&w=800"
   },
   {
     id: 2,
@@ -162,9 +170,37 @@ const NEWS_ITEMS = [
   }
 ];
 
-export default function TrendingPageBright() {
+export default function TrendingPage() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [tools, setTools] = useState(ALL_TOOLS);
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    };
+    fetchUser();
+  }, []);
+
+  const handleSignOut = async () => {
+    await signOut();
+    setUser(null);
+    router.push("/");
+  };
+
+  const handleProtectedLink = (
+    e: React.MouseEvent<HTMLAnchorElement | HTMLDivElement>,
+    href: string
+  ) => {
+    e.preventDefault();
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(href)}`);
+    } else {
+      router.push(href);
+    }
+  };
 
   // Filter Logic
   const handleFilter = (category: string) => {
@@ -177,48 +213,50 @@ export default function TrendingPageBright() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-blue-100 selection:text-blue-700">
-      
-      {/* 1. NAVBAR (Clean White) */}
+    <div className="min-h-screen bg-[#FFFDF5] dark:bg-[#0B0F1A] text-slate-800 dark:text-slate-100 font-sans selection:bg-red-100 dark:selection:bg-red-900/30 transition-colors duration-500">
+      <MainNavbar
+        user={user}
+        onSignOut={handleSignOut}
+        onProtectedLink={handleProtectedLink}
+      />
 
-
-      {/* 2. LIVE TICKER */}
-      <div className="bg-blue-50 border-b border-blue-100 text-[11px] sm:text-xs py-2 overflow-hidden whitespace-nowrap text-blue-800 font-medium">
+      {/*Live Ticker */}
+      <div className="mt-[72px] bg-red-50 dark:bg-red-950/20 border-b border-red-100 dark:border-red-900/30 text-[11px] sm:text-xs py-2 overflow-hidden whitespace-nowrap text-red-800 dark:text-red-400 font-medium">
         <div className="inline-flex animate-marquee gap-8 items-center px-4">
           <span className="flex items-center gap-1"><Zap size={12} className="text-amber-500" /> BREAKING: DeepSeek R1 outperforms GPT-4o in benchmarks</span>
-          <span className="flex items-center gap-1 text-slate-500">● OpenAI rumors: GPT-5 training complete?</span>
+          <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">● OpenAI rumors: GPT-5 training complete?</span>
           <span className="flex items-center gap-1"><Flame size={12} className="text-orange-500" /> Trending: "Vibe Coding" is taking over Twitter/X</span>
         </div>
       </div>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
 
-        {/* 3. HERO SECTION (Compact / 50% Height Feel) */}
+        {/* 3. HERO SECTION */}
         <div className="relative mb-12 text-center py-8 sm:py-12 max-w-4xl mx-auto">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-slate-600 text-xs font-semibold uppercase tracking-wide mb-5 shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 text-xs font-semibold uppercase tracking-wide mb-5 shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
             Live Market Data • Feb 2026
           </div>
-          
-          <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 tracking-tight mb-4 leading-tight">
-            Discover the next <br className="hidden sm:block"/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">AI Super Tools</span>
+
+          <h1 className="text-4xl sm:text-6xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4 leading-tight">
+            Discover the next <br className="hidden sm:block" />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-600">AI Super Tools</span>
           </h1>
-          
-          <p className="text-lg text-slate-500 max-w-2xl mx-auto mb-8">
+
+          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto mb-8">
             We track social signals and developer activity to find the fastest-growing AI products before they go mainstream.
           </p>
 
-          {/* Search Bar - Floating */}
+          {/* Search Bar */}
           <div className="relative max-w-lg mx-auto z-10">
-            <div className="flex items-center bg-white border border-slate-200 rounded-full p-2 shadow-xl shadow-slate-200/50 hover:shadow-2xl transition-shadow focus-within:ring-2 focus-within:ring-blue-100">
-              <Search className="ml-4 text-slate-400" size={20} />
-              <input 
-                type="text" 
-                placeholder="Search tools (e.g. 'Video Gen')" 
-                className="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 focus:ring-0 px-4 py-2 outline-none"
+            <div className="flex items-center bg-white dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-slate-800 rounded-full p-2 shadow-xl shadow-slate-200/50 dark:shadow-black/50 hover:shadow-2xl transition-all focus-within:ring-2 focus-within:ring-red-100 dark:focus-within:ring-red-900/30">
+              <Search className="ml-4 text-slate-400 dark:text-slate-500" size={20} />
+              <input
+                type="text"
+                placeholder="Search tools (e.g. 'Video Gen')"
+                className="w-full bg-transparent border-none text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder:text-slate-600 focus:ring-0 px-4 py-2 outline-none"
               />
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-full font-semibold text-sm hover:bg-blue-700 transition-all shadow-md hover:shadow-lg">
+              <button className="bg-red-600 text-white px-6 py-2 rounded-full font-semibold text-sm hover:bg-red-700 transition-all shadow-md hover:shadow-lg">
                 Search
               </button>
             </div>
@@ -227,100 +265,99 @@ export default function TrendingPageBright() {
 
         {/* 4. FILTERS & CONTROLS */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-          <div className="flex p-1 bg-white border border-slate-200 rounded-xl shadow-sm">
-             {['All', 'Dev', 'Creative', 'Productivity'].map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => handleFilter(filter)}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                    activeFilter === filter 
-                    ? 'bg-slate-100 text-slate-900 shadow-sm' 
-                    : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+          <div className="flex p-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl shadow-sm">
+            {['All', 'Dev', 'Creative', 'Productivity'].map((filter) => (
+              <button
+                key={filter}
+                onClick={() => handleFilter(filter)}
+                className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeFilter === filter
+                  ? 'bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400 shadow-sm'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
-                >
-                  {filter}
-                </button>
-             ))}
+              >
+                {filter}
+              </button>
+            ))}
           </div>
           <div className="text-xs font-medium text-slate-400 flex items-center gap-1">
-             Sorted by <span className="text-slate-700 font-semibold">Momentum</span> <Filter size={12}/>
+            Sorted by <span className="text-slate-700 dark:text-slate-200 font-semibold">Momentum</span> <Filter size={12} />
           </div>
         </div>
 
         {/* 5. TRENDING GRID */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-20">
-          
+
           {/* Top 2 Featured */}
           <div className="lg:col-span-2 space-y-4">
-             {tools.slice(0, 2).map((tool: Tool, idx: number) => (
-                <FeaturedCardBright key={tool.id} tool={tool} rank={idx + 1} />
-             ))}
+            {tools.slice(0, 2).map((tool: Tool, idx: number) => (
+              <FeaturedCardBright key={tool.id} tool={tool} rank={idx + 1} />
+            ))}
           </div>
 
           {/* List View */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-2 h-fit">
-             <div className="px-4 py-3 border-b border-slate-100 flex justify-between items-center">
-                <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                   <Activity size={18} className="text-blue-500"/> Rising Fast
-                </h3>
-                <span className="text-xs text-slate-400">Last 24h</span>
-             </div>
-             <div className="flex flex-col">
-                {tools.slice(2).map((tool: Tool, idx: number) => (
-                   <CompactRowBright key={tool.id} tool={tool} rank={idx + 3} />
-                ))}
-             </div>
-             <button className="w-full py-3 text-sm font-medium text-blue-600 hover:bg-blue-50 rounded-xl transition-colors mt-2">
-                View All 50+ Tools
-             </button>
+          <div className="bg-white dark:bg-slate-900/40 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm p-2 h-fit">
+            <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+              <h3 className="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                <Activity size={18} className="text-red-500" /> Rising Fast
+              </h3>
+              <span className="text-xs text-slate-400 dark:text-slate-500">Last 24h</span>
+            </div>
+            <div className="flex flex-col">
+              {tools.slice(2).map((tool: Tool, idx: number) => (
+                <CompactRowBright key={tool.id} tool={tool} rank={idx + 3} />
+              ))}
+            </div>
+            <button className="w-full py-3 text-sm font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-colors mt-2">
+              View All 50+ Tools
+            </button>
           </div>
         </div>
 
-        {/* 6. NEWS SECTION (New Feature) */}
-        <div className="border-t border-slate-200 pt-12">
-           <div className="flex items-center justify-between mb-8">
-              <div>
-                 <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-                    <Newspaper className="text-blue-600" /> Latest AI News
-                 </h2>
-                 <p className="text-slate-500 mt-1">Daily digest of what's happening in the industry.</p>
-              </div>
-              <button className="flex items-center gap-1 text-sm font-semibold text-blue-600 hover:text-blue-700">
-                 Read Archive <ChevronRight size={16} />
-              </button>
-           </div>
+        {/* 6. NEWS SECTION */}
+        <div className="border-t border-slate-200 dark:border-slate-800 pt-12">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <Newspaper className="text-red-600 dark:text-red-500" /> Latest AI News
+              </h2>
+              <p className="text-slate-500 dark:text-slate-400 mt-1">Daily digest of what's happening in the industry.</p>
+            </div>
+            <button className="flex items-center gap-1 text-sm font-semibold text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300">
+              Read Archive <ChevronRight size={16} />
+            </button>
+          </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {NEWS_ITEMS.map((news) => (
-                 <div key={news.id} className="group bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer">
-                    <div className="h-40 overflow-hidden relative">
-                       <img src={news.image} alt={news.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                       <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide text-slate-700 shadow-sm">
-                          {news.tag}
-                       </div>
-                    </div>
-                    <div className="p-4">
-                       <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
-                          <span className="font-medium text-blue-600">{news.source}</span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1"><Clock size={10} /> {news.time}</span>
-                       </div>
-                       <h3 className="font-bold text-slate-800 leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
-                          {news.title}
-                       </h3>
-                    </div>
-                 </div>
-              ))}
-           </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {NEWS_ITEMS.map((news) => (
+              <div key={news.id} className="group bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-lg hover:border-red-200 dark:hover:border-red-900/50 transition-all duration-300 cursor-pointer">
+                <div className="h-40 overflow-hidden relative">
+                  <img src={news.image} alt={news.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute top-3 left-3 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm px-2 py-1 rounded-md text-[10px] font-bold uppercase tracking-wide text-slate-700 dark:text-slate-300 shadow-sm border border-white/20 dark:border-slate-800">
+                    {news.tag}
+                  </div>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center gap-2 text-xs text-slate-400 mb-2">
+                    <span className="font-medium text-red-600 dark:text-red-400">{news.source}</span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1"><Clock size={10} /> {news.time}</span>
+                  </div>
+                  <h3 className="font-bold text-slate-800 dark:text-slate-200 leading-snug group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors line-clamp-2">
+                    {news.title}
+                  </h3>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
       </main>
 
       {/* Footer Simple */}
-      <footer className="bg-white border-t border-slate-200 py-12 mt-12">
-         <div className="max-w-7xl mx-auto px-4 text-center text-slate-400 text-sm">
-            <p>&copy; 2026 TrendRadar AI. All rights reserved.</p>
-         </div>
+      <footer className="bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800 py-12 mt-12 transition-colors duration-500">
+        <div className="max-w-7xl mx-auto px-4 text-center text-slate-400 dark:text-slate-600 text-sm">
+          <p>&copy; 2026 tomatoTool. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   );
@@ -330,68 +367,68 @@ export default function TrendingPageBright() {
 
 function FeaturedCardBright({ tool, rank }: { tool: Tool; rank: number }) {
   return (
-    <div className="group relative bg-white rounded-2xl border border-slate-200 p-6 hover:shadow-xl hover:border-blue-200 transition-all duration-300">
+    <div className="group relative bg-white dark:bg-slate-900/60 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-slate-800 p-6 hover:shadow-xl hover:border-red-200 dark:hover:border-red-900/50 transition-all duration-300">
       <div className="flex flex-col sm:flex-row gap-6">
         {/* Icon Area */}
         <div className="flex flex-col items-center gap-3">
-          <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
-             <img 
-               src={`https://www.google.com/s2/favicons?domain=${tool.website}&sz=128`}
-               alt={tool.name}
-               className="w-8 h-8 object-contain"
-             />
+          <div className="w-16 h-16 rounded-2xl bg-[#FFFDF5] dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform overflow-hidden">
+            <img
+              src={`https://www.google.com/s2/favicons?domain=${tool.website}&sz=128`}
+              alt={tool.name}
+              className="w-10 h-10 object-contain"
+            />
           </div>
-          <span className="text-2xl font-black text-slate-200">#{rank}</span>
+          <span className="text-2xl font-black text-slate-200 dark:text-slate-800">#{rank}</span>
         </div>
 
         {/* Content */}
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
               {tool.name}
             </h3>
-            <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-blue-100">
-               {tool.category}
+            <span className="bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 px-2 py-0.5 rounded text-[10px] font-bold uppercase border border-red-100 dark:border-red-900/30">
+              {tool.category}
             </span>
           </div>
-          <p className="text-slate-500 text-sm mb-5 leading-relaxed">
+          <p className="text-slate-500 dark:text-slate-400 text-sm mb-5 leading-relaxed">
             {tool.description}
           </p>
 
           <div className="flex items-center gap-6">
-             <div className="flex flex-col">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Growth</span>
-                <span className="text-green-600 font-bold text-lg flex items-center gap-1">
-                   <TrendingUp size={16}/> {tool.growth}
-                </span>
-             </div>
-             <div className="h-8 w-px bg-slate-100"></div>
-             <div className="flex flex-col">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Score</span>
-                <span className="text-orange-500 font-bold text-lg flex items-center gap-1">
-                   <Flame size={16}/> {tool.trendScore}
-                </span>
-             </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">Growth</span>
+              <span className="text-green-600 dark:text-green-400 font-bold text-lg flex items-center gap-1">
+                <TrendingUp size={16} /> {tool.growth}
+              </span>
+            </div>
+            <div className="h-8 w-px bg-slate-100 dark:bg-slate-800"></div>
+            <div className="flex flex-col">
+              <span className="text-[10px] text-slate-400 dark:text-slate-600 font-bold uppercase tracking-wider">Score</span>
+              <span className="text-orange-500 dark:text-orange-400 font-bold text-lg flex items-center gap-1">
+                <Flame size={16} /> {tool.trendScore}
+              </span>
+            </div>
           </div>
         </div>
 
         {/* Action & Graph */}
         <div className="flex flex-col justify-between items-end min-w-[100px]">
-           {/* Tiny Graph */}
-           <div className="h-10 w-24 flex items-end gap-1 mb-2 opacity-30 group-hover:opacity-100 transition-opacity">
-              {tool.graphData.map((h: number, i: number) => (
-                <div key={i} style={{ height: `${h}%` }} className="flex-1 bg-blue-500 rounded-t-sm" />
-              ))}
-           </div>
-           
-           <a 
-             href={`https://${tool.website}`} 
-             target="_blank"
-             rel="noopener noreferrer"
-             className="px-4 py-2 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-blue-600 transition-colors shadow-md"
-           >
-             Visit
-           </a>
+          {/* Tiny Graph */}
+          <div className="h-10 w-24 flex items-end gap-1 mb-2 opacity-30 group-hover:opacity-100 transition-opacity">
+            {tool.graphData.map((h: number, i: number) => (
+              <div key={i} style={{ height: `${h}%` }} className="flex-1 bg-red-500 dark:bg-red-600 rounded-t-sm" />
+            ))}
+          </div>
+
+          <a
+            href={`https://${tool.website}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 rounded-lg bg-slate-900 dark:bg-slate-800 text-white text-xs font-bold hover:bg-red-600 dark:hover:bg-red-600 transition-colors shadow-md"
+          >
+            Visit
+          </a>
         </div>
       </div>
     </div>
@@ -399,29 +436,29 @@ function FeaturedCardBright({ tool, rank }: { tool: Tool; rank: number }) {
 }
 
 function CompactRowBright({ tool, rank }: { tool: Tool; rank: number }) {
-   return (
-      <div className="group flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer border-b border-slate-50 last:border-0">
-         <span className="font-mono text-slate-300 font-bold w-6 text-sm">#{rank}</span>
-         
-         <div className="w-8 h-8 rounded bg-white border border-slate-200 flex items-center justify-center flex-shrink-0 shadow-sm">
-            <img 
-               src={`https://www.google.com/s2/favicons?domain=${tool.website}&sz=64`}
-               alt={tool.name}
-               className="w-4 h-4 object-contain"
-            />
-         </div>
+  return (
+    <div className="group flex items-center gap-3 p-3 hover:bg-[#FFFDF5] dark:hover:bg-slate-800/50 rounded-lg transition-colors cursor-pointer border-b border-slate-50 dark:border-slate-800/50 last:border-0">
+      <span className="font-mono text-slate-300 dark:text-slate-700 font-bold w-6 text-sm">#{rank}</span>
 
-         <div className="flex-1 min-w-0">
-            <div className="flex justify-between items-center mb-0.5">
-               <h4 className="font-bold text-slate-800 text-sm truncate group-hover:text-blue-600 transition-colors">
-                  {tool.name}
-               </h4>
-               <span className="text-green-600 text-[10px] font-bold bg-green-50 px-1.5 py-0.5 rounded">
-                  {tool.growth}
-               </span>
-            </div>
-            <p className="text-xs text-slate-400 truncate">{tool.description}</p>
-         </div>
+      <div className="w-8 h-8 rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center flex-shrink-0 shadow-sm transition-all overflow-hidden group-hover:scale-105">
+        <img
+          src={`https://www.google.com/s2/favicons?domain=${tool.website}&sz=64`}
+          alt={tool.name}
+          className="w-5 h-5 object-contain"
+        />
       </div>
-   )
+
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-center mb-0.5">
+          <h4 className="font-bold text-slate-800 dark:text-slate-200 text-sm truncate group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors">
+            {tool.name}
+          </h4>
+          <span className="text-green-600 dark:text-green-400 text-[10px] font-bold bg-green-50 dark:bg-green-900/30 px-1.5 py-0.5 rounded">
+            {tool.growth}
+          </span>
+        </div>
+        <p className="text-xs text-slate-400 dark:text-slate-500 truncate">{tool.description}</p>
+      </div>
+    </div>
+  )
 }

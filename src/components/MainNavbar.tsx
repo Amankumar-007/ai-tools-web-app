@@ -77,24 +77,26 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
         {/* Logo - Hidden on scroll for desktop, always visible on mobile */}
         <AnimatePresence>
           {(!isScrolled || window.innerWidth < 768) && (
-            <motion.div
-              className="px-2 py-2 md:p-0 flex items-center z-30"
-              initial={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
-            >
-              <Image
-                src="/logo.png"
-                alt="QuickAI Logo"
-                width={40}
-                height={40}
-                priority
-                className="inline-block w-8 h-8 md:w-10 md:h-10"
-              />
-              <span className="ml-3 font-bold tracking-wide bg-gradient-to-r from-[#ff512f] to-[#dd2476] bg-clip-text text-transparent drop-shadow-sm font-[Montserrat] text-base sm:text-lg md:text-2xl">
-                tomato<span className="font-light">Tool</span>
-              </span>
-            </motion.div>
+            <Link href="/" className="px-2 py-2 md:p-0 flex items-center z-30">
+              <motion.div
+                className="flex items-center"
+                initial={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Image
+                  src="/logo.png"
+                  alt="QuickAI Logo"
+                  width={40}
+                  height={40}
+                  priority
+                  className="inline-block w-8 h-8 md:w-10 md:h-10"
+                />
+                <span className="ml-3 font-bold tracking-wide bg-gradient-to-r from-[#ff512f] to-[#dd2476] bg-clip-text text-transparent drop-shadow-sm font-[Montserrat] text-base sm:text-lg md:text-2xl">
+                  tomato<span className="font-light">Tool</span>
+                </span>
+              </motion.div>
+            </Link>
           )}
         </AnimatePresence>
 
@@ -127,26 +129,28 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
             {/* Logo inside nav for scrolled state */}
             <AnimatePresence>
               {isScrolled && (
-                <motion.div
-                  className="hidden md:flex items-center mr-2"
-                  initial={{ opacity: 0, scale: 0.7, x: -16 }}
-                  animate={{ opacity: 1, scale: 1, x: 0 }}
-                  exit={{ opacity: 0, scale: 0.7, x: -16 }}
-                  transition={{
-                    duration: 0.35,
-                    ease: [0.23, 1, 0.32, 1], // Custom bezier curve for ultra smooth motion
-                    type: "tween"
-                  }}
-                >
-                  <Image
-                    src="/logo.png"
-                    alt="QuickAI Logo"
-                    width={32}
-                    height={32}
-                    priority
-                    className="inline-block w-5 h-5 md:w-7 md:h-7"
-                  />
-                </motion.div>
+                <Link href="/" className="hidden md:flex items-center mr-2">
+                  <motion.div
+                    className="flex items-center"
+                    initial={{ opacity: 0, scale: 0.7, x: -16 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.7, x: -16 }}
+                    transition={{
+                      duration: 0.35,
+                      ease: [0.23, 1, 0.32, 1],
+                      type: "tween"
+                    }}
+                  >
+                    <Image
+                      src="/logo.png"
+                      alt="QuickAI Logo"
+                      width={32}
+                      height={32}
+                      priority
+                      className="inline-block w-5 h-5 md:w-7 md:h-7"
+                    />
+                  </motion.div>
+                </Link>
               )}
             </AnimatePresence>
 
@@ -190,8 +194,8 @@ z-10"
               AI Tools
             </Link>
 
-            <a
-              href="#categories"
+            <Link
+              href="/#categories"
               className="relative text-gray-700 dark:text-gray-300 
 hover:text-black dark:hover:text-white 
 px-3.5 py-2 rounded-full font-medium text-sm
@@ -207,10 +211,10 @@ after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-
 z-10"
             >
               Categories
-            </a>
+            </Link>
 
-            <a
-              href="#trending"
+            <Link
+              href="/trending"
               className="relative text-gray-700 dark:text-gray-300 
 hover:text-black dark:hover:text-white 
 px-3.5 py-2 rounded-full font-medium text-sm
@@ -226,7 +230,7 @@ after:opacity-0 hover:after:opacity-100 after:transition-opacity after:duration-
 z-10"
             >
               Trending
-            </a>
+            </Link>
 
             <Link
               href="/About"

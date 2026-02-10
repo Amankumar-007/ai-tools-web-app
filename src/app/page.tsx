@@ -8,13 +8,10 @@ import WrapButton from "@/components/ui/wrap-button";
 import { Globe, SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import AIToolsGrid from '../components/AIToolsGrid';
-import { TextScroll } from '@/components/ui/text-scroll';
 import AiInput from '@/components/ui/ai-input';
-import VideoSection from "@/components/videoCardComp";
 import Categories from "@/components/Categories";
 import Footer from "@/components/footer";
 import { getCurrentUser, signOut } from "@/lib/supabase";
-import { Badge } from "@/components/ui/badge";
 import Chatbot from "../components/chatBot";
 import Image from "next/image";
 import { Particles } from "@/components/ui/particles";
@@ -401,16 +398,13 @@ export default function Home() {
           </div>
 
           <div className="relative z-10 text-center px-4 w-full max-w-4xl mx-auto">
-            <motion.h1
-              className="text-5xl md:text-7xl font-bold mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
+            <h1
+              className="text-5xl md:text-7xl font-bold mb-6 animate-hero opacity-0"
             >
               <span className="bg-gradient-to-b from-black to-gray-300/80 bg-clip-text text-transparent dark:from-white dark:to-slate-900/10">
                 Fresh AI Tools
               </span>
-            </motion.h1>
+            </h1>
             <WrapButton className="mt-5" href="/ai-tools" onClick={(e) => handleProtectedLink(e, "/tomato-ai")}>
               <Globe className="animate-spin" />
               Explore Tools
@@ -428,9 +422,9 @@ export default function Home() {
             </div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
               className="w-full max-w-2xl mx-auto my-8"
             >
               <AiInput />
@@ -444,7 +438,7 @@ export default function Home() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-5">
         <AIToolsGrid />
-        <ToolMarquee/>
+        <ToolMarquee />
         <div className="flex justify-center">
           <svg width="100" height="50" viewBox="0 0 100 50" fill="none" xmlns="http://www.w3.org/2000/svg" className="fill-black dark:fill-white">
             <path d="M68.6958 5.40679C67.3329 12.7082 68.5287 20.1216 68.5197 27.4583C68.5189 29.5382 68.404 31.6054 68.1147 33.682C67.9844 34.592 69.4111 34.751 69.5414 33.8411C70.5618 26.5016 69.2488 19.104 69.4639 11.7325C69.5218 9.65887 69.7222 7.6012 70.0939 5.56265C70.1638 5.1949 69.831 4.81112 69.4601 4.76976C69.0891 4.72841 68.7689 5.01049 68.6958 5.40679Z" />
@@ -461,8 +455,8 @@ export default function Home() {
           variants={sectionVariants}
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          className="flex flex-col items-center"
+          viewport={{ once: true, amount: 0.1 }}
+          className="flex flex-col items-center w-full"
         >
           {user ? (
             <Categories />
@@ -478,44 +472,44 @@ export default function Home() {
         <FeatureStepsDemo />
       </main>
 
-      <section className="w-full bg-neutral-50/50 dark:bg-neutral-900/10 py-10 border-y border-neutral-100 dark:border-neutral-800/50">
-        <TestimonialSection />
-      </section>
 
       <main className="container mx-auto px-4 py-2">
         {/* <div className="py-5">
           <motion.h1
-            className="text-6xl font-bold mb-10 flex flex-col items-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2, duration: 0.8 }}
+          className="text-6xl font-bold mb-10 flex flex-col items-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.8 }}
           >
-            <Badge
-              variant="outline"
-              className="mb-3 rounded-[14px] border border-black/10 bg-white text-base dark:border-white/5 dark:bg-neutral-800/5 md:left-6"
+          <Badge
+          variant="outline"
+          className="mb-3 rounded-[14px] border border-black/10 bg-white text-base dark:border-white/5 dark:bg-neutral-800/5 md:left-6"
             >
               <SparklesIcon className="fill-[#EEBDE0] stroke-1 text-neutral-800" />{" "}
               Hover Over Links
             </Badge>
             <div className="group flex items-center justify-center">
-              <Icons.linkedin />
-              <FlipLink href="https://www.linkedin.com/in/amankumarweb/">Linkedin</FlipLink>
+            <Icons.linkedin />
+            <FlipLink href="https://www.linkedin.com/in/amankumarweb/">Linkedin</FlipLink>
             </div>
             <div className="group flex items-center justify-center">
-              <FlipLink href="https://aman-kumar-dev.netlify.app/">Portfolio</FlipLink>
-              <Icons.be />
+            <FlipLink href="https://aman-kumar-dev.netlify.app/">Portfolio</FlipLink>
+            <Icons.be />
             </div>
             <div className="group flex items-center justify-center">
-              <Icons.github fill="red" />
-              <FlipLink href="https://github.com/Amankumar-007">Github</FlipLink>
+            <Icons.github fill="red" />
+            <FlipLink href="https://github.com/Amankumar-007">Github</FlipLink>
             </div>
             <div className="group flex items-center justify-center">
-              <FlipLink href="https://x.com/AmanCodex">Dribble</FlipLink>
-              <Icons.dribble />
+            <FlipLink href="https://x.com/AmanCodex">Dribble</FlipLink>
+            <Icons.dribble />
             </div>
-          </motion.h1> </div> */}
-          <TomatoMorph />
-          <AgentManager/>
+            </motion.h1> </div> */}
+        <AgentManager />
+        <TomatoMorph />
+        <section className="w-full bg-neutral-50/50 dark:bg-neutral-900/10 py-10 border-y border-neutral-100 dark:border-neutral-800/50">
+          <TestimonialSection />
+        </section>
         <Footer />
         <motion.div
           initial={{ opacity: 0, y: 50 }}

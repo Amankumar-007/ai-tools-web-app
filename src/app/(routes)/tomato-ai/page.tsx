@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 import { supabase } from "@/lib/supabase-browser";
 import { highlight } from 'sugar-high';
@@ -11,6 +12,22 @@ import AiInput from "@/components/ui/ai-input";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import Prism from 'prismjs';
+import {
+  Sparkles,
+  Zap,
+  Code,
+  Brain,
+  Scan,
+  Eye,
+  Check,
+  X,
+  LogIn,
+  UserPlus,
+  ShieldCheck,
+  Search,
+  ChevronRight,
+  Info
+} from 'lucide-react';
 import { extractTextFromPdf } from "@/services/pdfService";
 import 'prismjs/themes/prism-tomorrow.css';
 import 'prismjs/components/prism-typescript';
@@ -116,113 +133,108 @@ const CodeBlock = ({ language, value, copiedCode, onCopy }: { language: string, 
 };
 
 // Model Selection Modal Component
-function ModelSelectionModal({ isOpen, onClose, selectedModel, onSelectModel }: { 
-  isOpen: boolean; 
+function ModelSelectionModal({ isOpen, onClose, selectedModel, onSelectModel }: {
+  isOpen: boolean;
   onClose: () => void;
   selectedModel: string;
   onSelectModel: (model: string) => void;
 }) {
   const models = [
-    { id: "arcee-ai/trinity-large-preview:free", name: "Trinity Large Preview", description: "Advanced reasoning model", free: true },
-    { id: "tngtech/deepseek-r1t2-chimera:free", name: "DeepSeek R1T2 Chimera", description: "Advanced reasoning model", free: true },
-    { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air", description: "Fast and efficient model", free: true },
-    { id: "tngtech/deepseek-r1t-chimera:free", name: "DeepSeek R1T Chimera", description: "Advanced reasoning model", free: true },
-    { id: "deepseek/deepseek-r1-0528:free", name: "DeepSeek R1", description: "DeepSeek reasoning model", free: true },
-    { id: "nvidia/nemotron-3-nano-30b-a3b:free", name: "Nemotron 3 Nano 30B", description: "NVIDIA compact model", free: true },
-    { id: "stepfun/step-3.5-flash:free", name: "Step 3.5 Flash", description: "Fast multimodal model", free: true },
-    { id: "tngtech/tng-r1t-chimera:free", name: "TNG R1T Chimera", description: "Advanced reasoning model", free: true },
-    { id: "openai/gpt-oss-120b:free", name: "GPT OSS 120B", description: "Large open source model", free: true },
-    { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B", description: "Meta's latest model", free: true },
-    { id: "upstage/solar-pro-3:free", name: "Solar Pro 3", description: "Professional grade model", free: true },
-    { id: "qwen/qwen3-coder:free", name: "Qwen 3 Coder", description: "Specialized coding model", free: true },
-    { id: "google/gemma-3-27b-it:free", name: "Gemma 3 27B", description: "Google's instruction model", free: true },
-    { id: "arcee-ai/trinity-mini:free", name: "Trinity Mini", description: "Compact reasoning model", free: true },
-    { id: "qwen/qwen3-next-80b-a3b-instruct:free", name: "Qwen 3 Next 80B", description: "Next generation model", free: true },
-    { id: "openai/gpt-oss-20b:free", name: "GPT OSS 20B", description: "Open source GPT model", free: true },
-    { id: "nvidia/nemotron-nano-12b-2-vl:free", name: "Nemotron Nano 12B VL", description: "Vision-language model", free: true },
-    { id: "allenai/molmo2-8b:free", name: "Molmo 2 8B", description: "Multimodal model", free: true },
-    { id: "nvidia/nemotron-nano-9b-v2:free", name: "Nemotron Nano 9B v2", description: "Compact NVIDIA model", free: true },
-    { id: "venice/uncensored:free", name: "Venice Uncensored", description: "Uncensored model", free: true },
-    { id: "liquidai/lfm2.5-1.2b-thinking:free", name: "LFM 2.5 1.2B Thinking", description: "Thinking specialized model", free: true },
-    { id: "liquidai/lfm2.5-1.2b-instruct:free", name: "LFM 2.5 1.2B Instruct", description: "Instruction following model", free: true },
-    { id: "nousresearch/hermes-3-405b-instruct:free", name: "Hermes 3 405B", description: "Large instruction model", free: true },
-    { id: "mistralai/mistral-small-3.1-24b:free", name: "Mistral Small 3.1 24B", description: "Efficient small model", free: true },
-    { id: "qwen/qwen3-4b:free", name: "Qwen 3 4B", description: "Compact Qwen model", free: true },
-    { id: "google/gemma-3n-2b:free", name: "Gemma 3N 2B", description: "Compact Gemma model", free: true },
-    { id: "meta-llama/llama-3.2-3b-instruct:free", name: "Llama 3.2 3B", description: "Compact Llama model", free: true },
-    { id: "google/gemma-3-12b-it:free", name: "Gemma 3 12B", description: "Balanced Gemma model", free: true },
-    { id: "google/gemma-3-4b:free", name: "Gemma 3 4B", description: "Small Gemma model", free: true },
-    { id: "qwen/qwen2.5-vl-7b-instruct:free", name: "Qwen 2.5 VL 7B", description: "Vision-language model", free: true },
-    { id: "google/gemma-3n-4b:free", name: "Gemma 3N 4B", description: "Compact Gemma model", free: true },
-    { id: "meta-llama/llama-3.1-405b-instruct:free", name: "Llama 3.1 405B", description: "Large Llama model", free: true },
-    { id: "openrouter/free:free", name: "OpenRouter Free", description: "Default free model", free: true },
+    { id: "arcee-ai/trinity-large-preview:free", name: "Trinity Large Preview", type: "reasoning" },
+    { id: "tngtech/deepseek-r1t2-chimera:free", name: "DeepSeek R1T2 Chimera", type: "reasoning" },
+    { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air", type: "fast" },
+    { id: "tngtech/deepseek-r1t-chimera:free", name: "DeepSeek R1T Chimera", type: "reasoning" },
+    { id: "deepseek/deepseek-r1-0528:free", name: "DeepSeek R1", type: "reasoning" },
+    { id: "nvidia/nemotron-3-nano-30b-a3b:free", name: "Nemotron 3 Nano 30B", type: "compact" },
+    { id: "stepfun/step-3.5-flash:free", name: "Step 3.5 Flash", type: "multimodal" },
+    { id: "tngtech/tng-r1t-chimera:free", name: "TNG R1T Chimera", type: "reasoning" },
+    { id: "openai/gpt-oss-120b:free", name: "GPT OSS 120B", type: "large" },
+    { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B", type: "balanced" },
+    { id: "upstage/solar-pro-3:free", name: "Solar Pro 3", type: "pro" },
+    { id: "qwen/qwen3-coder:free", name: "Qwen 3 Coder", type: "code" },
+    { id: "google/gemma-3-27b-it:free", name: "Gemma 3 27B", type: "balanced" },
+    { id: "arcee-ai/trinity-mini:free", name: "Trinity Mini", type: "compact" },
+    { id: "qwen/qwen3-next-80b-a3b-instruct:free", name: "Qwen 3 Next 80B", type: "next" },
+    { id: "openai/gpt-oss-20b:free", name: "GPT OSS 20B", type: "compact" },
+    { id: "nvidia/nemotron-nano-12b-2-vl:free", name: "Nemotron Nano 12B VL", type: "multimodal" },
+    { id: "allenai/molmo2-8b:free", name: "Molmo 2 8B", type: "multimodal" },
+    { id: "nvidia/nemotron-nano-9b-v2:free", name: "Nemotron Nano 9B v2", type: "compact" },
+    { id: "venice/uncensored:free", name: "Venice Uncensored", type: "uncensored" },
+    { id: "liquidai/lfm2.5-1.2b-thinking:free", name: "LFM 2.5 1.2B Thinking", type: "reasoning" },
+    { id: "liquidai/lfm2.5-1.2b-instruct:free", name: "LFM 2.5 1.2B Instruct", type: "balanced" },
+    { id: "nousresearch/hermes-3-405b-instruct:free", name: "Hermes 3 405B", type: "large" },
+    { id: "mistralai/mistral-small-3.1-24b:free", name: "Mistral Small 3.1 24B", type: "compact" },
+    { id: "qwen/qwen3-4b:free", name: "Qwen 3 4B", type: "compact" },
+    { id: "google/gemma-3n-2b:free", name: "Gemma 3N 2B", type: "compact" },
+    { id: "meta-llama/llama-3.2-3b-instruct:free", name: "Llama 3.2 3B", type: "compact" },
+    { id: "google/gemma-3-12b-it:free", name: "Gemma 3 12B", type: "balanced" },
+    { id: "google/gemma-3-4b:free", name: "Gemma 3 4B", type: "compact" },
+    { id: "qwen/qwen2.5-vl-7b-instruct:free", name: "Qwen 2.5 VL 7B", type: "multimodal" },
+    { id: "google/gemma-3n-4b:free", name: "Gemma 3N 4B", type: "compact" },
+    { id: "meta-llama/llama-3.1-405b-instruct:free", name: "Llama 3.1 405B", type: "large" },
+    { id: "openrouter/free:free", name: "OpenRouter Default", type: "default" },
   ];
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const filteredModels = models.filter(m =>
+    m.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-50 z-50"
+      className="fixed inset-0 flex items-center justify-center p-4 z-[9999]"
+      overlayClassName="fixed inset-0 bg-black/40 z-[9998]"
     >
-      <div className="bg-white/95 dark:bg-gray-800/95 backdrop-blur-md rounded-2xl p-6 w-full max-w-md shadow-2xl border border-gray-200/50 dark:border-gray-700/50 max-h-[80vh] overflow-y-auto">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Select AI Model</h2>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors"
-          >
-            <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+      <MotionDiv
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
+        className="bg-white dark:bg-[#111111] rounded-2xl w-full max-w-sm shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden"
+      >
+        <div className="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
+          <h2 className="font-semibold text-gray-900 dark:text-white">Switch Model</h2>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="space-y-3">
-          {models.map((model) => (
-            <button
-              key={model.id}
-              onClick={() => {
-                onSelectModel(model.id);
-                onClose();
-              }}
-              className={`w-full text-left p-4 rounded-xl transition-all duration-200 border ${
-                selectedModel === model.id
-                  ? "bg-blue-50/50 dark:bg-blue-900/20 border-blue-200/50 dark:border-blue-700/50"
-                  : "bg-gray-50/50 dark:bg-gray-700/30 border-gray-200/30 dark:border-gray-600/30 hover:bg-gray-100/50 dark:hover:bg-gray-700/50"
-              }`}
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{model.name}</h3>
-                    {model.free && (
-                      <span className="px-2 py-1 text-xs bg-green-100/80 dark:bg-green-900/30 text-green-700 dark:text-green-300 rounded-full font-medium">
-                        Free
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{model.description}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500 mt-1 font-mono">{model.id}</p>
-                </div>
-                {selectedModel === model.id && (
-                  <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                )}
-              </div>
-            </button>
-          ))}
-        </div>
+        <div className="p-4">
+          <div className="relative mb-4">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl focus:outline-none text-sm dark:text-gray-200"
+            />
+          </div>
 
-        <div className="mt-6 pt-4 border-t border-gray-200/30 dark:border-gray-700/30">
-          <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
-            Free models have usage limits. Paid models require API credits.
-          </p>
+          <div className="space-y-1 max-h-[50vh] overflow-y-auto px-1 custom-scrollbar">
+            {filteredModels.map((model) => (
+              <button
+                key={model.id}
+                onClick={() => {
+                  onSelectModel(model.id);
+                  onClose();
+                }}
+                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all ${selectedModel === model.id
+                  ? "bg-gray-900 dark:bg-white text-white dark:text-black font-medium"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"
+                  }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="truncate">{model.name}</span>
+                  <span className="text-[10px] opacity-40 uppercase tracking-widest">{model.type}</span>
+                </div>
+                {selectedModel === model.id && <Check className="w-3.5 h-3.5" />}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      </MotionDiv>
     </Modal>
   );
 }
@@ -235,47 +247,50 @@ function LoginPopup({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="fixed inset-0 flex items-center justify-center p-4 z-50"
-      overlayClassName="fixed inset-0 bg-black bg-opacity-50 z-50"
+      className="fixed inset-0 flex items-center justify-center p-4 z-[9999]"
+      overlayClassName="fixed inset-0 bg-black/40 z-[9998]"
     >
-      <div className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-md rounded-2xl p-8 w-full max-w-md shadow-2xl border border-gray-200/50 dark:border-gray-700/50">
-        <div className="text-center mb-6">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-gray-100 mb-3">
-            Welcome to TomatoAI
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400">
-            Please login or create an account to continue
-          </p>
+      <MotionDiv
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.15, ease: "easeOut" }}
+        className="bg-white dark:bg-[#111111] rounded-2xl p-8 w-full max-w-sm shadow-2xl border border-gray-200 dark:border-white/10 relative text-center"
+      >
+        <div className="mb-6 mx-auto w-12 h-12 bg-gray-900 dark:bg-white rounded-xl flex items-center justify-center">
+          <LogIn className="w-6 h-6 text-white dark:text-black" />
         </div>
 
-        <div className="space-y-4">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2 tracking-tight">Welcome</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-8 px-4 leading-relaxed">Sign in to access AI tools and save your chats.</p>
+
+        <div className="space-y-3">
           <button
             onClick={() => router.push('/login')}
-            className="w-full bg-gray-900/90 dark:bg-gray-700/90 text-white py-3 px-4 rounded-lg hover:bg-gray-800 dark:hover:bg-gray-600 transition-all duration-300 font-medium backdrop-blur-sm"
+            className="w-full bg-gray-900 dark:bg-white text-white dark:text-black py-3 rounded-xl hover:opacity-90 active:scale-[0.98] transition-all font-semibold text-sm"
           >
-            Login
+            Sign In
           </button>
 
           <button
             onClick={() => router.push('/register')}
-            className="w-full bg-green-600/90 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-all duration-300 font-medium backdrop-blur-sm"
+            className="w-full bg-white dark:bg-transparent text-gray-900 dark:text-white border border-gray-100 dark:border-white/10 py-3 rounded-xl hover:bg-gray-50 dark:hover:bg-white/5 active:scale-[0.98] transition-all font-semibold text-sm"
           >
-            Sign Up
+            Create Account
           </button>
         </div>
 
         <button
           onClick={onClose}
-          className="w-full mt-4 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors text-sm"
+          className="mt-6 text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors uppercase tracking-widest font-medium"
         >
-          Cancel
+          Close
         </button>
-      </div>
+      </MotionDiv>
     </Modal>
   );
 }
 
-export default function ChatGPTPage() {
+function ChatInterface() {
   const [convos, setConvos] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -297,6 +312,23 @@ export default function ChatGPTPage() {
   const inputRef = useRef<HTMLInputElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const query = searchParams.get("q");
+  const hasTriggeredRef = useRef(false);
+
+  useEffect(() => {
+    if (!isAuthChecking && query && !hasTriggeredRef.current) {
+      hasTriggeredRef.current = true;
+
+      const newUrl = new URL(window.location.href);
+      newUrl.searchParams.delete('q');
+      window.history.replaceState({}, '', newUrl.toString());
+
+      setTimeout(() => {
+        submitMessage(query);
+      }, 100);
+    }
+  }, [isAuthChecking, query]);
 
   // Copy code to clipboard function
   const copyToClipboard = async (code: string, codeId: string) => {
@@ -778,8 +810,6 @@ export default function ChatGPTPage() {
     >
       {/* Enhanced Custom Styles */}
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
         .inline-code {
           background-color: rgba(156, 163, 175, 0.2);
           border: 1px solid rgba(156, 163, 175, 0.3);
@@ -931,7 +961,7 @@ export default function ChatGPTPage() {
             </svg>
           </button>
 
-          <div className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <MotionDiv
               whileHover={{ scale: 1.07, rotate: 5 }}
               whileTap={{ scale: 0.98 }}
@@ -940,7 +970,7 @@ export default function ChatGPTPage() {
               <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-lg shadow-sm" />
             </MotionDiv>
             <span className="font-bold text-gray-900 dark:text-gray-100">TomatoAI</span>
-          </div>
+          </Link>
 
           <div className="flex items-center gap-2">
             <button
@@ -1009,7 +1039,7 @@ export default function ChatGPTPage() {
             <div className="flex-1 flex flex-col h-full overflow-hidden pb-16 md:pb-0">
               <div className="p-6 border-b border-gray-100/30 dark:border-gray-700/30 bg-white/10 dark:bg-gray-700/10 backdrop-blur-sm">
                 <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center gap-3">
+                  <Link href="/" className="flex items-center gap-3">
                     <MotionDiv
                       whileHover={{ scale: 1.07, rotate: 5 }}
                       whileTap={{ scale: 0.98 }}
@@ -1021,7 +1051,7 @@ export default function ChatGPTPage() {
                       <h1 className="text-3xl font-extrabold">TomatoAI</h1>
                       <p className="text-xs text-gray-500 dark:text-gray-400 font-['Inter','system-ui','-apple-system','sans-serif']">Professional AI Assistant</p>
                     </div>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => setSidebarOpen(false)}
                     className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-600/50 transition-all duration-300 transform hover:scale-110 backdrop-blur-sm"
@@ -1354,5 +1384,17 @@ export default function ChatGPTPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function ChatGPTPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen bg-transparent">
+        <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <ChatInterface />
+    </Suspense>
   );
 }

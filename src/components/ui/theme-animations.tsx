@@ -71,21 +71,20 @@ export const createAnimation = (
       name: `${variant}-${start}`,
       css: `
        ::view-transition-group(root) {
-        animation-duration: 0.7s;
-        animation-timing-function: var(--expo-out);
+        animation-duration: 0.4s;
+        animation-timing-function: ease-in-out;
       }
             
       ::view-transition-new(root) {
-        animation-name: reveal-light;
+        animation: reveal-light 0.4s ease-in-out;
       }
 
-      ::view-transition-old(root),
-      .dark::view-transition-old(root) {
+      ::view-transition-old(root) {
         animation: none;
         z-index: -1;
       }
       .dark::view-transition-new(root) {
-        animation-name: reveal-dark;
+        animation: reveal-dark 0.4s ease-in-out;
       }
 
       @keyframes reveal-dark {
@@ -113,21 +112,20 @@ export const createAnimation = (
       name: `${variant}-${start}`,
       css: `
        ::view-transition-group(root) {
-        animation-duration: 0.7s;
-        animation-timing-function: var(--expo-out);
+        animation-duration: 0.4s;
+        animation-timing-function: ease-in-out;
       }
             
       ::view-transition-new(root) {
-        animation-name: reveal-light;
+        animation: reveal-light 0.4s ease-in-out;
       }
 
-      ::view-transition-old(root),
-      .dark::view-transition-old(root) {
+      ::view-transition-old(root) {
         animation: none;
         z-index: -1;
       }
       .dark::view-transition-new(root) {
-        animation-name: reveal-dark;
+        animation: reveal-dark 0.4s ease-in-out;
       }
 
       @keyframes reveal-dark {
@@ -135,7 +133,7 @@ export const createAnimation = (
           clip-path: circle(0% at 50% 50%);
         }
         to {
-          clip-path: circle(100.0% at 50% 50%);
+          clip-path: circle(120% at 50% 50%);
         }
       }
 
@@ -144,7 +142,7 @@ export const createAnimation = (
            clip-path: circle(0% at 50% 50%);
         }
         to {
-          clip-path: circle(100.0% at 50% 50%);
+          clip-path: circle(120% at 50% 50%);
         }
       }
       `,
@@ -189,18 +187,17 @@ export const createAnimation = (
     name: `${variant}-${start}`,
     css: `
       ::view-transition-group(root) {
-        animation-timing-function: var(--expo-out);
+        animation-duration: 0.4s;
+        animation-timing-function: ease-in-out;
       }
       ::view-transition-new(root) {
         mask: url('${svg}') ${start.replace("-", " ")} / 0 no-repeat;
         mask-origin: content-box;
-        animation: scale-${start} 1s;
+        animation: scale-${start} 0.4s ease-in-out forwards;
         transform-origin: ${transformOrigin};
       }
-      ::view-transition-old(root),
-      .dark::view-transition-old(root) {
-        animation: scale-${start} 1s;
-        transform-origin: ${transformOrigin};
+      ::view-transition-old(root) {
+        animation: none;
         z-index: -1;
       }
       @keyframes scale-${start} {

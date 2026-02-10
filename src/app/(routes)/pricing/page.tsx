@@ -1,8 +1,41 @@
 'use client'
 import React from 'react';
 import { Check, MessageSquare, Cpu, Wand2, Zap } from 'lucide-react';
+import MainNavbar from '@/components/MainNavbar';
+import { getCurrentUser, signOut, User } from "@/lib/supabase";
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 const PricingPage = () => {
+  const [user, setUser] = useState<User | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const currentUser = await getCurrentUser();
+      setUser(currentUser);
+    };
+    fetchUser();
+  }, []);
+
+  const handleSignOut = async () => {
+    await signOut();
+    setUser(null);
+    router.push("/");
+  };
+
+  const handleProtectedLink = (
+    e: React.MouseEvent<HTMLAnchorElement | HTMLDivElement>,
+    href: string
+  ) => {
+    e.preventDefault();
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(href)}`);
+    } else {
+      router.push(href);
+    }
+  };
+
   const languages = [
     { lang: "English", text: "Free", font: "font-sans" },
     { lang: "Hindi", text: "मुफ़्त", font: "font-serif" },
@@ -11,10 +44,16 @@ const PricingPage = () => {
     { lang: "French", text: "Gratuit", font: "font-serif" },
   ];
 
+
   return (
-    <div className="min-h-screen bg-[#FFFDF5] text-[#2D2926] selection:bg-red-200">
+    <div className="min-h-screen bg-[#FFFDF5] dark:bg-[#0B0F1A] text-[#2D2926] dark:text-slate-100 selection:bg-red-200 dark:selection:bg-red-900/30 transition-colors duration-500">
+      <MainNavbar
+        user={user}
+        onSignOut={handleSignOut}
+        onProtectedLink={handleProtectedLink}
+      />
       {/* Hero Section */}
-      <section className="pt-20 pb-10 px-6 text-center">
+      <section className="pt-30 pb-10 px-6 text-center">
         <div className="inline-block px-4 py-1.5 mb-6 text-sm font-semibold tracking-wide text-red-600 uppercase bg-red-50 rounded-full ring-1 ring-red-100">
           Future-Ready Intelligence
         </div>
@@ -45,12 +84,12 @@ const PricingPage = () => {
       <section className="max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 md:grid-cols-3 gap-8">
 
         {/* Basic Tier */}
-        <div className="group relative p-8 bg-white border border-gray-100 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-          <div className="h-12 w-12 bg-blue-100 rounded-xl flex items-center justify-center mb-6 text-blue-600">
+        <div className="group relative p-8 bg-white dark:bg-slate-900/40 border border-gray-100 dark:border-slate-800/60 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 backdrop-blur-sm">
+          <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
             <MessageSquare size={28} />
           </div>
           <h3 className="text-2xl font-bold mb-2">AI Chat Basic</h3>
-          <p className="text-gray-500 mb-6">Perfect for individuals explored AI for the first time.</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">Perfect for individuals explored AI for the first time.</p>
           <div className="mb-8">
             <span className="text-4xl font-black">$0</span>
             <span className="text-gray-400">/forever</span>
@@ -59,17 +98,17 @@ const PricingPage = () => {
             {['Basic AI Chat Assistant', '100 queries per month', 'Community support', 'Standard response speed'].map((feat) => (
               <li key={feat} className="flex items-center gap-3">
                 <Check size={18} className="text-red-500" />
-                <span className="text-gray-600">{feat}</span>
+                <span className="text-gray-600 dark:text-gray-400">{feat}</span>
               </li>
             ))}
           </ul>
-          <button className="w-full py-4 rounded-2xl bg-gray-900 text-white font-bold hover:bg-black transition-colors">
+          <button className="w-full py-4 rounded-2xl bg-gray-900 dark:bg-slate-800 text-white font-bold hover:bg-black dark:hover:bg-slate-700 transition-colors">
             Start Chatting
           </button>
         </div>
 
         {/* Pro Tier */}
-        <div className="group relative p-8 bg-red-50 border-2 border-red-500 rounded-[2rem] shadow-xl md:scale-110 z-10">
+        <div className="group relative p-8 bg-red-50 dark:bg-red-950/20 border-2 border-red-500 rounded-[2rem] shadow-xl md:scale-110 z-10 backdrop-blur-sm">
           <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-1 rounded-full text-sm font-bold">
             MOST POPULAR
           </div>
@@ -77,7 +116,7 @@ const PricingPage = () => {
             <Zap size={28} />
           </div>
           <h3 className="text-2xl font-bold mb-2">AI Pro Suite</h3>
-          <p className="text-gray-600 mb-6">Advanced power for professionals and power users.</p>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">Advanced power for professionals and power users.</p>
           <div className="mb-8">
             <span className="text-4xl font-black">$0</span>
             <span className="text-red-600/60 line-through text-2xl ml-2">$29</span>
@@ -87,7 +126,7 @@ const PricingPage = () => {
             {['Unlimited AI Chat', 'Custom AI Workflows', 'Priority Response Time', 'Early access to new tools'].map((feat) => (
               <li key={feat} className="flex items-center gap-3">
                 <Check size={18} className="text-red-500" />
-                <span className="text-gray-700 font-medium">{feat}</span>
+                <span className="text-gray-700 dark:text-gray-200 font-medium">{feat}</span>
               </li>
             ))}
           </ul>
@@ -97,12 +136,12 @@ const PricingPage = () => {
         </div>
 
         {/* Enterprise Tier */}
-        <div className="group relative p-8 bg-white border border-gray-100 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2">
-          <div className="h-12 w-12 bg-purple-100 rounded-xl flex items-center justify-center mb-6 text-purple-600">
+        <div className="group relative p-8 bg-white dark:bg-slate-900/40 border border-gray-100 dark:border-slate-800/60 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 backdrop-blur-sm">
+          <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-6 text-purple-600 dark:text-purple-400">
             <Cpu size={28} />
           </div>
           <h3 className="text-2xl font-bold mb-2">Enterprise AI</h3>
-          <p className="text-gray-500 mb-6">Scalable solutions for businesses and large teams.</p>
+          <p className="text-gray-500 dark:text-gray-400 mb-6">Scalable solutions for businesses and large teams.</p>
           <div className="mb-8">
             <span className="text-4xl font-black">$0</span>
             <span className="text-gray-400">/forever</span>
@@ -111,11 +150,11 @@ const PricingPage = () => {
             {['Custom AI Model Training', 'Full API Access', 'Team Collaboration Tools', 'Dedicated Support'].map((feat) => (
               <li key={feat} className="flex items-center gap-3">
                 <Check size={18} className="text-red-500" />
-                <span className="text-gray-600">{feat}</span>
+                <span className="text-gray-600 dark:text-gray-400">{feat}</span>
               </li>
             ))}
           </ul>
-          <button className="w-full py-4 rounded-2xl bg-gray-100 text-gray-900 font-bold hover:bg-gray-200 transition-colors">
+          <button className="w-full py-4 rounded-2xl bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-slate-100 font-bold hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors">
             Contact Sales
           </button>
         </div>

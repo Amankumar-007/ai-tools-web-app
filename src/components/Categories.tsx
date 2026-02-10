@@ -51,7 +51,7 @@ export default function Categories() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-neutral-800/50 border border-neutral-800 rounded-2xl overflow-hidden">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-px bg-neutral-800/50 border border-neutral-800 rounded-2xl overflow-hidden">
           {categories.map((category) => {
             const Icon = category.icon;
             return (
@@ -61,9 +61,9 @@ export default function Categories() {
                 className="group relative bg-black p-8 transition-all duration-500 hover:bg-neutral-900/50"
               >
                 {/* Arrow Icon - appears on hover */}
-                <ArrowUpRight 
-                  className="absolute top-6 right-6 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all duration-300 text-neutral-600" 
-                  size={18} 
+                <ArrowUpRight
+                  className="absolute top-6 right-6 opacity-0 -translate-y-1 translate-x-1 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all duration-300 text-neutral-600"
+                  size={18}
                 />
 
                 <div className="relative z-10">

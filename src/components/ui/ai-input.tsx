@@ -44,9 +44,9 @@ const getModelName = (modelId: string): string => {
     "qwen/qwen2.5-vl-7b-instruct:free": "Qwen 2.5 VL 7B",
     "google/gemma-3n-4b:free": "Gemma 3N 4B",
     "meta-llama/llama-3.1-405b-instruct:free": "Llama 3.1 405B",
-    "openrouter/free:free": "OpenRouter Free",
+    "openrouter/free:free": "OpenRouter Default",
   }
-  return modelNames[modelId] || modelId.split("/")[1] || modelId
+  return modelNames[modelId] || modelId.split("/")[1]?.replace(":free", "") || modelId.replace(":free", "")
 }
 
 interface UseAutoResizeTextareaProps {

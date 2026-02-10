@@ -1,8 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Rubik+Glitch&display=swap');
 .link {
-  font-family: 'Montserrat', 'Helvetica Neue', Arial, sans-serif;
+  font-family: var(--font-montserrat), 'Helvetica Neue', Arial, sans-serif;
   font-weight: 300;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -21,7 +18,8 @@
 
 .bottomLayer {
   font-weight: 800;
-  color: #FF6B00; /* or any highlight color you prefer */
+  color: #FF6B00;
+  /* or any highlight color you prefer */
 }
 
 /* Thin underline animation */
@@ -56,8 +54,7 @@
   color: #f0f0f0;
 }
 
-.dark .bottomLayer {
-}
+.dark .bottomLayer {}
 
 .dark .link::after {
   background-color: rgba(255, 255, 255, 0.2);
@@ -81,7 +78,7 @@
 @media (max-width: 640px) {
   .link {
     /* Use a bolder, friendlier font on mobile and make it larger */
-    font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif !important;
+    font-family: var(--font-poppins), system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif !important;
     font-weight: 600;
     /* Ensure larger, responsive sizing on small screens */
     font-size: clamp(28px, 10vw, 52px) !important;

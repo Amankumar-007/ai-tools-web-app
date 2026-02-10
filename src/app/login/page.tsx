@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -25,11 +26,14 @@ export default function Login() {
       });
 
       if (authError) {
+        toast.error(authError.message);
         setError(authError.message);
       } else if (data.session) {
+        toast.success("Welcome back! Redirecting...");
         router.push("/tomato-ai");
       }
     } catch (err) {
+      toast.error("An unexpected error occurred. Please try again.");
       setError("An unexpected error occurred");
     } finally {
       setLoading(false);
@@ -50,10 +54,14 @@ export default function Login() {
       });
 
       if (error) {
+        toast.error(error.message);
         setError(error.message);
         setLoading(false);
+      } else {
+        toast.success("Signing in with Google...");
       }
     } catch (err) {
+      toast.error("Failed to sign in with Google");
       setError("Failed to sign in with Google");
       setLoading(false);
     }
