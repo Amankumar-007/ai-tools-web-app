@@ -29,6 +29,7 @@ import {
   Info
 } from 'lucide-react';
 import { extractTextFromPdf } from "@/services/pdfService";
+import { toast } from "sonner";
 import 'prismjs/themes/prism-tomorrow.css';
 import 'prismjs/components/prism-typescript';
 import 'prismjs/components/prism-javascript';
@@ -609,6 +610,14 @@ function ChatInterface() {
       if (!res.ok) {
         const errText = await res.text();
         throw new Error(errText);
+      }
+
+      const fallbackModel = res.headers.get("X-Fallback-Model");
+      if (fallbackModel) {
+        toast.info(`Switched to ${fallbackModel}`, {
+          description: "The primary model was unavailable, so we switched to a backup provider.",
+          duration: 5000,
+        });
       }
 
       if (!res.body) {

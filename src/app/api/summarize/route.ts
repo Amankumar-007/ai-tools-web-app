@@ -15,16 +15,16 @@ const getPrompt = (text: string, feature: FeatureType, summaryType?: SummaryType
         academic: `Provide an academic-style summary with key findings and conclusions. Use proper formatting with **bold** key terms and _underlined_ important concepts:\n\n${text}\n\nInclude: Introduction, Key Findings, Conclusions`,
       };
       return prompts[summaryType || "general"];
-    
+
     case "keywords":
       return `Extract the most important keywords and key phrases from this text. Return them as **bold** keywords with brief descriptions:\n\n${text}\n\nFormat as:\n• **Keyword 1**: Brief description\n• **Keyword 2**: Brief description`;
-    
+
     case "questions":
       return `Based on this text, generate 5 thoughtful questions that test understanding of the main concepts. Number them clearly:\n\n${text}\n\nFormat as:\n1. Question about concept 1?\n2. Question about concept 2?\n3. Question about concept 3?\n4. Question about concept 4?\n5. Question about concept 5?`;
-    
+
     case "analysis":
       return `Analyze this content and provide insights about:\n1. **Main themes** - Identify the primary topics\n2. **Tone and sentiment** - Describe the emotional tone\n3. **Target audience** - Who would benefit from this\n4. **Key takeaways** - Most important points\n\nUse **bold** headers and _underline_ key terms.\n\nText:\n${text}`;
-    
+
     default:
       return `Summarize this text:\n\n${text}`;
   }
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { text, feature = "summary", summaryType = "general" } = body;
-    
+
     if (!text) {
       return NextResponse.json({ error: 'Missing text in request body' }, { status: 400 });
     }

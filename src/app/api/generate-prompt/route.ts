@@ -1,74 +1,76 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(req: NextRequest) {
   try {
-    const { topic } = await req.json();
+    const { topic, model } = await req.json();
 
     if (!topic || !topic.trim()) {
-      return NextResponse.json(
-        { error: 'Topic is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Topic is required' }, { status: 400 });
     }
 
-    const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+    const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
+      console.error('OPENROUTER_API_KEY is missing from environment variables');
       return NextResponse.json(
-        { error: 'NEXT_PUBLIC_GEMINI_API_KEY is not configured' },
+        { error: 'Server configuration error: API Key is missing.' },
         { status: 500 }
       );
     }
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const selectedModel = "nvidia/nemotron-3-nano-30b-a3b:free";
 
-    const metaPrompt = `You are an expert Prompt Engineer with deep knowledge of LLM behavior, prompt optimization, and instructional design. 
+    const metaPrompt = `You are a world-class Prompt Engineer.
     
-    Your task is to take the user's input topic: "${topic}" and transform it into a highly effective, professional-grade prompt that can be used with advanced AI models (like GPT-4, Claude 3, Gemini 1.5).
+    Transform this idea into a professional prompt:
+    "${topic}"
 
-    The generated prompt must be:
-    1.  **Comprehensive**: Cover all aspects of the topic.
-    2.  **Structured**: Use clear Markdown headings (e.g., # Role, ## Context, ## Task, ## Constraints, ## Output Format).
-    3.  **Specific**: Avoid vague language. Define the exact goal.
-    4.  **Persona-driven**: Assign a specific role to the AI (e.g., "Act as a Senior Data Scientist" or "Act as a Creative Director").
-    5.  **Long and Detailed**: The output prompt should be substantial (approx. 300-500 words) to ensure high-quality results.
-
-    Do NOT just output the prompt. Structure the response as follows:
-    
-    # [Topic Name] Prompt
-
-    **Prompt Goal:** [Brief explanation of what this prompt achieves]
-
+    Format as:
+    # Title
+    **Engineered for**: ${selectedModel}
+    **Complexity**: Advanced
     ---
-    
-    [The Actual Prompt Content Goes Here - fully ready to copy and paste]
-    
+    [PROMPT]
     ---
+    **Why this works**: [Explanation]`;
 
-    Make sure the prompt includes sections for:
-    - **Role/Persona**: Who the AI is acting as.
-    - **Context/Background**: Essential information.
-    - **Step-by-Step Instructions**: What the AI should do.
-    - **Constraints/Guidelines**: What to avoid or strictly follow.
-    - **Output Format**: How the result should look (e.g., JSON, table, essay).
-    
-    Generate the best possible prompt now.`;
+    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:3000",
+        "X-Title": "TomatoAI",
+      },
+      body: JSON.stringify({
+        model: selectedModel,
+        messages: [{ role: "user", content: metaPrompt }],
+        temperature: 0.7,
+      }),
+    });
 
-    const result = await model.generateContent(metaPrompt);
-    const response = await result.response;
-    const generatedPrompt = response.text();
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      const msg = errorData?.error?.message || `OpenRouter error: ${res.status}`;
+      return NextResponse.json({ error: msg }, { status: res.status });
+    }
+
+    const data = await res.json();
+    const generatedPrompt = data.choices?.[0]?.message?.content;
+
+    if (!generatedPrompt) {
+      return NextResponse.json({ error: 'AI returned an empty response.' }, { status: 500 });
+    }
 
     return NextResponse.json({
       success: true,
       prompt: generatedPrompt
     });
 
-  } catch (error) {
-    console.error('Error generating prompt:', error);
+  } catch (error: any) {
+    console.error('Error in generate-prompt:', error);
     return NextResponse.json(
-      { error: 'Failed to generate prompt' },
+      { error: error.message || 'An unexpected error occurred.' },
       { status: 500 }
     );
   }

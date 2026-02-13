@@ -10,11 +10,12 @@ import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 import { getCurrentUser, signOut } from "@/lib/supabase";
 import { Particles } from "@/components/ui/particles";
 
-import { AppState, AnalysisResult } from "../../../types/types"; // Keeping relative for safety, or use @/types/types if accessible
+import { AppState, AnalysisResult } from "../../../types/types";
 import FileUploader from "../../../components/FileUploader";
 import ProcessingOverlay from "../../../components/ProcessingOverlay";
 import ResultsSection from "../../../components/ResultsSection";
 import { extractTextFromPdf } from "../../../services/pdfService";
+import { Sparkles, ChevronLeft, AlertTriangle, Zap, ShieldCheck, Edit } from "lucide-react";
 
 // Define types for user
 interface User {
@@ -40,7 +41,7 @@ export default function ResumeAnalyzer() {
   // Scroll listener
   useEffect(() => {
     if (typeof window === 'undefined') return
-    
+
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
       if (navOpen) {
@@ -202,28 +203,7 @@ export default function ResumeAnalyzer() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
-        <div className="flex items-center justify-between px-6 relative max-w-7xl mx-auto w-full">
-          {/* Hamburger for mobile */}
-          <button
-            className="md:hidden flex items-center px-2 py-1 border rounded text-gray-600 dark:text-gray-300 z-30"
-            onClick={() => setNavOpen(!navOpen)}
-            aria-label="Toggle navigation"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d={navOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
-              />
-            </svg>
-          </button>
-
+        <div className="flex items-center justify-between px-4 md:px-6 relative max-w-7xl mx-auto w-full">
           {/* Logo */}
           <div className="flex items-center z-30">
             <Link href="/" className="flex items-center gap-2">
@@ -241,38 +221,54 @@ export default function ResumeAnalyzer() {
             </Link>
           </div>
 
-          {/* Navigation Links */}
-          <motion.div
-            className={`fixed inset-x-0 ${navOpen ? "top-16" : "top-full"
-              } md:top-auto md:relative md:inset-x-auto md:translate-x-0 z-20 transition-all duration-500 ease-out ${navOpen ? "flex flex-col p-4 bg-white dark:bg-black shadow-xl" : "hidden"
-              } md:flex md:flex-row md:items-center md:bg-transparent md:shadow-none md:p-0 gap-1 md:gap-2`}
-          >
-            <div className="flex flex-col md:flex-row items-center gap-2 md:gap-1 bg-white/50 dark:bg-white/5 border border-white/20 dark:border-white/10 shadow-lg shadow-orange-500/5 backdrop-blur-md rounded-2xl md:rounded-full px-4 py-2">
-              <Link
-                href="/ai-tools"
-                onClick={(e) => handleProtectedLink(e, "/ai-tools")}
-                className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-white/10 transition-all"
-              >
-                AI Tools
-              </Link>
-              <Link
-                href="/#categories"
-                className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-white/10 transition-all"
-              >
-                Categories
-              </Link>
-              <Link
-                href="/pricing"
-                className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-white/10 transition-all"
-              >
-                Pricing
-              </Link>
-            </div>
-          </motion.div>
+          {/* Navigation Links - Desktop Only */}
+          <div className="hidden md:flex items-center gap-1 bg-white/50 dark:bg-white/5 border border-white/20 dark:border-white/10 shadow-lg shadow-orange-500/5 backdrop-blur-md rounded-full px-4 py-2">
+            <Link
+              href="/ai-tools"
+              onClick={(e) => handleProtectedLink(e, "/ai-tools")}
+              className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-white/10 transition-all"
+            >
+              AI Tools
+            </Link>
+            <Link
+              href="/#categories"
+              className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-white/10 transition-all"
+            >
+              Categories
+            </Link>
+            <Link
+              href="/pricing"
+              className="px-4 py-2 rounded-full text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-white/10 transition-all"
+            >
+              Pricing
+            </Link>
+          </div>
 
           {/* Right Side Actions */}
-          <div className="flex items-center space-x-3 z-30">
+          <div className="flex items-center space-x-2 md:space-x-3 z-30">
             <ThemeToggleButton variant="circle-blur" start="top-right" />
+
+            {/* Hamburger for mobile */}
+            <button
+              className="md:hidden flex items-center p-2 text-gray-600 dark:text-gray-300"
+              onClick={() => setNavOpen(!navOpen)}
+              aria-label="Toggle navigation"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d={navOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}
+                />
+              </svg>
+            </button>
+
             {user ? (
               <div className="hidden md:flex items-center gap-3">
                 <span className="text-xs font-semibold bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300 px-3 py-1 rounded-full border border-orange-200 dark:border-orange-800">
@@ -293,10 +289,64 @@ export default function ResumeAnalyzer() {
             )}
           </div>
         </div>
+
+        {/* Mobile Navigation Dropdown */}
+        <AnimatePresence>
+          {navOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-white dark:bg-black border-b border-slate-200 dark:border-slate-800 overflow-hidden"
+            >
+              <div className="flex flex-col p-4 space-y-2">
+                <Link
+                  href="/ai-tools"
+                  onClick={(e) => { setNavOpen(false); handleProtectedLink(e, "/ai-tools"); }}
+                  className="px-4 py-3 rounded-xl text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/10"
+                >
+                  AI Tools
+                </Link>
+                <Link
+                  href="/#categories"
+                  onClick={() => setNavOpen(false)}
+                  className="px-4 py-3 rounded-xl text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/10"
+                >
+                  Categories
+                </Link>
+                <Link
+                  href="/pricing"
+                  onClick={() => setNavOpen(false)}
+                  className="px-4 py-3 rounded-xl text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-orange-50 dark:hover:bg-white/10"
+                >
+                  Pricing
+                </Link>
+                {user ? (
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-2">
+                    <div className="flex items-center justify-between px-4 mb-4">
+                      <span className="text-sm text-slate-500">Tier: {user.subscription_tier || 'Free'}</span>
+                    </div>
+                    <button
+                      onClick={handleSignOut}
+                      className="w-full text-left px-4 py-3 rounded-xl text-red-500 font-medium hover:bg-red-50 dark:hover:bg-red-900/10"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                ) : (
+                  <div className="pt-4 border-t border-slate-100 dark:border-slate-800 mt-2 grid grid-cols-2 gap-3">
+                    <Link href="/login" onClick={() => setNavOpen(false)} className="flex items-center justify-center px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 text-sm font-medium">Login</Link>
+                    <Link href="/register" onClick={() => setNavOpen(false)} className="flex items-center justify-center px-4 py-3 rounded-xl bg-orange-600 text-white text-sm font-medium">Register</Link>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.nav>
 
       {/* --- Main Content with Modern & Orange Styling --- */}
-      <main className="relative pt-32 pb-20 px-4 md:px-6 max-w-7xl mx-auto z-10">
+      <main className="relative pt-24 md:pt-32 pb-20 px-4 md:px-6 max-w-7xl mx-auto z-10">
 
         {state.status === "idle" || state.status === "error" ? (
           <div className="max-w-4xl mx-auto">
@@ -304,15 +354,15 @@ export default function ResumeAnalyzer() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="text-center mb-16"
+              className="text-center mb-8 md:mb-16"
             >
-              <span className="inline-block py-1 px-3 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-xs font-bold uppercase tracking-wider mb-4 border border-orange-200 dark:border-orange-800">
+              <span className="inline-block py-1 px-3 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-[10px] md:text-xs font-bold uppercase tracking-wider mb-4 border border-orange-200 dark:border-orange-800">
                 AI-Powered Resume Analysis
               </span>
-              <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight leading-tight">
+              <h1 className="text-3xl md:text-6xl font-extrabold text-slate-900 dark:text-white mb-4 md:mb-6 tracking-tight leading-tight">
                 Optimize your resume for the <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">modern job market</span>
               </h1>
-              <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base md:text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto leading-relaxed">
                 Add your job description and resume to get an instant ATS score and professional feedback tailored to your target role.
               </p>
             </motion.div>
@@ -321,21 +371,21 @@ export default function ResumeAnalyzer() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="space-y-6"
+              className="space-y-4 md:space-y-6"
             >
-              <div className="bg-white dark:bg-slate-900/50 rounded-3xl p-6 shadow-2xl shadow-orange-500/10 border border-slate-100 dark:border-slate-800 backdrop-blur-sm">
+              <div className="bg-white dark:bg-slate-900/50 rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-2xl shadow-orange-500/10 border border-slate-100 dark:border-slate-800 backdrop-blur-sm">
                 <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 px-1">
                   Target Job Description (Optional)
                 </label>
                 <textarea
-                  className="w-full h-32 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-orange-500 outline-none transition-all resize-none text-slate-800 dark:text-slate-200"
+                  className="w-full h-32 md:h-40 p-4 rounded-xl md:rounded-2xl bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-orange-500 outline-none transition-all resize-none text-slate-800 dark:text-slate-200 text-sm md:text-base"
                   placeholder="Paste the job description here to get a tailored ATS score and matching analysis..."
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
                 />
               </div>
 
-              <div className="bg-white dark:bg-slate-900/50 rounded-3xl p-2 shadow-2xl shadow-orange-500/10 border border-slate-100 dark:border-slate-800 backdrop-blur-sm">
+              <div className="bg-white dark:bg-slate-900/50 rounded-2xl md:rounded-3xl p-1 shadow-2xl shadow-orange-500/10 border border-slate-100 dark:border-slate-800 backdrop-blur-sm">
                 <FileUploader onFileSelect={handleFileSelect} disabled={false} />
               </div>
             </motion.div>
@@ -344,45 +394,37 @@ export default function ResumeAnalyzer() {
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
-                className="mt-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3 text-red-700 dark:text-red-300"
+                className="mt-6 md:mt-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl flex items-start gap-3 text-red-700 dark:text-red-300"
               >
-                <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <div>
-                  <h4 className="font-bold">Analysis Failed</h4>
-                  <p className="text-sm">{state.error}</p>
+                <AlertTriangle className="w-6 h-6 shrink-0" />
+                <div className="overflow-hidden">
+                  <h4 className="font-bold text-sm">Analysis Failed</h4>
+                  <p className="text-xs md:text-sm">{state.error}</p>
                 </div>
               </motion.div>
             )}
 
-            <div className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="mt-12 md:mt-20 grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               {[
                 {
                   title: "Instant Scoring",
                   desc: "Real-time evaluation based on 100+ professional data points.",
                   icon: (
-                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+                    <Zap className="w-6 h-6 text-orange-600" />
                   )
                 },
                 {
                   title: "ATS Compatibility",
                   desc: "Ensures your resume is readable by automated hiring systems.",
                   icon: (
-                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                    </svg>
+                    <ShieldCheck className="w-6 h-6 text-orange-600" />
                   )
                 },
                 {
                   title: "Actionable Points",
                   desc: "Clear, specific instructions on how to rewrite weak sections.",
                   icon: (
-                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
+                    <Edit className="w-6 h-6 text-orange-600" />
                   )
                 }
               ].map((item, i) => (
@@ -392,13 +434,13 @@ export default function ResumeAnalyzer() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: i * 0.1 }}
-                  className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-800 transition-colors shadow-lg shadow-gray-100/50 dark:shadow-none"
+                  className="p-5 md:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-800 transition-colors shadow-lg shadow-gray-100/50 dark:shadow-none"
                 >
-                  <div className="w-12 h-12 bg-orange-50 dark:bg-orange-900/20 rounded-xl flex items-center justify-center mb-4">
+                  <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-50 dark:bg-orange-900/20 rounded-xl flex items-center justify-center mb-4">
                     {item.icon}
                   </div>
-                  <h4 className="font-bold text-slate-800 dark:text-white mb-2">{item.title}</h4>
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">{item.desc}</p>
+                  <h4 className="font-bold text-slate-800 dark:text-white mb-2 text-sm md:text-base">{item.title}</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-xs md:text-sm">{item.desc}</p>
                 </motion.div>
               ))}
             </div>
@@ -410,25 +452,23 @@ export default function ResumeAnalyzer() {
             transition={{ duration: 0.5 }}
             className="max-w-6xl mx-auto"
           >
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col md:flex-row gap-4 md:justify-between md:items-center mb-6 md:mb-8">
               <button
                 onClick={resetAnalysis}
-                className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors font-medium"
+                className="flex items-center gap-2 text-sm md:text-base text-slate-600 dark:text-slate-400 hover:text-orange-600 dark:hover:text-orange-400 transition-colors font-medium"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-                </svg>
-                Upload Another Resume
+                <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+                Analyze Another
               </button>
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-white">
                 {state.optimizedResume ? "Optimized Resume" : "Analysis Results"}
               </h2>
             </div>
 
             {state.optimizedResume ? (
-              <div className="bg-white dark:bg-slate-900 rounded-3xl p-8 shadow-xl border border-slate-100 dark:border-slate-800">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-xl font-bold text-slate-800 dark:text-white">Your Tailored Resume</h3>
+              <div className="bg-white dark:bg-slate-900 rounded-2xl md:rounded-3xl p-4 md:p-8 shadow-xl border border-slate-100 dark:border-slate-800">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                  <h3 className="text-lg md:text-xl font-bold text-slate-800 dark:text-white">Your Tailored Resume</h3>
                   <button
                     onClick={() => {
                       if (typeof window !== 'undefined' && navigator.clipboard) {
@@ -436,12 +476,12 @@ export default function ResumeAnalyzer() {
                         alert("Resume copied to clipboard!");
                       }
                     }}
-                    className="px-4 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors text-sm font-bold"
+                    className="w-full sm:w-auto px-6 py-2.5 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-colors text-sm font-bold shadow-lg shadow-orange-500/20"
                   >
                     Copy to Clipboard
                   </button>
                 </div>
-                <div className="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 font-mono whitespace-pre-wrap bg-slate-50 dark:bg-black/30 p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <div className="prose dark:prose-invert max-w-none text-slate-700 dark:text-slate-300 font-mono text-xs md:text-sm whitespace-pre-wrap bg-slate-50 dark:bg-black/30 p-4 md:p-6 rounded-2xl border border-slate-100 dark:border-slate-800 overflow-x-auto">
                   {state.optimizedResume}
                 </div>
               </div>
@@ -461,8 +501,8 @@ export default function ResumeAnalyzer() {
       )}
 
       {/* Footer */}
-      <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 py-12 text-center relative z-10">
-        <p className="text-slate-400 text-sm">
+      <footer className="mt-20 border-t border-slate-200 dark:border-slate-800 py-12 text-center relative z-10 mx-4">
+        <p className="text-slate-400 text-xs md:text-sm">
           © {new Date().getFullYear()} Resume Intelligence. Built with Gemini AI.
         </p>
       </footer>

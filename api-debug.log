@@ -1,0 +1,4 @@
+[2026-02-10T09:17:15.907Z] API Request received
+[2026-02-10T09:17:15.936Z] Topic: Expert SEO Consultant for E-commerce, Model: meta-llama/llama-3.3-70b-instruct:free
+[2026-02-10T09:17:15.937Z] API Key present: true
+[2026-02-10T09:17:37.749Z] Exception: The AI returned an empty or invalid response. Please try again.

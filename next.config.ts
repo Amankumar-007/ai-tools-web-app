@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
       'encrypted-tbn0.gstatic.com'
     ],
   },
-    webpack: (config, { isServer }) => {
+  webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
