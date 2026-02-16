@@ -2,7 +2,7 @@
 
 import React, { MouseEvent } from "react";
 import Image from "next/image";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 interface Feature {
@@ -58,47 +58,79 @@ const FeatureCard = ({
   bgColor,
   index,
 }: Feature & { index: number }) => {
+  const router = useRouter();
+
+  const navigateWithTransition = (href: string) => {
+    if ((document as any).startViewTransition) {
+      (document as any).startViewTransition(() => {
+        router.push(href);
+      });
+    } else {
+      router.push(href);
+    }
+  };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (link.startsWith('http')) {
+      window.open(link, '_blank');
+      return;
+    }
+    e.preventDefault();
+    navigateWithTransition(link);
+  };
+
   const handleButtonClick = (e: MouseEvent<HTMLButtonElement>, link: string) => {
+    e.stopPropagation();
     e.preventDefault();
     if (link.startsWith('http')) {
       window.open(link, '_blank');
     } else {
-      window.location.href = link;
+      navigateWithTransition(link);
     }
   };
 
+  const transitionName = `tool-card-${title.toLowerCase().replace(/\s+/g, '-')}`;
+
   return (
     <motion.div
-      whileHover={{ scale: 1.03, boxShadow: "0 15px 35px rgba(0,0,0,0.2)" }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
-      className={`${bgColor} relative rounded-2xl shadow-xl cursor-pointer group min-h-[170px] h-full overflow-hidden`}
+      onClick={handleCardClick}
+      whileHover={{
+        scale: 1.02,
+        translateY: -5,
+        boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
+      }}
+      transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+      className={`${bgColor} relative rounded-[2rem] shadow-xl cursor-pointer group min-h-[180px] h-full overflow-hidden border border-white/10`}
+      style={{
+        viewTransitionName: transitionName
+      } as any}
     >
-      <Link href={link} className="block h-full w-full">
-        {/* Background Image */}
-        <div className="absolute inset-0 scale-95">
+      <div className="block h-full w-full">
+        {/* Background Image layer */}
+        <div className="absolute inset-0 overflow-hidden">
           <Image
             src={imageSrc}
             alt={title}
             fill
-            className="object-cover opacity-15 group-hover:opacity-25 transition-opacity duration-300"
+            className="object-cover opacity-20 group-hover:opacity-30 group-hover:scale-110 transition-all duration-700 ease-out"
             priority={index < 3}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>
 
         {/* Content Overlay */}
-        <div className="relative z-10 p-5 flex flex-col justify-between h-full">
-          <h4 className="text-white font-bold text-lg sm:text-xl drop-shadow-md">
+        <div className="relative z-10 p-7 flex flex-col justify-between h-full">
+          <h4 className="text-white font-bold text-xl sm:text-2xl tracking-tight drop-shadow-lg leading-tight">
             {title}
           </h4>
           <button
             onClick={(e) => handleButtonClick(e, link)}
-            className="mt-3 text-sm sm:text-base text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-1.5 rounded-full transition-all duration-200 transform hover:scale-105 w-fit"
+            className="mt-4 text-sm sm:text-base text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 px-6 py-2.5 rounded-full transition-all duration-300 transform hover:scale-105 w-fit"
           >
             Get Started
           </button>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 };

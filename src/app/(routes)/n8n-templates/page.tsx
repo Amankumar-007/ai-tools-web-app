@@ -72,15 +72,15 @@ export default function N8nTemplatesPage() {
 
   useEffect(() => {
     let filtered = templates;
-    
+
     // Filter by category
     if (selectedCategory !== "All") {
-      filtered = filtered.filter(template => 
-        template.category === selectedCategory || 
+      filtered = filtered.filter(template =>
+        template.category === selectedCategory ||
         template.tags.includes(selectedCategory)
       );
     }
-    
+
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
@@ -90,7 +90,7 @@ export default function N8nTemplatesPage() {
         template.tags.some(tag => tag.toLowerCase().includes(query))
       );
     }
-    
+
     setFilteredTemplates(filtered);
   }, [selectedCategory, searchQuery, templates]);
 
@@ -101,7 +101,7 @@ export default function N8nTemplatesPage() {
       await navigator.clipboard.writeText(content);
       setCopiedTemplate(template.id);
       alert('Template copied to clipboard!');
-      
+
       setTimeout(() => setCopiedTemplate(null), 2000);
     } catch (error) {
       console.error('Error copying template:', error);
@@ -112,7 +112,7 @@ export default function N8nTemplatesPage() {
   const handleDownloadTemplate = (template: ParsedTemplate) => {
     // Use the actual JSON content from the template
     const content = template.content;
-    
+
     const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -122,7 +122,7 @@ export default function N8nTemplatesPage() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     alert('Template downloaded!');
   };
 
@@ -148,7 +148,7 @@ export default function N8nTemplatesPage() {
               n8n AI Automation Templates
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-3xl mx-auto">
-              Professional n8n workflows, templates, and AI agents created by The Recap AI community. 
+              Professional n8n workflows, templates, and AI agents created by The Recap AI community.
               Automate your business with cutting-edge AI workflows.
             </p>
           </motion.div>
@@ -224,7 +224,7 @@ export default function N8nTemplatesPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
-            
+
             {/* Category Filter */}
             <div className="flex flex-wrap gap-3 justify-center">
               {categories.map((category) => {
@@ -271,7 +271,7 @@ export default function N8nTemplatesPage() {
                       {template.description}
                     </CardDescription>
                   </CardHeader>
-                  
+
                   <CardContent className="flex-1 flex flex-col">
                     {/* Tags */}
                     <div className="flex flex-wrap gap-1 mb-4 max-h-20 overflow-y-auto">
@@ -301,7 +301,7 @@ export default function N8nTemplatesPage() {
                         )}
                         {copiedTemplate === template.id ? "Copied!" : "Copy"}
                       </Button>
-                      
+
                       <Button
                         size="sm"
                         variant="outline"

@@ -51,10 +51,10 @@ const OutlierAI = () => {
 
     setLoading(true);
     setError('');
-    
+
     try {
       let response: OptimizeResult | AnalyzeResult | string = '';
-      
+
       if (activeTab === 'optimize') {
         response = await optimizeTextWithGemini(inputText) as OptimizeResult;
       } else if (activeTab === 'generate') {
@@ -64,7 +64,7 @@ const OutlierAI = () => {
       } else {
         response = '';
       }
-      
+
       setResult(response);
     } catch (err) {
       setError('Something went wrong. Please check your API key and try again.');
@@ -131,11 +131,10 @@ const OutlierAI = () => {
                     setResult(null);
                     setError('');
                   }}
-                  className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl flex items-center justify-center gap-1 sm:gap-2 transition-colors duration-200 text-xs sm:text-sm lg:text-base ${
-                    activeTab === tab.id
+                  className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl flex items-center justify-center gap-1 sm:gap-2 transition-colors duration-200 text-xs sm:text-sm lg:text-base ${activeTab === tab.id
                       ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg'
                       : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50'
-                  }`}
+                    }`}
                 >
                   <span className="text-sm sm:text-lg">{tab.icon}</span>
                   <span className="hidden sm:inline">{tab.label}</span>
@@ -154,11 +153,10 @@ const OutlierAI = () => {
                 <button
                   key={type.value}
                   onClick={() => setContentType(type.value)}
-                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 ${
-                    contentType === type.value
+                  className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 ${contentType === type.value
                       ? `${type.color} text-white shadow-lg`
                       : 'bg-white border border-orange-200 text-gray-600 hover:bg-orange-50 hover:border-orange-300'
-                  }`}
+                    }`}
                 >
                   {type.label}
                 </button>
@@ -177,60 +175,59 @@ const OutlierAI = () => {
                   {activeTab === 'optimize' ? '📝' : activeTab === 'generate' ? '✍️' : '📊'}
                 </span>
                 <span className="hidden sm:inline">
-                  {activeTab === 'optimize' ? 'Input Text' : 
-                   activeTab === 'generate' ? 'Content Prompt' : 'Text to Analyze'}
+                  {activeTab === 'optimize' ? 'Input Text' :
+                    activeTab === 'generate' ? 'Content Prompt' : 'Text to Analyze'}
                 </span>
                 <span className="sm:hidden">
-                  {activeTab === 'optimize' ? 'Input' : 
-                   activeTab === 'generate' ? 'Prompt' : 'Analyze'}
+                  {activeTab === 'optimize' ? 'Input' :
+                    activeTab === 'generate' ? 'Prompt' : 'Analyze'}
                 </span>
               </h3>
               <span className="text-xs sm:text-sm text-orange-600 font-medium">
                 {inputText.length} characters
               </span>
             </div>
-            
+
             <textarea
               ref={textareaRef}
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder={
-                activeTab === 'optimize' 
-                  ? "Paste your text here to optimize it..." 
+                activeTab === 'optimize'
+                  ? "Paste your text here to optimize it..."
                   : activeTab === 'generate'
-                  ? "Describe what content you want to generate..."
-                  : "Paste text here to analyze..."
+                    ? "Describe what content you want to generate..."
+                    : "Paste text here to analyze..."
               }
               className="w-full h-48 sm:h-56 lg:h-64 bg-white border-2 border-orange-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 text-sm sm:text-base text-gray-800 placeholder-gray-400 focus:border-orange-500 focus:ring-2 sm:focus:ring-4 focus:ring-orange-100 transition-colors duration-200 resize-none"
             />
-            
+
             {error && (
               <div className="mt-4 p-3 bg-red-50 border border-red-300 rounded-xl text-red-600">
                 {error}
               </div>
             )}
-            
+
             <button
               onClick={handleProcess}
               disabled={loading || !inputText.trim()}
-              className={`mt-4 sm:mt-6 w-full py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base lg:text-lg transition-colors duration-200 ${
-                loading || !inputText.trim()
+              className={`mt-4 sm:mt-6 w-full py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base lg:text-lg transition-colors duration-200 ${loading || !inputText.trim()
                   ? 'bg-gray-200 cursor-not-allowed text-gray-400'
                   : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl'
-              }`}
+                }`}
             >
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   <span className="text-sm sm:text-base">
-                    {activeTab === 'optimize' ? 'Optimizing...' : 
-                     activeTab === 'generate' ? 'Generating...' : 'Analyzing...'}
+                    {activeTab === 'optimize' ? 'Optimizing...' :
+                      activeTab === 'generate' ? 'Generating...' : 'Analyzing...'}
                   </span>
                 </div>
               ) : (
                 <span className="text-sm sm:text-base lg:text-lg">
-                  {activeTab === 'optimize' ? 'Optimize' : 
-                   activeTab === 'generate' ? 'Generate' : 'Analyze'} Text
+                  {activeTab === 'optimize' ? 'Optimize' :
+                    activeTab === 'generate' ? 'Generate' : 'Analyze'} Text
                 </span>
               )}
             </button>
@@ -242,7 +239,7 @@ const OutlierAI = () => {
               <span className="text-lg sm:text-xl lg:text-2xl">✨</span>
               Results
             </h3>
-            
+
             {!result && !loading && (
               <div className="h-48 sm:h-56 lg:h-64 flex items-center justify-center text-gray-400">
                 <div className="text-center px-4">
@@ -260,8 +257,8 @@ const OutlierAI = () => {
                 <div className="text-center">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-orange-200 border-t-orange-500 rounded-full mb-4 mx-auto animate-spin" />
                   <p className="text-orange-600 font-medium text-sm sm:text-base">
-                    {activeTab === 'optimize' ? 'Optimizing your text...' : 
-                     activeTab === 'generate' ? 'Generating content...' : 'Analyzing text...'}
+                    {activeTab === 'optimize' ? 'Optimizing your text...' :
+                      activeTab === 'generate' ? 'Generating content...' : 'Analyzing text...'}
                   </p>
                 </div>
               </div>
