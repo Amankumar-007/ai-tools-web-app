@@ -132,8 +132,8 @@ const OutlierAI = () => {
                     setError('');
                   }}
                   className={`px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl flex items-center justify-center gap-1 sm:gap-2 transition-colors duration-200 text-xs sm:text-sm lg:text-base ${activeTab === tab.id
-                      ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg'
-                      : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50'
+                    ? 'bg-gradient-to-r from-orange-500 to-orange-600 text-white shadow-lg'
+                    : 'text-gray-600 hover:text-orange-600 hover:bg-orange-50'
                     }`}
                 >
                   <span className="text-sm sm:text-lg">{tab.icon}</span>
@@ -154,8 +154,8 @@ const OutlierAI = () => {
                   key={type.value}
                   onClick={() => setContentType(type.value)}
                   className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors duration-200 ${contentType === type.value
-                      ? `${type.color} text-white shadow-lg`
-                      : 'bg-white border border-orange-200 text-gray-600 hover:bg-orange-50 hover:border-orange-300'
+                    ? `${type.color} text-white shadow-lg`
+                    : 'bg-white border border-orange-200 text-gray-600 hover:bg-orange-50 hover:border-orange-300'
                     }`}
                 >
                   {type.label}
@@ -212,8 +212,8 @@ const OutlierAI = () => {
               onClick={handleProcess}
               disabled={loading || !inputText.trim()}
               className={`mt-4 sm:mt-6 w-full py-3 sm:py-4 rounded-xl sm:rounded-2xl font-semibold text-sm sm:text-base lg:text-lg transition-colors duration-200 ${loading || !inputText.trim()
-                  ? 'bg-gray-200 cursor-not-allowed text-gray-400'
-                  : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl'
+                ? 'bg-gray-200 cursor-not-allowed text-gray-400'
+                : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white shadow-lg hover:shadow-xl'
                 }`}
             >
               {loading ? (

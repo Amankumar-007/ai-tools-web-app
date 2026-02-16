@@ -68,14 +68,13 @@ export default function PromptList() {
         {/* Filters */}
         <div className="flex flex-wrap justify-center gap-3 mb-12">
           {categories.map((cat) => (
-            <button 
+            <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-6 py-2 rounded-full border transition-all duration-300 text-sm font-semibold ${
-                selectedCategory === cat
+              className={`px-6 py-2 rounded-full border transition-all duration-300 text-sm font-semibold ${selectedCategory === cat
                   ? "bg-yellow-500 text-black border-yellow-500"
                   : "border border-white/10 bg-white/5 hover:bg-yellow-500 hover:text-black hover:border-yellow-500"
-              }`}
+                }`}
             >
               {cat}
             </button>

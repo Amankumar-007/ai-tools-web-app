@@ -335,6 +335,6 @@ export default function N8nTemplatesPage() {
           )}
         </div>
       </section>
-    </div>
+    </div >
   );
 }
