@@ -26,7 +26,16 @@ import {
   ShieldCheck,
   Search,
   ChevronRight,
-  Info
+  Info,
+  FileText,
+  Languages,
+  Type,
+  FileSearch,
+  Palette,
+  Scissors,
+  Maximize2,
+  Cat,
+  Image as ImageIcon
 } from 'lucide-react';
 import { extractTextFromPdf } from "@/services/pdfService";
 import { toast } from "sonner";
@@ -291,6 +300,57 @@ function LoginPopup({ isOpen, onClose }: { isOpen: boolean; onClose: () => void 
   );
 }
 
+// Suggested Questions Data - Split into two rows
+const SUGGESTED_QUESTIONS_ROW1 = [
+  { label: "Chat with PDF", icon: FileText, query: "Can you help me analyze a PDF document?" },
+  { label: "Translate", icon: Languages, query: "Translate this text for me: " },
+  { label: "Analyze Image", icon: Eye, query: "What's in this image?" },
+  { label: "Grammar check", icon: Type, query: "Check the grammar of this sentence: " },
+  { label: "AI Detector", icon: ShieldCheck, query: "Is this text AI-generated?" },
+];
+
+const SUGGESTED_QUESTIONS_ROW2 = [
+  { label: "Image Generation", icon: ImageIcon, query: "Generate an image of " },
+  { label: "Style Transfer", icon: Palette, query: "Apply a different style to this image." },
+  { label: "AI Cartoon Mode", icon: Cat, query: "Turn this photo into a cartoon." },
+  { label: "Background Remover", icon: Scissors, query: "Remove the background from this image." },
+  { label: "Image Upscaler", icon: Maximize2, query: "Upscale this image to high resolution." },
+];
+
+function SuggestionMarquee({ onSelect }: { onSelect: (query: string) => void }) {
+  return (
+    <div className="w-full flex flex-col gap-4 py-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]">
+      {/* Row 1 */}
+      <div className="flex animate-marquee whitespace-nowrap gap-4 items-center group">
+        {[...SUGGESTED_QUESTIONS_ROW1, ...SUGGESTED_QUESTIONS_ROW1, ...SUGGESTED_QUESTIONS_ROW1].map((item, i) => (
+          <button
+            key={i}
+            onClick={() => onSelect(item.query)}
+            className="flex items-center gap-2.5 px-5 py-2.5 bg-[#111111]/80 hover:bg-[#1a1a1a]/90 border border-white/10 rounded-full transition-all text-[13px] text-gray-300 hover:text-white font-medium shadow-sm backdrop-blur-md group-hover:pause"
+          >
+            <item.icon className="w-4 h-4 opacity-70" />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Row 2 */}
+      <div className="flex animate-marquee-slow whitespace-nowrap gap-4 items-center group transition-all">
+        {[...SUGGESTED_QUESTIONS_ROW2, ...SUGGESTED_QUESTIONS_ROW2, ...SUGGESTED_QUESTIONS_ROW2].map((item, i) => (
+          <button
+            key={i}
+            onClick={() => onSelect(item.query)}
+            className="flex items-center gap-2.5 px-5 py-2.5 bg-[#111111]/80 hover:bg-[#1a1a1a]/90 border border-white/10 rounded-full transition-all text-[13px] text-gray-300 hover:text-white font-medium shadow-sm backdrop-blur-md group-hover:pause"
+          >
+            <item.icon className="w-4 h-4 opacity-70" />
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ChatInterface() {
   const [convos, setConvos] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -310,7 +370,7 @@ function ChatInterface() {
   const [selectedModel, setSelectedModel] = useState("tngtech/deepseek-r1t2-chimera:free");
   const [showModelModal, setShowModelModal] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
-  const inputRef = useRef<HTMLInputElement | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -384,9 +444,16 @@ function ChatInterface() {
       if (raw) {
         const parsed = JSON.parse(raw) as Conversation[];
         setConvos(parsed);
-        if (parsed.length) {
-          setActiveId(parsed[0].id);
+
+        // Load activeId from sessionStorage (reset on tab close)
+        const sessionActiveId = sessionStorage.getItem(`tomato_ai_active_id_${user.id}`);
+        if (sessionActiveId && parsed.some(c => c.id === sessionActiveId)) {
+          setActiveId(sessionActiveId);
           setHasStartedChat(true);
+        } else {
+          // If no session ID or ID not found, reset to landing state
+          setActiveId(null);
+          setHasStartedChat(false);
         }
       }
     } catch { }
@@ -398,8 +465,13 @@ function ChatInterface() {
 
     try {
       localStorage.setItem(`chatgpt_convos_v1_${user.id}`, JSON.stringify(convos));
+      if (activeId) {
+        sessionStorage.setItem(`tomato_ai_active_id_${user.id}`, activeId);
+      } else {
+        sessionStorage.removeItem(`tomato_ai_active_id_${user.id}`);
+      }
     } catch { }
-  }, [convos, user]);
+  }, [convos, user, activeId]);
 
   const active = useMemo(
     () => convos.find((c) => c.id === activeId) || null,
@@ -421,6 +493,7 @@ function ChatInterface() {
     setConvos([]);
     setActiveId(null);
     setHasStartedChat(false);
+    sessionStorage.clear();
   };
 
   function createNewChat(seed?: string) {
@@ -909,6 +982,20 @@ function ChatInterface() {
           -ms-overflow-style: none;
         }
 
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-33.33%); }
+        }
+        .animate-marquee {
+          animation: marquee 40s linear infinite;
+        }
+        .animate-marquee-slow {
+          animation: marquee 50s linear infinite;
+        }
+        .pause {
+          animation-play-state: paused !important;
+        }
+
         /* 3D code card shadows */
         .code-card {
           transition: box-shadow 200ms ease, transform 200ms ease;
@@ -1201,7 +1288,17 @@ function ChatInterface() {
                     disabled={loading}
                     onModelSelect={() => setShowModelModal(true)}
                     selectedModel={selectedModel}
+                    value={input}
+                    onChange={setInput}
+                    textareaRef={textareaRef}
                   />
+                </div>
+
+                <div className="w-full max-w-xl mx-auto overflow-hidden">
+                  <SuggestionMarquee onSelect={(query) => {
+                    setInput(query);
+                    textareaRef.current?.focus();
+                  }} />
                 </div>
               </div>
             </div>
@@ -1269,6 +1366,9 @@ function ChatInterface() {
                   onFileSelect={handleAiInputFileSelect}
                   onModelSelect={() => setShowModelModal(true)}
                   selectedModel={selectedModel}
+                  value={input}
+                  onChange={setInput}
+                  textareaRef={textareaRef}
                 />
               </div>
             </div>

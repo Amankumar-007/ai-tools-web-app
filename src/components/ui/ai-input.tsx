@@ -124,14 +124,35 @@ type AiInputProps = {
   submitting?: boolean
   disabled?: boolean
   selectedModel?: string
+  value?: string
+  onChange?: (value: string) => void
+  textareaRef?: any
 }
 
-export default function AiInput({ onSubmit, onSubmitWithMode, onFileSelect, onModelSelect, placeholder, submitting, disabled, selectedModel }: AiInputProps) {
-  const [value, setValue] = useState("")
-  const { textareaRef, adjustHeight } = useAutoResizeTextarea({
+export default function AiInput({
+  onSubmit,
+  onSubmitWithMode,
+  onFileSelect,
+  onModelSelect,
+  placeholder,
+  submitting,
+  disabled,
+  selectedModel,
+  value: controlledValue,
+  onChange: controlledOnChange,
+  textareaRef: externalTextareaRef
+}: AiInputProps) {
+  const [internalValue, setInternalValue] = useState("")
+  const isControlled = controlledValue !== undefined
+  const value = isControlled ? controlledValue : internalValue
+
+  const { textareaRef: internalTextareaRef, adjustHeight } = useAutoResizeTextarea({
     minHeight: MIN_HEIGHT,
     maxHeight: MAX_HEIGHT,
   })
+
+  const textareaRef = externalTextareaRef || internalTextareaRef
+
   const [showSearch, setShowSearch] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
@@ -179,7 +200,11 @@ export default function AiInput({ onSubmit, onSubmitWithMode, onFileSelect, onMo
       }
     }
     // Clear the input and reset height
-    setValue("")
+    if (controlledOnChange) {
+      controlledOnChange("")
+    } else {
+      setInternalValue("")
+    }
     adjustHeight(true)
 
     // Clear file input
@@ -221,7 +246,11 @@ export default function AiInput({ onSubmit, onSubmitWithMode, onFileSelect, onMo
                   }
                 }}
                 onChange={(e) => {
-                  setValue(e.target.value)
+                  if (controlledOnChange) {
+                    controlledOnChange(e.target.value)
+                  } else {
+                    setInternalValue(e.target.value)
+                  }
                   adjustHeight()
                 }}
                 disabled={submitting || disabled}

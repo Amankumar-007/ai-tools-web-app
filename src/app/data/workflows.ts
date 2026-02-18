@@ -4,7 +4,10 @@ import {
     Code, Megaphone, Video, Image as ImageIcon,
     PenTool, MonitorPlay, ShoppingBag, Music,
     GraduationCap, Briefcase, Camera, Film,
-    Newspaper, Share2, Layers, BrainCircuit
+    Newspaper, Share2, Layers, BrainCircuit,
+    Sparkles, Braces, CheckCircle, Search,
+    MessageCircle, Presentation, Mail, BarChart3,
+    Smartphone, Globe, Shield, Zap, Target
 } from 'lucide-react';
 
 export interface WorkflowStep {
@@ -81,8 +84,20 @@ export const workflows: Workflow[] = [
         ]
     },
     {
+        id: 'branding-kit',
+        title: 'Brand Identity',
+        description: 'Create a complete professional brand identity from scratch.',
+        icon: Target,
+        color: 'from-orange-500 to-amber-600',
+        steps: [
+            { id: 'name', title: 'Naming', description: 'Generate brand names', toolName: 'Namelix', toolUrl: 'https://namelix.com', icon: PenTool },
+            { id: 'logo', title: 'Logo', description: 'Design logo icons', toolName: 'Midjourney', toolUrl: 'https://midjourney.com', icon: Palette },
+            { id: 'font', title: 'Styles', description: 'Choose color palette', toolName: 'Coolors', toolUrl: 'https://coolors.co', icon: ImageIcon }
+        ]
+    },
+    {
         id: 'ecommerce',
-        title: 'E-commerce',
+        title: 'E-commerce Mastery',
         description: 'Create and market products for your online store.',
         icon: ShoppingBag,
         color: 'from-emerald-500 to-teal-600',
@@ -93,7 +108,7 @@ export const workflows: Workflow[] = [
         ]
     },
 
-    // --- CREATIVE ARTS ---
+    // --- CREATIVE ARTS & DESIGN ---
     {
         id: 'digital-artist',
         title: 'Concept Artist',
@@ -107,6 +122,18 @@ export const workflows: Workflow[] = [
         ]
     },
     {
+        id: 'ui-ux-design',
+        title: 'UI/UX Designer',
+        description: 'Design beautiful app interfaces and prototypes.',
+        icon: Globe,
+        color: 'from-blue-500 to-indigo-600',
+        steps: [
+            { id: 'wireframe', title: 'Wireframe', description: 'Generate IA & layout', toolName: 'Relume', toolUrl: 'https://www.relume.io', icon: Layers },
+            { id: 'design', title: 'Design', description: 'Design in Figma', toolName: 'Figma', toolUrl: 'https://figma.com', icon: Palette },
+            { id: 'icon', title: 'Icons', description: 'Custom icon set', toolName: 'Iconify', toolUrl: 'https://iconify.design', icon: Sparkles }
+        ]
+    },
+    {
         id: 'musician',
         title: 'AI Musician',
         description: 'Compose, produce, and release original music.',
@@ -116,6 +143,32 @@ export const workflows: Workflow[] = [
             { id: 'lyrics', title: 'Lyrics', description: 'Write song lyrics', toolName: 'ChatGPT', toolUrl: 'https://chat.openai.com', icon: PenTool },
             { id: 'compose', title: 'Music', description: 'Generate song', toolName: 'Suno', toolUrl: 'https://suno.ai', icon: Music },
             { id: 'master', title: 'Master', description: 'Audio mastering', toolName: 'Landr', toolUrl: 'https://www.landr.com', icon: Layers }
+        ]
+    },
+
+    // --- MARKETING & GROWTH ---
+    {
+        id: 'seo-strategy',
+        title: 'SEO Strategist',
+        description: 'Rank page #1 on Google with AI-driven SEO.',
+        icon: Search,
+        color: 'from-green-600 to-teal-700',
+        steps: [
+            { id: 'keywords', title: 'Keywords', description: 'Find low competition', toolName: 'SEMrush', toolUrl: 'https://semrush.com', icon: BarChart3 },
+            { id: 'content', title: 'Content', description: 'SEO-optimized text', toolName: 'Surfer SEO', toolUrl: 'https://surferseo.com', icon: PenTool },
+            { id: 'audit', title: 'Audit', description: 'Technical SEO check', toolName: 'Ahrefs', toolUrl: 'https://ahrefs.com', icon: Shield }
+        ]
+    },
+    {
+        id: 'email-marketing',
+        title: 'Email Expert',
+        description: 'Personalized email campaigns that convert.',
+        icon: Mail,
+        color: 'from-purple-500 to-pink-600',
+        steps: [
+            { id: 'list', title: 'Lead Gen', description: 'Find prospects', toolName: 'Apollo.io', toolUrl: 'https://apollo.io', icon: Search },
+            { id: 'write', title: 'Copy', description: 'Persuasive emails', toolName: 'Lavender', toolUrl: 'https://lavender.ai', icon: PenTool },
+            { id: 'send', title: 'Send', description: 'Automation setup', toolName: 'Instantly.ai', toolUrl: 'https://instantly.ai', icon: Zap }
         ]
     },
 
@@ -133,7 +186,7 @@ export const workflows: Workflow[] = [
         ]
     },
 
-    // --- DEVELOPER ---
+    // --- DEVELOPER & TECH ---
     {
         id: 'developer',
         title: '10x Developer',
@@ -146,18 +199,16 @@ export const workflows: Workflow[] = [
             { id: 'doc', title: 'Docs', description: 'Auto documentation', toolName: 'Mintlify', toolUrl: 'https://mintlify.com', icon: BookOpen }
         ]
     },
-
-    // --- WRITING & CONTENT ---
     {
-        id: 'blogger',
-        title: 'Pro Blogger',
-        description: 'Research, write, and optimize SEO articles.',
-        icon: Newspaper,
-        color: 'from-green-500 to-emerald-600',
+        id: 'app-launcher',
+        title: 'App Launcher',
+        description: 'From idea to App Store in record time.',
+        icon: Smartphone,
+        color: 'from-violet-600 to-purple-800',
         steps: [
-            { id: 'keyword', title: 'Keywords', description: 'Topic research', toolName: 'Surfer SEO', toolUrl: 'https://surferseo.com', icon: Search },
-            { id: 'write', title: 'Draft', description: 'Long-form writing', toolName: 'Koala', toolUrl: 'https://koala.sh', icon: PenTool },
-            { id: 'polish', title: 'Edit', description: 'Grammar check', toolName: 'Grammarly', toolUrl: 'https://grammarly.com', icon: CheckCircle }
+            { id: 'blueprint', title: 'UX Flow', description: 'Logic & database', toolName: 'FlutterFlow', toolUrl: 'https://flutterflow.io', icon: Smartphone },
+            { id: 'backend', title: 'Backend', description: 'Scalable infrastructure', toolName: 'Supabase', toolUrl: 'https://supabase.com', icon: Shield },
+            { id: 'test', title: 'Quality', description: 'AI debugging', toolName: 'Sentry', toolUrl: 'https://sentry.io', icon: Zap }
         ]
     },
 
@@ -187,5 +238,3 @@ export const workflows: Workflow[] = [
         ]
     }
 ];
-
-import { Sparkles, Braces, CheckCircle, Search, MessageCircle, Presentation } from 'lucide-react';

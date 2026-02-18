@@ -155,6 +155,38 @@
   .animate-hero {
     animation: fadeInUp 0.5s ease-out 0.1s forwards;
   }
+
+  @keyframes slow-pulse {
+
+    0%,
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    50% {
+      opacity: 0.8;
+      transform: scale(0.98);
+    }
+  }
+
+  .animate-pulse-slow {
+    animation: slow-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes slow-spin-opposite {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(-360deg);
+    }
+  }
+
+  .animate-slow-spin-opposite {
+    animation: slow-spin-opposite 20s linear infinite;
+  }
 }
 
 /* Smooth scrolling */

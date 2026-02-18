@@ -22,6 +22,8 @@ import { TestimonialSection } from "@/components/clean-testimonial";
 import TomatoMorph from "@/components/TomatoMorph";
 import AgentManager from "@/components/AgentManager";
 import ToolMarquee from "@/components/ToolMarquee";
+import AnimatedAiInput from "@/components/ui/animated-ai-input";
+import WorkflowSection from "@/components/WorkflowSection";
 
 const features = [
   {
@@ -384,7 +386,7 @@ export default function Home() {
       />
 
       {/* Hero Section */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden pt-25">
+      <section className="relative h-screen flex items-center justify-center overflow-hidden pt-35">
         <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
           {/* Particles background - changes color based on theme */}
           <div className="absolute inset-0 z-0">
@@ -425,9 +427,13 @@ export default function Home() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="w-full max-w-2xl mx-auto my-8"
             >
-              <AiInput />
+              <div className="w-full max-w-2xl mx-auto my-8 md:hidden">
+                <AiInput />
+              </div>
+              <div className="w-full hidden md:flex justify-center py-8">
+                <AnimatedAiInput />
+              </div>
             </motion.div>
 
 
@@ -469,11 +475,12 @@ export default function Home() {
             </div>
           )}
         </motion.div>
-        <FeatureStepsDemo />
+        <WorkflowSection />
+        {/* <FeatureStepsDemo /> */}
       </main>
 
 
-      <main className="container mx-auto px-4 py-2">
+      <main className="container mx-auto px-0 md:px-4 py-2">
         {/* <div className="py-5">
           <motion.h1
           className="text-6xl font-bold mb-10 flex flex-col items-center"
@@ -510,6 +517,7 @@ export default function Home() {
         <section className="w-full bg-neutral-50/50 dark:bg-neutral-900/10 py-10 border-y border-neutral-100 dark:border-neutral-800/50">
           <TestimonialSection />
         </section>
+
         <Footer />
         <motion.div
           initial={{ opacity: 0, y: 50 }}
