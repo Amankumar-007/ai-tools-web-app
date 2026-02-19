@@ -24,6 +24,11 @@ import AgentManager from "@/components/AgentManager";
 import ToolMarquee from "@/components/ToolMarquee";
 import AnimatedAiInput from "@/components/ui/animated-ai-input";
 import WorkflowSection from "@/components/WorkflowSection";
+import StructuredData, { 
+  WebSiteStructuredData, 
+  OrganizationStructuredData,
+  BreadcrumbListStructuredData 
+} from "@/components/StructuredData";
 
 const features = [
   {
@@ -351,6 +356,16 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      {/* Structured Data for SEO */}
+      <StructuredData type="WebSite" data={WebSiteStructuredData} />
+      <StructuredData type="Organization" data={OrganizationStructuredData} />
+      <StructuredData 
+        type="BreadcrumbList" 
+        data={BreadcrumbListStructuredData([
+          { name: 'Home', url: 'https://tomatoai.in' }
+        ])} 
+      />
+      
       {/* Mobile Background Image */}
       <div className="fixed inset-0 -z-10 md:hidden">
         <Image
