@@ -38,8 +38,8 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
 export const WebSiteStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'tomatoTool',
-  alternateName: 'tomatoTool - AI Tools Directory',
+  name: 'TomatoAi India',
+  alternateName: 'TomatoAi - AI Tools Directory',
   url: 'https://tomatoai.in',
   description: 'Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant for productivity, creativity, and automation.',
   inLanguage: 'en-US',
@@ -51,7 +51,7 @@ export const WebSiteStructuredData = {
   },
   publisher: {
     '@type': 'Organization',
-    name: 'tomatoTool',
+    name: 'TomatoAi India',
     url: 'https://tomatoai.in'
   }
 }
@@ -59,8 +59,8 @@ export const WebSiteStructuredData = {
 export const OrganizationStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'tomatoTool',
-  alternateName: 'tomatoTool AI Tools Directory',
+  name: 'TomatoAi India',
+  alternateName: 'TomatoAi AI Tools Directory',
   url: 'https://tomatoai.in',
   logo: 'https://tomatoai.in/logo.png',
   description: 'Leading AI tools directory helping users discover and compare the best artificial intelligence software and tools.',
@@ -121,7 +121,7 @@ export const ArticleStructuredData = (article: {
   },
   publisher: {
     '@type': 'Organization',
-    name: 'tomatoTool',
+    name: 'TomatoAi India',
     logo: {
       '@type': 'ImageObject',
       url: 'https://tomatoai.in/logo.png'

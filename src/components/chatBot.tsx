@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Send } from "lucide-react";
 import Image from "next/image";
+import { authFetch } from "@/lib/auth-fetch";
 
 interface Message {
   role: "user" | "bot";
@@ -57,7 +58,7 @@ export default function Chatbot() {
       // 3. Otherwise call Gemini API
       else {
         try {
-          const res = await fetch("/api/chat", {
+          const res = await authFetch("/api/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: newMessage.text, history: messages }),

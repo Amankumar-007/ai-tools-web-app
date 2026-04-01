@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
+import { authFetch } from "@/lib/auth-fetch"
 
 type ResultType = "web" | "news" | "images"
 type SearchResult = {
@@ -29,7 +30,7 @@ function SearchContent() {
     setIsLoading(true)
     setError(null)
 
-    fetch("/api/search", {
+    authFetch("/api/search", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ query }),

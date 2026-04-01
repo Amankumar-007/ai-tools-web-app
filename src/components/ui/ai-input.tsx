@@ -185,14 +185,20 @@ export default function AiInput({
   }
 
   const handleSubmit = () => {
-    if (!value.trim() || submitting || disabled) return
+    if (!value.trim() || submitting || disabled) return;
+    
+    const queryValue = value.trim();
+    const q = encodeURIComponent(queryValue);
+    
+    // Save to localStorage so it can be restored if user is redirected to login
+    localStorage.setItem('pending_prompt', queryValue);
+
     if (onSubmitWithMode) {
-      onSubmitWithMode(value.trim(), showSearch)
+      onSubmitWithMode(queryValue, showSearch)
     } else if (onSubmit) {
-      onSubmit(value.trim())
+      onSubmit(queryValue)
     } else {
       // Default behavior: route based on toggle
-      const q = encodeURIComponent(value.trim())
       if (showSearch) {
         router.push(`/search?q=${q}`)
       } else {

@@ -2,19 +2,21 @@ import React from 'react';
 import TomatoLoader from './TomatoLoader';
 
 interface ProcessingOverlayProps {
-  status: 'extracting' | 'analyzing' | 'optimizing';
+  status: 'extracting' | 'structuring' | 'analyzing' | 'optimizing';
 }
 
 const ProcessingOverlay: React.FC<ProcessingOverlayProps> = ({ status }) => {
   const titles = {
     extracting: 'Reading Resume...',
+    structuring: 'Structuring Data...',
     analyzing: 'TomatoAI Analysis...',
     optimizing: 'Tailoring Resume...'
   };
 
   const descriptions = {
-    extracting: 'Extracting text structure and content from your PDF file.',
-    analyzing: 'TomatoAI is evaluating your profile against modern industry standards.',
+    extracting: 'Extracting text and content from your PDF file.',
+    structuring: 'Parsing your resume into a structured JSON format for precise AI analysis.',
+    analyzing: 'TomatoAI is evaluating your structured profile against modern industry standards.',
     optimizing: 'TomatoAI is crafting a perfectly tailored version for your target role.'
   };
 
@@ -31,8 +33,9 @@ const ProcessingOverlay: React.FC<ProcessingOverlayProps> = ({ status }) => {
           {descriptions[status]}
         </p>
         <div className="mt-8 h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-          <div className={`h-full bg-red-500 transition-all duration-1000 ${status === 'extracting' ? 'w-1/3' :
-            status === 'analyzing' ? 'w-2/3' : 'w-full'
+          <div className={`h-full bg-red-500 transition-all duration-1000 ${status === 'extracting' ? 'w-1/4' :
+            status === 'structuring' ? 'w-2/4' :
+              status === 'analyzing' ? 'w-3/4' : 'w-full'
             }`}></div>
         </div>
       </div>

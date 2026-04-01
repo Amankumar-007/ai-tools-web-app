@@ -26,10 +26,10 @@ const features: Feature[] = [
     link: "/n8n-templates",
   },
   {
-    title: "Content Generator",
+    title: "Roadmap With AI",
     bgColor: "bg-gradient-to-r from-purple-600 via-violet-700 to-indigo-800",
     imageSrc: "/feature3.png",
-    link: "/outlier",
+    link: "/roadmap",
   },
   {
     title: "Score And Fix Your Resume",

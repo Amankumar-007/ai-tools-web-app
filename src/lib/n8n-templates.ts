@@ -1,3 +1,5 @@
+import { authFetch } from '@/lib/auth-fetch';
+
 export interface ParsedTemplate {
   id: string;
   name: string;
@@ -164,7 +166,7 @@ function generateTags(name: string, description: string, category: string): stri
 // Get template content by filename
 export async function getTemplateContent(fileName: string): Promise<string> {
   try {
-    const response = await fetch('/api/n8n-templates');
+    const response = await authFetch('/api/n8n-templates');
     if (!response.ok) {
       throw new Error('Failed to fetch templates');
     }
@@ -185,7 +187,7 @@ export async function getTemplateContent(fileName: string): Promise<string> {
 // Get all templates from the API
 export async function getAllTemplates(): Promise<ParsedTemplate[]> {
   try {
-    const response = await fetch('/api/n8n-templates');
+    const response = await authFetch('/api/n8n-templates');
     if (!response.ok) {
       throw new Error('Failed to fetch templates');
     }

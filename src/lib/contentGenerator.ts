@@ -1,7 +1,7 @@
 export async function generateContentWithGemini(topic: string) {
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY_PUBLIC;
   if (!apiKey) {
-    throw new Error("API key is missing. Please set NEXT_PUBLIC_GEMINI_API_KEY in your environment variables.");
+    throw new Error("API key is missing. Please set GEMINI_API_KEY in your environment variables.");
   }
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;

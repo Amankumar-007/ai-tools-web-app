@@ -1,14 +1,18 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  Search, X, LayoutGrid, List, Zap, ArrowRight,
+  Search, X, Zap, ArrowRight,
   CheckCircle2, Plus, Trash2, ExternalLink,
-  BarChart3, ShieldCheck, Clock, Star, AlertCircle
+  BarChart3, ShieldCheck, Clock, Star, AlertCircle,
+  Sparkles, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import MainNavbar from '@/components/MainNavbar';
+import CategoryToolsResults from '@/components/CategoryToolsResults';
 import { getCurrentUser, signOut, User } from "@/lib/supabase";
 
 // --- 1. ROBUST DATA STRUCTURE ---
@@ -19,9 +23,8 @@ interface Tool {
   description: string;
   website: string;
   logo?: string;
-  // Deep Comparison Data
   pricing: 'Free' | 'Freemium' | 'Paid';
-  rating: number; // 0-5
+  rating: number;
   speed: 'Fast' | 'Moderate' | 'Slow';
   founded: string;
   pros: string[];
@@ -34,7 +37,6 @@ const CATEGORIES = [
   { id: 'All', label: 'All Ecosystems' },
 ];
 
-// Extract and group categories from the data
 const getCategories = (tools: Tool[]) => {
   const categoryGroups: { [key: string]: string[] } = {
     'AI Chat': ['AI Chat', 'Chatbot', 'Conversational AI', 'LLM'],
@@ -45,7 +47,6 @@ const getCategories = (tools: Tool[]) => {
     'Other': []
   };
 
-  // Group tools into main categories
   const mainCategories = Object.keys(categoryGroups);
 
   return [
@@ -54,7 +55,6 @@ const getCategories = (tools: Tool[]) => {
   ];
 };
 
-// Helper function to check if tool belongs to a main category
 const belongsToCategory = (toolCategory: string, mainCategory: string): boolean => {
   const categoryGroups: { [key: string]: string[] } = {
     'AI Chat': ['AI Chat', 'Chatbot', 'Conversational AI', 'LLM'],
@@ -72,149 +72,78 @@ const belongsToCategory = (toolCategory: string, mainCategory: string): boolean 
     toolCategory.toLowerCase().includes(mainCategory.toLowerCase());
 };
 
-const MOCK_TOOLS: Tool[] = [
-  {
-    id: 1, name: 'ChatGPT-4o', category: 'LLM', website: 'https://openai.com',
-    description: 'The industry standard for conversational AI with reasoning capabilities.',
-    pricing: 'Freemium', rating: 4.9, speed: 'Fast', founded: '2015',
-    pros: ['Multimodal (Voice/Image)', 'Huge Plugin Store', 'Top reasoning'],
-    cons: ['Usage limits on free tier', 'Can be verbose'],
-    bestFor: 'General Purpose', apiAvailable: true
-  },
-  {
-    id: 2, name: 'Claude 3.5', category: 'LLM', website: 'https://anthropic.com',
-    description: 'Anthropic’s safest and most "human-feeling" AI model.',
-    pricing: 'Freemium', rating: 4.8, speed: 'Fast', founded: '2021',
-    pros: ['Massive Context Window', 'Natural Writing Style', 'Artifacts UI'],
-    cons: ['Fewer plugins', 'Strict safety rails'],
-    bestFor: 'Writing & Analysis', apiAvailable: true
-  },
-  {
-    id: 3, name: 'Midjourney v6', category: 'Image', website: 'https://midjourney.com',
-    description: 'Generates the most artistic and high-fidelity images available.',
-    pricing: 'Paid', rating: 4.9, speed: 'Moderate', founded: '2022',
-    pros: ['Unmatched aesthetics', 'Stylization control'],
-    cons: ['Discord interface only', 'Steep learning curve'],
-    bestFor: 'High-End Art', apiAvailable: false
-  },
-  {
-    id: 4, name: 'Gemini Advanced', category: 'LLM', website: 'https://google.com',
-    description: 'Google’s native AI deeply integrated with Workspace.',
-    pricing: 'Freemium', rating: 4.7, speed: 'Fast', founded: '2023',
-    pros: ['Google Ecosystem native', 'Real-time web data'],
-    cons: ['Inconsistent logic sometimes', 'History privacy concerns'],
-    bestFor: 'Research & Workspace', apiAvailable: true
-  },
-  {
-    id: 5, name: 'Runway Gen-2', category: 'Video', website: 'https://runwayml.com',
-    description: 'Text-to-video magic for filmmakers and creators.',
-    pricing: 'Freemium', rating: 4.5, speed: 'Slow', founded: '2018',
-    pros: ['Motion brush control', 'Cinematic quality'],
-    cons: ['Expensive credits', 'Short clip duration'],
-    bestFor: 'Video Production', apiAvailable: true
-  },
-  {
-    id: 6, name: 'GitHub Copilot', category: 'Code', website: 'https://github.com',
-    description: 'The world’s most widely adopted AI pair programmer.',
-    pricing: 'Paid', rating: 4.8, speed: 'Fast', founded: '2008',
-    pros: ['IDE Integration', 'Context awareness'],
-    cons: ['Paid only', 'Can hallucinate APIs'],
-    bestFor: 'Developers', apiAvailable: false
-  },
-  {
-    id: 7, name: 'Perplexity', category: 'LLM', website: 'https://perplexity.ai',
-    description: 'A conversational search engine that cites its sources.',
-    pricing: 'Freemium', rating: 4.8, speed: 'Fast', founded: '2022',
-    pros: ['Real-time citations', 'Focused mode'],
-    cons: ['Less creative writing', 'Search dependent'],
-    bestFor: 'Fact Checking', apiAvailable: true
-  },
-  {
-    id: 8, name: 'Stable Diffusion', category: 'Image', website: 'https://stability.ai',
-    description: 'Open source image generation you can run locally.',
-    pricing: 'Free', rating: 4.6, speed: 'Moderate', founded: '2019',
-    pros: ['Open Source', 'Run offline', 'Infinite control'],
-    cons: ['Requires good GPU', 'Technical setup'],
-    bestFor: 'Power Users', apiAvailable: true
-  },
-];
-
 const getLogoUrl = (url: string) => `https://www.google.com/s2/favicons?domain=${new URL(url).hostname}&sz=128`;
 
 // --- 2. TOOL CARD COMPONENT ---
 const ToolCard = ({ tool, isSelected, onToggle, isMaxReached }: any) => (
   <motion.div
-    layout
-    initial={{ opacity: 0, scale: 0.9 }}
-    animate={{ opacity: 1, scale: 1 }}
-    whileHover={{ y: -5 }}
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    transition={{ duration: 0.3 }}
     className={`
-      relative rounded-[2rem] p-6 border transition-all duration-300
+      group relative rounded-2xl p-6 border transition-colors duration-200
       ${isSelected
-        ? 'border-indigo-600 ring-4 ring-indigo-50/50 dark:ring-indigo-900/20 shadow-2xl bg-white dark:bg-indigo-950/20'
-        : 'bg-white dark:bg-slate-900/40 border-slate-200 dark:border-slate-800/60 shadow-sm hover:shadow-xl hover:border-indigo-200 dark:hover:border-indigo-800/50 backdrop-blur-sm'
+        ? 'border-slate-900 bg-slate-50 dark:border-white dark:bg-slate-900'
+        : 'bg-white dark:bg-[#0B0F1A] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
       }
     `}
   >
-    {/* Header */}
-    <div className="flex justify-between items-start mb-6">
-      <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm p-3 flex items-center justify-center">
+    <button
+      onClick={(e) => onToggle(e, tool)}
+      className={`
+        absolute top-5 right-5 w-7 h-7 rounded-full flex items-center justify-center border transition-all z-20
+        ${isSelected
+          ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white'
+          : 'bg-transparent text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-900 hover:border-slate-300 dark:hover:text-white dark:hover:border-slate-600 opacity-0 group-hover:opacity-100'
+        }
+        ${!isSelected && isMaxReached ? 'hidden' : ''}
+      `}
+    >
+      {isSelected ? <CheckCircle2 size={14} /> : <Plus size={14} />}
+    </button>
+
+    <div className="flex flex-col mb-6">
+      <div className="w-12 h-12 rounded-xl border border-slate-100 dark:border-slate-800 p-2.5 flex items-center justify-center mb-5 bg-white dark:bg-[#0B0F1A]">
         <img src={tool.logo} alt={tool.name} className="w-full h-full object-contain" />
       </div>
-      <button
-        onClick={(e) => onToggle(e, tool)}
-        className={`
-          w-10 h-10 rounded-full flex items-center justify-center border transition-all
-          ${isSelected
-            ? 'bg-slate-900 text-white border-slate-900 dark:bg-indigo-600 dark:border-indigo-600'
-            : 'bg-white dark:bg-slate-800 text-slate-400 dark:text-slate-500 border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:text-indigo-600'
-          }
-          ${!isSelected && isMaxReached ? 'opacity-30 cursor-not-allowed' : ''}
-        `}
-      >
-        {isSelected ? <CheckCircle2 size={18} /> : <Plus size={20} />}
-      </button>
-    </div>
 
-    {/* Info */}
-    <div>
       <div className="flex items-center gap-2 mb-2">
-        <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-400 text-[10px] font-bold uppercase tracking-wider rounded-full">
+        <span className="text-[10px] font-medium uppercase tracking-widest text-slate-500 dark:text-slate-400">
           {tool.category}
         </span>
-        <div className="flex items-center gap-1 text-amber-500 text-xs font-bold">
-          <Star size={12} fill="currentColor" /> {tool.rating}
-        </div>
       </div>
-      <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-2">{tool.name}</h3>
-      <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2 h-10 mb-6">{tool.description}</p>
 
-      {/* Mini Specs */}
-      <div className="flex items-center justify-between pt-4 border-t border-slate-50 dark:border-slate-800/50">
-        <span className={`text-xs font-bold px-2 py-1 rounded-md ${tool.pricing === 'Free' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-          tool.pricing === 'Paid' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
-            'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-          }`}>
-          {tool.pricing}
-        </span>
-        <a href={tool.website} target="_blank" className="text-sm font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 group">
-          View <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
-        </a>
-      </div>
+      <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white mb-2">{tool.name}</h3>
+      <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">{tool.description}</p>
+    </div>
+
+    <div className="flex items-center justify-between pt-5 border-t border-slate-100 dark:border-slate-800/50">
+      <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+        {tool.pricing}
+      </span>
+
+      <a
+        href={tool.website}
+        target="_blank"
+        className="text-xs font-medium text-slate-900 dark:text-white flex items-center gap-1 hover:opacity-70 transition-opacity"
+      >
+        Visit <ArrowRight size={12} />
+      </a>
     </div>
   </motion.div>
 );
 
-// --- 3. MAIN APP COMPONENT ---
-export default function AIToolsDirectory() {
+// --- 3. MAIN CONTENT COMPONENT ---
+function AIToolsContent() {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCat, setActiveCat] = useState('All');
   const [compareList, setCompareList] = useState<Tool[]>([]);
-  const [isComparing, setIsComparing] = useState(false);
   const [tools, setTools] = useState<Tool[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get('category');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -249,22 +178,21 @@ export default function AIToolsDirectory() {
         const response = await fetch('/data/ai-tools.json');
         const data = await response.json();
 
-        // Transform the data to match our interface and add logos
-        const transformedTools = data.map((item: any) => ({
-          id: item.id || Math.random(),
+        const transformedTools = data.map((item: any, index: number) => ({
+          id: `${item.name}-${index}`,
           name: item.name,
           category: item.category,
           description: item.description,
           website: item.website,
           logo: getLogoUrl(item.website),
           pricing: item.pricing,
-          rating: item.rating || 4.5, // Default rating if not provided
+          rating: item.rating || 4.5,
           speed: item.speed || 'Fast',
           founded: item.founded || '2020',
           pros: item.pros || ['High quality output', 'User friendly'],
           cons: item.cons || ['Learning curve required'],
           bestFor: item.bestFor || 'General Purpose',
-          apiAvailable: item.apiAvailable !== false // Default to true
+          apiAvailable: item.apiAvailable !== false
         }));
 
         setTools(transformedTools);
@@ -282,9 +210,14 @@ export default function AIToolsDirectory() {
     e.stopPropagation();
     setCompareList(prev => {
       if (prev.find(t => t.id === tool.id)) return prev.filter(t => t.id !== tool.id);
-      if (prev.length < 3) return [...prev, tool];
+      if (prev.length < 4) return [...prev, tool];
       return prev;
     });
+  };
+
+  const handleAnalyze = () => {
+    const names = compareList.map(t => t.name).join(',');
+    router.push(`/ai-tools/analyze?names=${encodeURIComponent(names)}`);
   };
 
   const filtered = tools.filter(t =>
@@ -295,64 +228,56 @@ export default function AIToolsDirectory() {
   const categories = getCategories(tools);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0B0F1A] text-slate-900 dark:text-slate-100 font-sans selection:bg-indigo-100 dark:selection:bg-indigo-900/30 transition-colors duration-500">
+    <div className="min-h-screen bg-white dark:bg-[#0B0F1A] text-slate-900 dark:text-slate-100 font-sans selection:bg-slate-200 dark:selection:bg-slate-800">
       <MainNavbar
         user={user}
         onSignOut={handleSignOut}
         onProtectedLink={handleProtectedLink}
       />
-      {/* BACKGROUND FX */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-indigo-500/5 dark:bg-indigo-500/10 rounded-full blur-[120px] mix-blend-screen" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-purple-500/5 dark:bg-purple-500/10 rounded-full blur-[120px] mix-blend-screen" />
-      </div>
 
-      {/* --- HERO HEADER --- */}
       {/* --- HERO SECTION --- */}
       <header className="relative pt-32 pb-16 px-6 text-center z-10">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 shadow-sm mb-6"
+        <motion.p
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+          className="text-xs font-medium tracking-[0.2em] uppercase text-slate-400 mb-6"
         >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-          </span>
-          <p className="text-xs font-bold tracking-widest uppercase">2026 Intelligence Index</p>
-        </motion.div>
+          2026 Intelligence Index
+        </motion.p>
 
         <motion.h1
-          className="text-5xl md:text-7xl font-extrabold tracking-tight mb-6 bg-gradient-to-b from-slate-900 to-slate-600 dark:from-white dark:to-slate-400 bg-clip-text text-transparent"
-          initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="text-5xl md:text-6xl font-semibold tracking-tight mb-10 text-slate-900 dark:text-white"
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
         >
-          Master the AI <span className="text-indigo-600 dark:text-indigo-400 italic">Era.</span>
+          Master The <span className="text-slate-400 dark:text-slate-500 italic">AI Era</span>
         </motion.h1>
 
-        <div className="max-w-2xl mx-auto relative group">
-          <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl blur opacity-10 group-focus-within:opacity-25 transition duration-500" />
-          <div className="relative flex items-center bg-white dark:bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden focus-within:border-indigo-500 dark:focus-within:border-indigo-400 transition-all">
-            <Search className="ml-5 text-slate-400 dark:text-slate-500 w-5 h-5" />
+        <div className="max-w-md mx-auto relative group">
+          <div className="relative flex items-center bg-transparent rounded-xl border border-slate-200 dark:border-slate-800 focus-within:border-slate-400 dark:focus-within:border-slate-600 transition-colors">
+            <Search className="ml-4 text-slate-400 w-4 h-4" />
             <input
-              className="w-full py-5 px-4 text-lg outline-none bg-transparent placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-900 dark:text-white"
-              placeholder="Search 5,000+ AI tools..."
+              className="w-full py-3.5 px-4 text-sm outline-none bg-transparent placeholder:text-slate-400 text-slate-900 dark:text-white"
+              placeholder="Search tools..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
         </div>
       </header>
-      {/* --- EXPLORER --- */}
-      <main className="max-w-7xl mx-auto px-6 pb-40 relative z-10">
 
+      {/* --- EXPLORER --- */}
+      <main className="max-w-6xl mx-auto px-6 pb-40 relative z-10">
         {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-8 justify-center no-scrollbar">
+        <div className="flex gap-2 overflow-x-auto pb-4 mb-10 justify-center no-scrollbar">
           {categories.map(cat => (
             <button
               key={cat.id}
-              onClick={() => setActiveCat(cat.id)}
-              className={`px-6 py-3 rounded-full text-sm font-bold whitespace-nowrap transition-all ${activeCat === cat.id
-                ? 'bg-[#E84E1B] text-white shadow-lg scale-105 select-none'
-                : 'bg-white dark:bg-slate-900/60 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+              onClick={() => {
+                setActiveCat(cat.id);
+                if (categoryParam) router.push('/ai-tools');
+              }}
+              className={`px-4 py-2 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${activeCat === cat.id
+                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
+                : 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
                 }`}
             >
               {cat.label}
@@ -360,32 +285,44 @@ export default function AIToolsDirectory() {
           ))}
         </div>
 
+        {/* AI Recommendations Section */}
+        {categoryParam && (
+          <div className="mb-16">
+            <div className="flex justify-end mb-4">
+              <button
+                onClick={() => router.push('/ai-tools')}
+                className="text-xs font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1"
+              >
+                <X size={12} /> Clear Filter
+              </button>
+            </div>
+            <CategoryToolsResults category={categoryParam} />
+            <div className="mt-12 pt-12 border-t border-slate-100 dark:border-slate-800">
+              <h2 className="text-lg font-medium text-slate-900 dark:text-white mb-6">Directory</h2>
+            </div>
+          </div>
+        )}
+
         {/* Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {isLoading ? (
-            // Loading Skeleton
             Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-[2rem] p-6 border border-slate-200 shadow-sm animate-pulse">
-                <div className="flex justify-between items-start mb-6">
-                  <div className="w-16 h-16 bg-slate-200 rounded-2xl"></div>
-                  <div className="w-10 h-10 bg-slate-200 rounded-full"></div>
-                </div>
-                <div className="space-y-3">
-                  <div className="h-4 bg-slate-200 rounded w-20"></div>
-                  <div className="h-6 bg-slate-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-slate-200 rounded w-full"></div>
-                  <div className="h-4 bg-slate-200 rounded w-2/3"></div>
-                </div>
+              <div key={i} className="rounded-2xl p-6 border border-slate-200 dark:border-slate-800 animate-pulse">
+                <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl mb-5"></div>
+                <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-16 mb-4"></div>
+                <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded w-3/4 mb-3"></div>
+                <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-full mb-2"></div>
+                <div className="h-3 bg-slate-100 dark:bg-slate-800 rounded w-2/3"></div>
               </div>
             ))
           ) : (
             <AnimatePresence>
-              {filtered.map(tool => (
+              {filtered.map((tool, idx) => (
                 <ToolCard
                   key={tool.id}
                   tool={tool}
                   isSelected={!!compareList.find(c => c.id === tool.id)}
-                  isMaxReached={compareList.length >= 3}
+                  isMaxReached={compareList.length >= 4}
                   onToggle={handleToggle}
                 />
               ))}
@@ -396,32 +333,33 @@ export default function AIToolsDirectory() {
 
       {/* --- COMPARISON DOCK --- */}
       <AnimatePresence>
-        {compareList.length > 0 && !isComparing && (
+        {compareList.length > 0 && (
           <motion.div
-            initial={{ y: 100 }} animate={{ y: 0 }} exit={{ y: 100 }}
+            initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="fixed bottom-8 left-0 right-0 z-50 flex justify-center px-4"
           >
-            <div className="bg-[#E84E1B] dark:bg-indigo-600 text-white p-3 pr-4 rounded-[2rem] shadow-2xl flex items-center gap-6 max-w-xl w-full border border-[#E84E1B]/50 dark:border-indigo-500/50 backdrop-blur-md">
-              <div className="flex items-center -space-x-3 pl-2">
+            <div className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 p-2 pr-3 rounded-full shadow-lg flex items-center gap-6 max-w-lg w-full">
+              <div className="flex items-center -space-x-2 pl-2">
                 {compareList.map(t => (
-                  <img key={t.id} src={t.logo} className="w-10 h-10 rounded-full border-2 border-slate-800 dark:border-slate-900 bg-white object-contain" />
+                  <img key={t.id} src={t.logo} className="w-8 h-8 rounded-full border border-slate-700 dark:border-slate-300 bg-white object-contain" />
                 ))}
-                {compareList.length < 2 && <div className="w-10 h-10 rounded-full border-2 border-slate-800 dark:border-slate-900 bg-slate-800 dark:bg-slate-950 flex items-center justify-center text-xs text-slate-500 font-bold">+</div>}
+                {compareList.length < 2 && <div className="w-8 h-8 rounded-full border border-dashed border-slate-700 dark:border-slate-300 flex items-center justify-center text-xs text-slate-500">+</div>}
               </div>
 
               <div className="flex-1">
-                <p className="font-bold text-sm">Comparison Deck</p>
-                <p className="text-[10px] text-white/60 font-medium uppercase tracking-wider">{compareList.length} / 3 Selected</p>
+                <p className="font-medium text-sm">Compare</p>
+                <p className="text-[10px] text-slate-400 dark:text-slate-500">{compareList.length} / 4 selected</p>
               </div>
 
-              <div className="flex gap-2">
-                <button onClick={() => setCompareList([])} className="p-3 hover:bg-white/10 rounded-full text-white/50 hover:text-white transition">
-                  <Trash2 size={18} />
+              <div className="flex gap-1.5">
+                <button onClick={() => setCompareList([])} className="p-2 hover:bg-white/10 dark:hover:bg-black/5 rounded-full text-slate-400 dark:text-slate-500 transition">
+                  <Trash2 size={16} />
                 </button>
                 <button
                   disabled={compareList.length < 2}
-                  onClick={() => setIsComparing(true)}
-                  className="bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed px-6 py-2.5 rounded-full font-bold text-sm transition-all shadow-lg border border-white/10"
+                  onClick={handleAnalyze}
+                  className="bg-white text-slate-900 dark:bg-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed px-5 py-2 rounded-full font-medium text-sm transition-colors"
                 >
                   Analyze
                 </button>
@@ -430,169 +368,19 @@ export default function AIToolsDirectory() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* --- FULL SCREEN REAL-LIFE COMPARISON --- */}
-      <AnimatePresence>
-        {isComparing && (
-          <motion.div
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-[#FAFAFA] dark:bg-[#0B0F1A] overflow-hidden flex flex-col"
-          >
-            {/* Modal Header */}
-            <div className="px-8 py-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex justify-between items-center sticky top-0 z-10 transition-colors duration-500">
-              <div>
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white">Technical Comparison</h2>
-                <p className="text-slate-500 dark:text-slate-400 text-sm">Analyzing {compareList.length} tools side-by-side</p>
-              </div>
-              <button onClick={() => setIsComparing(false)} className="p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full transition text-slate-900 dark:text-white">
-                <X size={24} />
-              </button>
-            </div>
-
-            {/* Scrollable Content */}
-            <div className="flex-1 overflow-auto p-8">
-              <div className="max-w-7xl mx-auto">
-
-                {/* 1. PRODUCT HEADER ROW */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                  {compareList.map(tool => (
-                    <div key={tool.id} className="text-center">
-                      <div className="w-24 h-24 mx-auto bg-white dark:bg-slate-900 rounded-[2rem] shadow-lg border border-slate-100 dark:border-slate-800 p-4 mb-6 flex items-center justify-center transition-all">
-                        <img src={tool.logo} className="w-full h-full object-contain" />
-                      </div>
-                      <h3 className="text-2xl font-black mb-2 text-slate-900 dark:text-white">{tool.name}</h3>
-                      <div className="inline-block px-4 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs font-bold uppercase tracking-wider">
-                        {tool.category}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* 2. THE SPEC SHEET TABLE */}
-                <div className="bg-white dark:bg-slate-900/60 backdrop-blur-xl rounded-[2rem] shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden transition-all">
-
-                  {/* Row: Ratings */}
-                  <div className="grid grid-cols-4 border-b border-slate-100 dark:border-slate-800/50 divide-x divide-slate-100 dark:divide-slate-800/50">
-                    <div className="p-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center gap-3 font-bold text-slate-500 dark:text-slate-400">
-                      <BarChart3 className="text-indigo-500" /> Overall Rating
-                    </div>
-                    {compareList.map(tool => (
-                      <div key={tool.id} className="p-6 flex items-center gap-2">
-                        <span className="text-3xl font-black text-slate-900 dark:text-white">{tool.rating}</span>
-                        <div className="flex text-amber-400">
-                          {Array.from({ length: 5 }).map((_, i) => (
-                            <Star key={i} size={14} fill={i < Math.floor(tool.rating) ? "currentColor" : "none"} className={i < Math.floor(tool.rating) ? "" : "text-slate-200 dark:text-slate-700"} />
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Row: Pricing */}
-                  <div className="grid grid-cols-4 border-b border-slate-100 dark:border-slate-800/50 divide-x divide-slate-100 dark:divide-slate-800/50">
-                    <div className="p-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center gap-3 font-bold text-slate-500 dark:text-slate-400">
-                      <Zap className="text-amber-500" /> Pricing Model
-                    </div>
-                    {compareList.map(tool => (
-                      <div key={tool.id} className="p-6">
-                        <span className={`px-3 py-1 rounded-lg text-sm font-bold ${tool.pricing === 'Free' ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400' :
-                            tool.pricing === 'Paid' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400' :
-                              'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                          }`}>
-                          {tool.pricing}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Row: Pros */}
-                  <div className="grid grid-cols-4 border-b border-slate-100 dark:border-slate-800/50 divide-x divide-slate-100 dark:divide-slate-800/50">
-                    <div className="p-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center gap-3 font-bold text-slate-500 dark:text-slate-400">
-                      <CheckCircle2 className="text-green-500" /> Key Strengths
-                    </div>
-                    {compareList.map(tool => (
-                      <div key={tool.id} className="p-6">
-                        <ul className="space-y-3">
-                          {tool.pros.map((pro, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm text-slate-700 dark:text-slate-300 font-medium">
-                              <CheckCircle2 size={16} className="text-green-500 mt-0.5 shrink-0" />
-                              {pro}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Row: Cons */}
-                  <div className="grid grid-cols-4 border-b border-slate-100 dark:border-slate-800/50 divide-x divide-slate-100 dark:divide-slate-800/50">
-                    <div className="p-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center gap-3 font-bold text-slate-500 dark:text-slate-400">
-                      <AlertCircle className="text-red-400" /> Limitations
-                    </div>
-                    {compareList.map(tool => (
-                      <div key={tool.id} className="p-6">
-                        <ul className="space-y-3">
-                          {tool.cons.map((con, i) => (
-                            <li key={i} className="flex items-start gap-2 text-sm text-slate-500 dark:text-slate-400">
-                              <X size={16} className="text-red-400 mt-0.5 shrink-0" />
-                              {con}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Row: Technical Specs */}
-                  <div className="grid grid-cols-4 divide-x divide-slate-100 dark:divide-slate-800/50">
-                    <div className="p-6 bg-slate-50/50 dark:bg-slate-800/20 flex items-center gap-3 font-bold text-slate-500 dark:text-slate-400">
-                      <ShieldCheck className="text-blue-500" /> Speed & API
-                    </div>
-                    {compareList.map(tool => (
-                      <div key={tool.id} className="p-6 space-y-2">
-                        <div className="flex justify-between items-center text-sm border-b border-slate-50 dark:border-slate-800/50 pb-2">
-                          <span className="text-slate-400 dark:text-slate-500">Speed</span>
-                          <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1">
-                            <Clock size={14} /> {tool.speed}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm">
-                          <span className="text-slate-400 dark:text-slate-500">API Access</span>
-                          <span className={`font-bold ${tool.apiAvailable ? 'text-green-600 dark:text-green-400' : 'text-slate-400 dark:text-slate-600'}`}>
-                            {tool.apiAvailable ? 'Available' : 'No API'}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center text-sm pt-2">
-                          <span className="text-slate-400 dark:text-slate-500">Founded</span>
-                          <span className="font-bold text-slate-900 dark:text-white">{tool.founded}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                </div>
-
-                {/* 3. CTA BUTTONS */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12 mb-20">
-                  {compareList.map(tool => (
-                    <div key={tool.id} className="text-center">
-                      <a
-                        href={tool.website}
-                        target="_blank"
-                        className="inline-flex items-center justify-center w-full py-4 bg-[#E84E1B] text-white font-bold rounded-xl shadow-xl hover:bg-[#E84E1B] hover:scale-105 transition-all"
-                      >
-                        Visit {tool.name} <ExternalLink size={16} className="ml-2" />
-                      </a>
-                    </div>
-                  ))}
-                </div>
-
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
     </div>
+  );
+}
+
+// --- 4. MAIN PAGE COMPONENT ---
+export default function AIToolsDirectory() {
+  return (
+    <React.Suspense fallback={
+      <div className="min-h-screen bg-white dark:bg-[#0B0F1A] flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-slate-900 dark:border-white border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <AIToolsContent />
+    </React.Suspense>
   );
 }

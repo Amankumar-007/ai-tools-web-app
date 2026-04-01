@@ -2,21 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
-// Add CORS headers
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+
 
 export async function GET(request: NextRequest) {
-  // Handle OPTIONS request for CORS preflight
-  if (request.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: corsHeaders,
-    });
-  }
+
   try {
     const templatesDir = path.join(process.cwd(), 'public', 'data', 'n8n-templates');
     
@@ -59,7 +48,6 @@ export async function GET(request: NextRequest) {
       status: 200,
       headers: {
         'Content-Type': 'application/json',
-        ...corsHeaders
       },
     });
   } catch (error) {
@@ -68,7 +56,6 @@ export async function GET(request: NextRequest) {
       status: 500,
       headers: {
         'Content-Type': 'application/json',
-        ...corsHeaders
       },
     });
   }

@@ -24,6 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import MainNavbar from "@/components/MainNavbar";
 import { getCurrentUser, signOut } from "@/lib/supabase";
+import { authFetch } from "@/lib/auth-fetch";
 import { useRouter } from "next/navigation";
 
 // Model Selector Component for the Prompt Generator
@@ -177,7 +178,7 @@ export default function PromptGeneratorPage() {
     setGeneratedPrompt(null);
 
     try {
-      const res = await fetch("/api/generate-prompt", {
+      const res = await authFetch("/api/generate-prompt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ topic, model: selectedModel }),

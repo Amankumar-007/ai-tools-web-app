@@ -23,9 +23,9 @@ class GeminiAPI {
   private baseUrl: string = 'https://generativelanguage.googleapis.com/v1beta';
 
   constructor() {
-    this.apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
+    this.apiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY_PUBLIC || '';
     if (!this.apiKey) {
-      throw new Error('Gemini API key is required. Please set NEXT_PUBLIC_GEMINI_API_KEY');
+      throw new Error('Gemini API key is required. Please set GEMINI_API_KEY');
     }
   }
 
@@ -36,7 +36,7 @@ class GeminiAPI {
     try {
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
@@ -99,7 +99,7 @@ Focus on:
       if (!jsonMatch) throw new Error('Invalid response format');
 
       const result = JSON.parse(jsonMatch[0]);
-      
+
       return {
         original: userInput,
         improved: result.improved || 'Could not improve text',
@@ -184,13 +184,13 @@ Content to analyze: "${text}"
 export const geminiAPI = new GeminiAPI();
 
 // Export main functions
-export const optimizeTextWithGemini = (text: string, config?: AIToolConfig) => 
+export const optimizeTextWithGemini = (text: string, config?: AIToolConfig) =>
   geminiAPI.optimizeText(text, config);
 
-export const generateContent = (prompt: string, type?: 'blog' | 'social' | 'email' | 'marketing') => 
+export const generateContent = (prompt: string, type?: 'blog' | 'social' | 'email' | 'marketing') =>
   geminiAPI.generateCreativeContent(prompt, type);
 
-export const analyzeText = (text: string) => 
+export const analyzeText = (text: string) =>
   geminiAPI.analyzeContent(text);
 
 export interface GeneratedImageResult {
@@ -200,8 +200,8 @@ export interface GeneratedImageResult {
 }
 
 export async function generateImage(prompt: string, size: string = '1024x1024'): Promise<GeneratedImageResult> {
-  const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || '';
-  if (!apiKey) throw new Error('Gemini API key is required. Please set NEXT_PUBLIC_GEMINI_API_KEY');
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GEMINI_API_KEY_PUBLIC || '';
+  if (!apiKey) throw new Error('Gemini API key is required. Please set GEMINI_API_KEY');
 
   // The public image generation endpoint (Imagen 3). See Google AI Studio docs.
   const url = `https://generativelanguage.googleapis.com/v1beta/models/imagegeneration:generate?key=${apiKey}`;

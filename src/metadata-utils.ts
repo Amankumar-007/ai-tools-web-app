@@ -4,8 +4,8 @@ import type { Metadata } from 'next'
 export const baseMetadata: Metadata = {
   metadataBase: new URL('https://tomatoai.in'),
   title: {
-    default: 'tomatoTool - Best AI Tools Directory & Reviews 2025',
-    template: '%s | tomatoTool'
+    default: 'TomatoAi India - Best AI Tools Directory & Reviews 2026',
+    template: '%s | TomatoAi'
   },
   description: 'Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant for productivity, creativity, and automation.',
   keywords: [
@@ -26,13 +26,13 @@ export const baseMetadata: Metadata = {
     'AI code assistants',
     'AI marketing tools'
   ],
-  authors: [{ name: 'tomatoTool Team' }],
-  creator: 'tomatoTool',
-  publisher: 'tomatoTool',
+  authors: [{ name: 'TomatoAi Team' }],
+  creator: 'TomatoAi',
+  publisher: 'TomatoAi',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'tomatoTool',
+    siteName: 'TomatoAi India',
   },
   twitter: {
     card: 'summary_large_image',

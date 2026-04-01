@@ -13,11 +13,58 @@ const nextConfig: NextConfig = {
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         punycode: false,
+      }
+      
+      // Optimize bundle splitting for large dependencies
+      if (!dev) {
+        config.optimization = {
+          ...config.optimization,
+          splitChunks: {
+            chunks: 'all',
+            cacheGroups: {
+              default: false,
+              vendors: false,
+              // Split PDF.js into separate chunk
+              pdfjs: {
+                name: 'pdfjs',
+                chunks: 'all',
+                test: /[\\/]node_modules[\\/](pdfjs-dist|pdf-parse|pdf-lib)[\\/]/,
+                priority: 30,
+                enforce: true,
+              },
+              // Split Three.js into separate chunk
+              three: {
+                name: 'three',
+                chunks: 'all',
+                test: /[\\/]node_modules[\\/]three[\\/]/,
+                priority: 25,
+                enforce: true,
+              },
+              // Split React Three Fiber into separate chunk
+              reactThreeFiber: {
+                name: 'react-three-fiber',
+                chunks: 'all',
+                test: /[\\/]node_modules[\\/]@react-three[\\/]/,
+                priority: 20,
+                enforce: true,
+              },
+              // Split other large vendor libraries
+              vendor: {
+                name: 'vendor',
+                chunks: 'all',
+                test: /[\\/]node_modules[\\/]/,
+                priority: 10,
+                minChunks: 2,
+                enforce: true,
+              },
+            },
+          },
+        }
       }
     }
     return config
@@ -54,6 +101,23 @@ const nextConfig: NextConfig = {
           {
             key: 'Permissions-Policy',
             value: 'camera=(), microphone=(), geolocation=()',
+          },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://js.stripe.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' https://fonts.gstatic.com",
+              "img-src 'self' data: blob: https: http:",
+              "connect-src 'self' https://*.supabase.co https://openrouter.ai https://api.openai.com https://api.cloudinary.com https://api.stripe.com https://api.logo.dev https://generativelanguage.googleapis.com",
+              "frame-src 'self' https://js.stripe.com",
+              "frame-ancestors 'none'",
+            ].join('; '),
           },
         ],
       },
@@ -110,5 +174,10 @@ const nextConfig: NextConfig = {
     ]
   },
 };
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+})
+
+module.exports = withBundleAnalyzer(nextConfig)
 
 export default nextConfig;

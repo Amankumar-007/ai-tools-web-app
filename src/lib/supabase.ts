@@ -17,9 +17,15 @@ export interface User {
 }
 
 // Authentication helper functions
-export const signUp = async (email: string, password: string) => {
+export const signUp = async (email: string, password: string, redirectTo?: string) => {
   try {
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectTo || `${window.location.origin}/auth/callback`,
+      },
+    });
     if (error) throw error;
     return { data, error: null };
   } catch (error) {

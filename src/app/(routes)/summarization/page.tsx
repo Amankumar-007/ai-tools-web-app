@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 import { getCurrentUser, signOut } from "@/lib/supabase";
+import { authFetch } from "@/lib/auth-fetch";
 import { Particles } from "@/components/ui/particles";
 import {
   FileText,
@@ -210,7 +211,7 @@ export default function SummarizationPage() {
     }, 800);
 
     try {
-      const res = await fetch("/api/summarize", {
+      const res = await authFetch("/api/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

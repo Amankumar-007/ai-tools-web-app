@@ -33,10 +33,10 @@ export async function POST(req: NextRequest) {
     let fallback = false;
 
     // Optional AI path (safe-guarded dynamic import so it won’t break if the package isn’t installed)
-    if (payload.useAI && process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+    if (payload.useAI && process.env.GEMINI_API_KEY) {
       try {
         const { GoogleGenerativeAI } = await import('@google/generative-ai');
-        const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY!);
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         const prompt = createResumePrompt(payload);
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         console.error('Gemini generation failed, using template:', e);
         fallback = true;
       }
-    } else if (payload.useAI && !process.env.NEXT_PUBLIC_GEMINI_API_KEY) {
+    } else if (payload.useAI && !process.env.GEMINI_API_KEY) {
       fallback = true;
     }
 

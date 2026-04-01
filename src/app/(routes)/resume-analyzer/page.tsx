@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 import { getCurrentUser, signOut } from "@/lib/supabase";
+import { authFetch } from "@/lib/auth-fetch";
 import { Particles } from "@/components/ui/particles";
 
 import { AppState, AnalysisResult } from "../../../types/types";
@@ -80,6 +81,8 @@ export default function ResumeAnalyzer() {
   });
   const [jobDescription, setJobDescription] = useState("");
   const [resumeText, setResumeText] = useState("");
+  // Stores the structured JSON from the structuring step for use in optimize
+  const [structuredResumeData, setStructuredResumeData] = useState<Record<string, any> | null>(null);
 
   const handleFileSelect = useCallback(async (file: File) => {
     setState((prev) => ({
@@ -90,7 +93,7 @@ export default function ResumeAnalyzer() {
     }));
 
     try {
-      // Step 1: Text Extraction
+      // ── Step 1: Extract raw text from PDF ──────────────────────────────
       const text = await extractTextFromPdf(file);
       setResumeText(text);
 
@@ -100,12 +103,30 @@ export default function ResumeAnalyzer() {
         );
       }
 
-      // Step 2: AI Analysis
-      setState((prev) => ({ ...prev, status: "analyzing" }));
-      const res = await fetch("/api/analyze-resume", {
+      // ── Step 2: Structure raw text into JSON via AI ─────────────────────
+      setState((prev) => ({ ...prev, status: "structuring" }));
+      const structureRes = await authFetch("/api/structure-resume", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text, jobDescription }),
+        body: JSON.stringify({ rawText: text }),
+      });
+
+      let structuredData: Record<string, any>;
+      if (!structureRes.ok) {
+        // Graceful fallback: wrap raw text so analysis can still run
+        console.warn("Structuring step failed, using raw text fallback");
+        structuredData = { rawText: text, sections: {}, contact: {}, experience: [], education: [], skills: {} };
+      } else {
+        structuredData = await structureRes.json();
+      }
+      setStructuredResumeData(structuredData);
+
+      // ── Step 3: AI Analysis using structured data ──────────────────────
+      setState((prev) => ({ ...prev, status: "analyzing" }));
+      const res = await authFetch("/api/analyze-resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ structuredData, jobDescription }),
       });
 
       if (!res.ok) {
@@ -135,10 +156,14 @@ export default function ResumeAnalyzer() {
 
     setState((prev) => ({ ...prev, status: "optimizing" }));
     try {
-      const res = await fetch("/api/optimize-resume", {
+      const res = await authFetch("/api/optimize-resume", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: resumeText, jobDescription }),
+        // Pass structured data if available, fallback to raw text
+        body: JSON.stringify({
+          structuredData: structuredResumeData ?? { rawText: resumeText },
+          jobDescription
+        }),
       });
 
       if (!res.ok) {
@@ -168,6 +193,7 @@ export default function ResumeAnalyzer() {
       fileName: null,
     });
     setResumeText("");
+    setStructuredResumeData(null);
   };
 
   return (
@@ -496,8 +522,8 @@ export default function ResumeAnalyzer() {
         ) : null}
       </main>
 
-      {(state.status === "extracting" || state.status === "analyzing" || state.status === "optimizing") && (
-        <ProcessingOverlay status={state.status as "extracting" | "analyzing" | "optimizing"} />
+      {(state.status === "extracting" || state.status === "structuring" || state.status === "analyzing" || state.status === "optimizing") && (
+        <ProcessingOverlay status={state.status as "extracting" | "structuring" | "analyzing" | "optimizing"} />
       )}
 
       {/* Footer */}

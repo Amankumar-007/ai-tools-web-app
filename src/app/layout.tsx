@@ -42,15 +42,15 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "tomatoTool - Best AI Tools Directory & Reviews 2025",
-    template: "%s | tomatoTool"
+    default: "TomatoAi India - Best AI Tools Directory & Reviews 2026",
+    template: "%s | TomatoAi"
   },
   description: "Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant for productivity, creativity, and automation. Updated daily with latest AI innovations.",
   keywords: [
     "AI tools",
     "artificial intelligence",
     "AI directory",
-    "best AI tools 2025",
+    "best AI tools 2026",
     "AI software",
     "machine learning tools",
     "AI productivity",
@@ -64,9 +64,9 @@ export const metadata: Metadata = {
     "AI code assistants",
     "AI marketing tools"
   ],
-  authors: [{ name: "tomatoTool Team" }],
-  creator: "tomatoTool",
-  publisher: "tomatoTool",
+  authors: [{ name: "TomatoAi Team" }],
+  creator: "TomatoAi",
+  publisher: "TomatoAi",
   formatDetection: {
     email: false,
     address: false,
@@ -84,27 +84,27 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://tomatoai.in',
-    title: 'tomatoTool - Best AI Tools Directory & Reviews 2025',
+    title: 'TomatoAi India - Best AI Tools Directory & Reviews 2026',
     description: 'Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant for productivity, creativity, and automation.',
-    siteName: 'tomatoTool',
+    siteName: 'TomatoAi India',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: 'tomatoTool - AI Tools Directory',
+        alt: 'TomatoAi - AI Tools Directory',
       },
       {
         url: '/og-image-square.jpg',
         width: 1200,
         height: 1200,
-        alt: 'tomatoTool - AI Tools Directory',
+        alt: 'TomatoAi - AI Tools Directory',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'tomatoTool - Best AI Tools Directory & Reviews 2025',
+    title: 'TomatoAi India - Best AI Tools Directory & Reviews 2026',
     description: 'Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant.',
     site: '@tomatoai',
     creator: '@tomatoai',
@@ -160,8 +160,8 @@ export const metadata: Metadata = {
   other: {
     'msapplication-TileColor': '#da532c',
     'theme-color': '#ffffff',
-    'apple-mobile-web-app-title': 'tomatoTool',
-    'application-name': 'tomatoTool',
+    'apple-mobile-web-app-title': 'TomatoAi India',
+    'application-name': 'TomatoAi India',
   },
 };
 

@@ -8,6 +8,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Topic is required' }, { status: 400 });
     }
 
+    if (topic.length > 2000) {
+      return NextResponse.json({ error: 'Topic is too long. Maximum 2000 characters.' }, { status: 400 });
+    }
+
     const apiKey = process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
@@ -50,9 +54,8 @@ export async function POST(req: NextRequest) {
     });
 
     if (!res.ok) {
-      const errorData = await res.json().catch(() => ({}));
-      const msg = errorData?.error?.message || `OpenRouter error: ${res.status}`;
-      return NextResponse.json({ error: msg }, { status: res.status });
+      console.error('OpenRouter error:', res.status, await res.text().catch(() => ''));
+      return NextResponse.json({ error: 'AI service temporarily unavailable. Please try again.' }, { status: 503 });
     }
 
     const data = await res.json();
@@ -70,7 +73,7 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Error in generate-prompt:', error);
     return NextResponse.json(
-      { error: error.message || 'An unexpected error occurred.' },
+      { error: 'An unexpected error occurred. Please try again.' },
       { status: 500 }
     );
   }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useMemo, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, FormEvent, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signUp } from "@/lib/supabase";
 import { supabase } from "@/lib/supabase-browser";
 import Link from "next/link";
@@ -17,7 +17,40 @@ function RegisterPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [emailSent, setEmailSent] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Detect errors from Google Login redirect
+  useEffect(() => {
+    const errorCode = searchParams.get("error");
+    const errorDescription = searchParams.get("error_description");
+    
+    if (errorCode || errorDescription) {
+      const message = errorDescription || "Failed to create account. Please try again.";
+      setError(message);
+      toast.error(message);
+      setLoading(false);
+    }
+  }, [searchParams]);
+  
+  // Real-time auth listener for automatic redirect when email is confirmed
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      // If user is signed in (happens after clicking the email confirmation link)
+      if (session?.user && (event === "SIGNED_IN" || event === "USER_UPDATED")) {
+        // Optional logic: check if user is confirmed
+        // if (session.user.email_confirmed_at)
+        const redirectTo = searchParams.get("redirect") || "/";
+        toast.success("Email verified! Welcome to TomatoAi.");
+        router.push(redirectTo);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [router, searchParams]);
 
   const handleRegister = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,7 +65,7 @@ function RegisterPage() {
         setError((error as AuthError).message);
       } else if (data?.user) {
         toast.success("Account created successfully! Check your email for verification.");
-        router.push("/ai-tools");
+        setEmailSent(true);
       }
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again.");
@@ -202,136 +235,200 @@ function RegisterPage() {
         transition={{ duration: 0.6, ease: "easeOut" }}
         className="relative z-10 bg-white/95 backdrop-blur-md p-8 sm:p-10 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 dark:border-gray-700 dark:bg-gray-800/90"
       >
-        <motion.h1
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="text-3xl font-bold text-gray-800 dark:text-white mb-8 text-center tracking-tight"
-        >
-          Create Account
-        </motion.h1>
-
-        {/* Google Signup Button */}
-        <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={handleGoogleSignup}
-          disabled={loading}
-          className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 hover:border-gray-400 transition duration-200 font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed mb-6"
-        >
-          <GoogleIcon />
-          Sign up with Google
-        </motion.button>
-
-        {/* Divider */}
-        <div className="my-6 flex items-center">
-          <hr className="flex-1 border-gray-300" />
-          <span className="px-3 text-gray-500 text-sm">OR</span>
-          <hr className="flex-1 border-gray-300" />
-        </div>
-
-        <form onSubmit={handleRegister} className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-              >
-                Email Address
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                    <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                  </svg>
-                </div>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-all duration-200"
-                  placeholder="Enter your email"
-                />
+        {emailSent ? (
+          <div className="text-center py-4">
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5 }}
+              className="flex justify-center mb-6"
+            >
+              <div className="w-20 h-20 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center border-2 border-red-100 dark:border-red-800">
+                <svg className="w-10 h-10 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
               </div>
+            </motion.div>
+            
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-3">Check your email</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-8 leading-relaxed">
+              We've sent a verification link to <span className="font-semibold text-gray-800 dark:text-gray-200">{email}</span>. Please click the link to confirm your account.
+            </p>
+
+            <div className="flex flex-col gap-4">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl flex items-center gap-3">
+                <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full flex-shrink-0"></div>
+                <p className="text-sm text-blue-700 dark:text-blue-400 font-medium">Waiting for confirmation...</p>
+              </div>
+              
+              <button 
+                onClick={() => setEmailSent(false)}
+                className="text-sm font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300 transition-colors"
+              >
+                Entered wrong email? Go back
+              </button>
             </div>
-
-            <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
-              >
-                Password
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="new-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-all duration-200"
-                  placeholder="Create a password"
-                />
-              </div>
-              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                Password must be at least 8 characters
+            
+            <div className="mt-8 pt-8 border-t border-gray-100 dark:border-gray-700">
+              <p className="text-sm text-gray-500">
+                Check your spam folder if you don't see the email.
               </p>
             </div>
           </div>
-
-          <div className="space-y-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-base font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 ${loading ? "opacity-80 cursor-not-allowed" : ""
-                }`}
+        ) : (
+          <>
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="text-3xl font-bold text-gray-800 dark:text-white mb-8 text-center tracking-tight"
             >
-              {loading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Creating account...
-                </>
-              ) : (
-                <>
-                  <svg className="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
-                  </svg>
-                  Create Account
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-        <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200"
-          >
-            Sign in
-          </Link>
-        </p>
+              Create Account
+            </motion.h1>
+
+            {/* Error message display */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm font-medium dark:bg-red-900/20 dark:border-red-800 dark:text-red-400 flex items-center gap-3 shadow-sm shadow-red-100"
+              >
+                <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                <span>{error}</span>
+              </motion.div>
+            )}
+
+            {/* Google Signup Button */}
+            <motion.button
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.5 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={handleGoogleSignup}
+              disabled={loading}
+              className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-50 hover:border-gray-400 transition duration-200 font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed mb-6"
+            >
+              <GoogleIcon />
+              Sign up with Google
+            </motion.button>
+
+            {/* Divider */}
+            <div className="my-6 flex items-center">
+              <hr className="flex-1 border-gray-300" />
+              <span className="px-3 text-gray-500 text-sm">OR</span>
+              <hr className="flex-1 border-gray-300" />
+            </div>
+
+            <form onSubmit={handleRegister} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Email Address
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+                        <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+                      </svg>
+                    </div>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-all duration-200"
+                      placeholder="Enter your email"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5"
+                  >
+                    Password
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete="new-password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 transition-all duration-200"
+                      placeholder="Create a password"
+                    />
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                    Password must be at least 8 characters
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full flex justify-center items-center py-3.5 px-4 border border-transparent rounded-xl shadow-sm text-base font-semibold text-white bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all duration-200 ${loading ? "opacity-80 cursor-not-allowed" : ""
+                    }`}
+                >
+                  {loading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Creating account...
+                    </>
+                  ) : (
+                    <>
+                      <svg className="w-5 h-5 mr-2 -ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                      </svg>
+                      Create Account
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+            <p className="mt-8 text-center text-sm text-gray-600 dark:text-gray-400">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="font-medium text-red-600 hover:text-red-500 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-200"
+              >
+                Sign in
+              </Link>
+            </p>
+          </>
+        )}
       </motion.div>
     </div>
   );
 }
 
-export default RegisterPage;
+export default function RegisterPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div></div>}>
+      <RegisterPage />
+    </Suspense>
+  );
+}

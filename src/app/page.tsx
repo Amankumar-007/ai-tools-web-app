@@ -5,29 +5,28 @@ import { useRouter } from "next/navigation";
 import FlipLink from "@/components/ui/text-effect-flipper";
 import { motion, AnimatePresence } from "framer-motion";
 import WrapButton from "@/components/ui/wrap-button";
-import { Globe, SparklesIcon } from "lucide-react";
+import { Globe, Sparkles } from "lucide-react";
 import Link from "next/link";
 import AIToolsGrid from '../components/AIToolsGrid';
 import AiInput from '@/components/ui/ai-input';
 import Categories from "@/components/Categories";
 import Footer from "@/components/footer";
 import { getCurrentUser, signOut } from "@/lib/supabase";
-import Chatbot from "../components/chatBot";
+// import Chatbot from "../components/chatBot";
 import Image from "next/image";
 import { Particles } from "@/components/ui/particles";
 import { useTheme } from "next-themes";
 import MainNavbar from "@/components/MainNavbar";
 import { FeatureSteps } from "@/components/blocks/feature-section";
 import { TestimonialSection } from "@/components/clean-testimonial";
-import TomatoMorph from "@/components/TomatoMorph";
 import AgentManager from "@/components/AgentManager";
 import ToolMarquee from "@/components/ToolMarquee";
 import AnimatedAiInput from "@/components/ui/animated-ai-input";
 import WorkflowSection from "@/components/WorkflowSection";
-import StructuredData, { 
-  WebSiteStructuredData, 
+import StructuredData, {
+  WebSiteStructuredData,
   OrganizationStructuredData,
-  BreadcrumbListStructuredData 
+  BreadcrumbListStructuredData
 } from "@/components/StructuredData";
 
 const features = [
@@ -359,13 +358,13 @@ export default function Home() {
       {/* Structured Data for SEO */}
       <StructuredData type="WebSite" data={WebSiteStructuredData} />
       <StructuredData type="Organization" data={OrganizationStructuredData} />
-      <StructuredData 
-        type="BreadcrumbList" 
+      <StructuredData
+        type="BreadcrumbList"
         data={BreadcrumbListStructuredData([
           { name: 'Home', url: 'https://tomatoai.in' }
-        ])} 
+        ])}
       />
-      
+
       {/* Mobile Background Image */}
       <div className="fixed inset-0 -z-10 md:hidden">
         <Image
@@ -496,39 +495,8 @@ export default function Home() {
 
 
       <main className="container mx-auto px-0 md:px-4 py-2">
-        {/* <div className="py-5">
-          <motion.h1
-          className="text-6xl font-bold mb-10 flex flex-col items-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
-          >
-          <Badge
-          variant="outline"
-          className="mb-3 rounded-[14px] border border-black/10 bg-white text-base dark:border-white/5 dark:bg-neutral-800/5 md:left-6"
-            >
-              <SparklesIcon className="fill-[#EEBDE0] stroke-1 text-neutral-800" />{" "}
-              Hover Over Links
-            </Badge>
-            <div className="group flex items-center justify-center">
-            <Icons.linkedin />
-            <FlipLink href="https://www.linkedin.com/in/amankumarweb/">Linkedin</FlipLink>
-            </div>
-            <div className="group flex items-center justify-center">
-            <FlipLink href="https://aman-kumar-dev.netlify.app/">Portfolio</FlipLink>
-            <Icons.be />
-            </div>
-            <div className="group flex items-center justify-center">
-            <Icons.github fill="red" />
-            <FlipLink href="https://github.com/Amankumar-007">Github</FlipLink>
-            </div>
-            <div className="group flex items-center justify-center">
-            <FlipLink href="https://x.com/AmanCodex">Dribble</FlipLink>
-            <Icons.dribble />
-            </div>
-            </motion.h1> </div> */}
+
         <AgentManager />
-        <TomatoMorph />
         <section className="w-full bg-neutral-50/50 dark:bg-neutral-900/10 py-10 border-y border-neutral-100 dark:border-neutral-800/50">
           <TestimonialSection />
         </section>
@@ -540,7 +508,7 @@ export default function Home() {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="fixed bottom-6 right-6"
         >
-          <Chatbot />
+          {/* <Chatbot /> */}
 
         </motion.div>
       </main>

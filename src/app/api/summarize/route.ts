@@ -30,13 +30,19 @@ const getPrompt = (text: string, feature: FeatureType, summaryType?: SummaryType
   }
 };
 
+const MAX_TEXT_LENGTH = 50000;
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();
     const { text, feature = "summary", summaryType = "general" } = body;
 
-    if (!text) {
+    if (!text || typeof text !== 'string') {
       return NextResponse.json({ error: 'Missing text in request body' }, { status: 400 });
+    }
+
+    if (text.length > MAX_TEXT_LENGTH) {
+      return NextResponse.json({ error: `Text too long. Maximum ${MAX_TEXT_LENGTH} characters.` }, { status: 400 });
     }
 
     const prompt = getPrompt(text, feature, summaryType);
@@ -76,6 +82,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ result: content });
   } catch (err: any) {
     console.error('Summarize API error:', err);
-    return NextResponse.json({ error: err.message || 'Summarization failed' }, { status: 500 });
+    return NextResponse.json({ error: 'Summarization failed. Please try again.' }, { status: 500 });
   }
 }

@@ -52,7 +52,12 @@ export default function AnimatedAiInput() {
         e?.preventDefault();
         if (!inputValue.trim()) return;
 
-        const query = encodeURIComponent(inputValue.trim());
+        const queryValue = inputValue.trim();
+        const query = encodeURIComponent(queryValue);
+        
+        // Save to localStorage so it can be restored if user is redirected to login
+        localStorage.setItem('pending_prompt', queryValue);
+        
         router.push(`/tomato-ai?q=${query}`);
         setInputValue("");
     };

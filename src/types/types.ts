@@ -30,7 +30,7 @@ export interface AnalysisResult {
   ats100Checklist?: string[];
 }
 
-export type ProcessingStatus = 'idle' | 'extracting' | 'analyzing' | 'optimizing' | 'completed' | 'error';
+export type ProcessingStatus = 'idle' | 'extracting' | 'structuring' | 'analyzing' | 'optimizing' | 'completed' | 'error';
 
 export interface AppState {
   status: ProcessingStatus;

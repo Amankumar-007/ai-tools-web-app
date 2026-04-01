@@ -1,18 +1,40 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
 
-export default function Login() {
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500"></div></div>}>
+      <Login />
+    </Suspense>
+  );
+}
+
+function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Detect errors from Google Login redirect
+  useEffect(() => {
+    const errorCode = searchParams.get("error");
+    const errorDescription = searchParams.get("error_description");
+    
+    if (errorCode || errorDescription) {
+      const message = errorDescription || "Failed to login. Please try again.";
+      setError(message);
+      toast.error(message);
+      setLoading(false);
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,7 +52,8 @@ export default function Login() {
         setError(authError.message);
       } else if (data.session) {
         toast.success("Welcome back! Redirecting...");
-        router.push("/tomato-ai");
+        const redirectTo = searchParams.get("redirect") || "/tomato-ai";
+        router.push(redirectTo);
       }
     } catch (err) {
       toast.error("An unexpected error occurred. Please try again.");
@@ -209,6 +232,20 @@ export default function Login() {
         >
           Welcome Back!
         </motion.h1>
+
+        {/* Error message display */}
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm font-medium dark:bg-red-900/20 dark:border-red-800 dark:text-red-400 flex items-center gap-3 shadow-sm shadow-red-100"
+          >
+            <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <span>{error}</span>
+          </motion.div>
+        )}
 
         {/* Google Login Button */}
         <motion.button

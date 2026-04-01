@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { supabase } from "@/lib/supabase-browser";
+import { authFetch } from "@/lib/auth-fetch";
 import { highlight } from 'sugar-high';
 import Modal from 'react-modal';
 import AiInput from "@/components/ui/ai-input";
@@ -55,8 +56,6 @@ import 'prismjs/components/prism-css';
 import 'prismjs/components/prism-yaml';
 import 'prismjs/components/prism-go';
 import 'prismjs/components/prism-jsx';
-import 'prismjs/components/prism-tsx';
-
 // Set modal app element for accessibility
 if (typeof window !== 'undefined') {
   Modal.setAppElement('body');
@@ -406,8 +405,23 @@ function ChatInterface() {
   useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       setIsAuthChecking(false);
+
+      // Restore pending prompt if user just logged in
+      if (currentUser) {
+        const pendingPrompt = localStorage.getItem('pending_prompt');
+        if (pendingPrompt) {
+          localStorage.removeItem('pending_prompt');
+          // If we're not already processing a query from the URL
+          if (!query) {
+            setInput(pendingPrompt);
+            // Optionally auto-submit if you want
+            // submitMessage(pendingPrompt); 
+          }
+        }
+      }
     };
 
     checkUser();
@@ -545,7 +559,7 @@ function ChatInterface() {
         reader.readAsDataURL(file);
         reader.onload = async () => {
           const base64Image = reader.result as string;
-          const res = await fetch('/api/upload-image', {
+          const res = await authFetch('/api/upload-image', {
             method: 'POST',
             body: JSON.stringify({ image: base64Image }),
           });
@@ -595,6 +609,8 @@ function ChatInterface() {
     if (!text) return;
 
     if (!user) {
+      // Save prompt to localStorage before showing login popup
+      localStorage.setItem('pending_prompt', text);
       setShowLoginPopup(true);
       return;
     }
@@ -648,7 +664,10 @@ function ChatInterface() {
     upsertAssistantStreaming(convo!.id, assistantId, "", true);
 
     let apiMessages = [
-      { role: "system", content: "You are TomatoAI, a helpful and professional AI assistant." },
+      {
+        role: "system",
+        content: `You are TomatoAI, a helpful and professional AI assistant.`
+      },
       ...convo!.messages.map((m) => ({ role: m.role, content: m.content })),
     ];
 
@@ -674,7 +693,7 @@ function ChatInterface() {
         temperature: 0.6,
       };
 
-      const res = await fetch("/api/chatgpt", {
+      const res = await authFetch("/api/chatgpt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -795,14 +814,19 @@ function ChatInterface() {
           code({ node, className, children, ...props }: any) {
             const match = /language-(\w+)/.exec(className || "");
             const inline = props.inline;
-            return !inline && match ? (
-              <CodeBlock
-                language={match[1]}
-                value={String(children).replace(/\n$/, "")}
-                copiedCode={copiedCode}
-                onCopy={onCopy}
-              />
-            ) : (
+
+            if (!inline && match) {
+              return (
+                <CodeBlock
+                  language={match[1]}
+                  value={String(children).replace(/\n$/, "")}
+                  copiedCode={copiedCode}
+                  onCopy={onCopy}
+                />
+              );
+            }
+
+            return (
               <code className="inline-code" {...props}>
                 {children}
               </code>

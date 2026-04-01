@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { extractTextFromPdf } from '@/services/pdfService';
 
 interface SummarizationFileUploaderProps {
   onFileProcessed: (text: string, fileType: 'pdf' | 'text', fileName: string) => void;
@@ -15,27 +16,8 @@ const SummarizationFileUploader: React.FC<SummarizationFileUploaderProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const extractTextFromPdf = async (file: File): Promise<string> => {
-    const pdfjsLib = await import('pdfjs-dist');
-    
-    // Set worker source
-    pdfjsLib.GlobalWorkerOptions.workerSrc = (typeof window !== 'undefined')
-      ? `${window.location.origin}/pdf.worker.min.mjs`
-      : '/pdf.worker.min.mjs';
-
-    const buffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
-
-    let text = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      text += content.items
-        .map((item: any) => item.str)
-        .join(' ') + '\n';
-    }
-
-    return text.trim();
+  const handlePdfExtraction = async (file: File): Promise<string> => {
+    return await extractTextFromPdf(file);
   };
 
   const extractTextFromTextFile = async (file: File): Promise<string> => {
@@ -53,7 +35,7 @@ const SummarizationFileUploader: React.FC<SummarizationFileUploaderProps> = ({
 
       if (file.type === 'application/pdf') {
         fileType = 'pdf';
-        text = await extractTextFromPdf(file);
+        text = await handlePdfExtraction(file);
       } else if (file.type.startsWith('text/') || file.name.endsWith('.txt')) {
         fileType = 'text';
         text = await extractTextFromTextFile(file);
