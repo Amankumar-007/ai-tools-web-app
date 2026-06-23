@@ -790,5 +790,19 @@
     "pricing": "Paid",
     "description": "No-code machine learning platform for building predictive models.",
     "features": ["No-code ML", "Predictive Models", "Data Visualization", "Model Explanation", "Easy Deployment"]
+  },
+  {
+    "name": "Auferet",
+    "category": "AI Chat",
+    "website": "https://auferet.com",
+    "pricing": "Freemium",
+    "description": "AI game master for solo text adventures and tabletop RPGs that remembers your characters and story and reads your own uploaded lore.",
+    "features": [
+      "Long-term story memory",
+      "Upload your own lore",
+      "Solo or multiplayer",
+      "5e and Pathfinder 2e dice rules",
+      "Browser and Android"
+    ]
   }
 ]
