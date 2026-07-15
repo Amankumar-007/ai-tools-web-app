@@ -1,5 +1,32 @@
 import { NextResponse, NextRequest } from "next/server";
 import { createMiddlewareClient } from "@supabase/auth-helpers-nextjs";
+import { jwtVerify } from "jose";
+
+// When set (Supabase dashboard → Settings → API → JWT Secret), auth tokens
+// are verified locally instead of via a network round-trip to Supabase on
+// every single API request. Falls back to the network check if unset, so
+// this is safe to deploy before the secret is configured.
+const jwtSecret = process.env.SUPABASE_JWT_SECRET
+  ? new TextEncoder().encode(process.env.SUPABASE_JWT_SECRET)
+  : null;
+
+async function isValidToken(token: string, supabase: any): Promise<boolean> {
+  if (jwtSecret) {
+    try {
+      const { payload } = await jwtVerify(token, jwtSecret, { audience: "authenticated" });
+      return !!payload.sub && (!payload.exp || payload.exp * 1000 > Date.now());
+    } catch {
+      return false;
+    }
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser(token);
+    return !!user;
+  } catch {
+    return false;
+  }
+}
 
 // ─── Rate-Limit Store (in-memory, per worker) ──────────────────────────
 // Next.js middleware runs in the Edge Runtime, so we keep a simple Map.
@@ -45,6 +72,10 @@ const PUBLIC_API_ROUTES = [
   "/api/ai-search",
   "/api/category-tools",
   "/api/analyze-tools",
+  "/api/chatgpt",
+  // Authenticated separately via CRON_SECRET inside the route handler,
+  // not Supabase user auth (Vercel Cron has no user session).
+  "/api/cron/",
 ];
 
 function isPublicApiRoute(pathname: string): boolean {
@@ -105,21 +136,11 @@ export async function middleware(req: NextRequest) {
         );
       }
 
-      // Verify with Supabase
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser(token);
-
-        if (!user) {
-          return new NextResponse(
-            JSON.stringify({ error: "Invalid or expired token" }),
-            { status: 401, headers: { "Content-Type": "application/json" } }
-          );
-        }
-      } catch {
+      // Verify the token (locally when SUPABASE_JWT_SECRET is set, else via Supabase)
+      const valid = await isValidToken(token, supabase);
+      if (!valid) {
         return new NextResponse(
-          JSON.stringify({ error: "Authentication failed" }),
+          JSON.stringify({ error: "Invalid or expired token" }),
           { status: 401, headers: { "Content-Type": "application/json" } }
         );
       }

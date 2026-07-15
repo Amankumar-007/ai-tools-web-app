@@ -1,10 +1,9 @@
 'use client'
-import React from 'react';
-import { Check, MessageSquare, Cpu, Wand2, Zap } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Check, ArrowRight, Sparkles } from 'lucide-react';
 import MainNavbar from '@/components/MainNavbar';
 import { getCurrentUser, signOut, User } from "@/lib/supabase";
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 
 const PricingPage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -37,132 +36,131 @@ const PricingPage = () => {
   };
 
   const languages = [
-    { lang: "English", text: "Free", font: "font-sans" },
-    { lang: "Hindi", text: "मुफ़्त", font: "font-serif" },
-    { lang: "Spanish", text: "Gratis", font: "font-mono" },
-    { lang: "Japanese", text: "無料", font: "font-sans" },
-    { lang: "French", text: "Gratuit", font: "font-serif" },
+    { text: "Free", font: "font-sans" },
+    { text: "मुफ़्त", font: "font-serif" },
+    { text: "Gratis", font: "font-mono" },
+    { text: "無料", font: "font-sans" },
+    { text: "Gratuit", font: "font-serif" },
   ];
 
-
   return (
-    <div className="min-h-screen bg-[#FFFDF5] dark:bg-[#0B0F1A] text-[#2D2926] dark:text-slate-100 selection:bg-red-200 dark:selection:bg-red-900/30 transition-colors duration-500">
+    <div className="min-h-screen bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 selection:bg-zinc-200 dark:selection:bg-zinc-800 transition-colors duration-500 font-sans flex flex-col relative overflow-hidden">
       <MainNavbar
         user={user}
         onSignOut={handleSignOut}
         onProtectedLink={handleProtectedLink}
       />
-      {/* Hero Section */}
-      <section className="pt-30 pb-10 px-6 text-center">
-        <div className="inline-block px-4 py-1.5 mb-6 text-sm font-semibold tracking-wide text-red-600 uppercase bg-red-50 rounded-full ring-1 ring-red-100">
-          Future-Ready Intelligence
-        </div>
-        <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-          Powerful AI Tools for <span className="text-red-500 italic">Everyone.</span>
-        </h1>
-        <p className="max-w-2xl mx-auto text-lg text-gray-600">
-          From smart chat assistants to complex workflow automation, our AI tools are
-          built to be accessible to everyone. Experience the next generation of productivity.
-        </p>
-      </section>
 
-      {/* The "Free" Kinetic Typography Slider */}
-      <div className="overflow-hidden py-10 bg-red-500 text-white rotate-[-1deg] shadow-lg">
-        <div className="flex animate-marquee whitespace-nowrap gap-12 items-center">
-          {[...languages, ...languages].map((item, i) => (
-            <div key={i} className="flex items-center gap-12">
-              <span className={`text-6xl md:text-8xl font-black uppercase ${item.font}`}>
-                {item.text}
-              </span>
-              <span className="text-4xl opacity-50">✦</span>
-            </div>
+      {/* Subtle Marquee Background */}
+      <div className="absolute top-[20%] left-0 w-full overflow-hidden pointer-events-none opacity-[0.03] dark:opacity-[0.02] select-none z-0">
+        <div className="flex animate-marquee whitespace-nowrap gap-16 items-center">
+          {[...languages, ...languages, ...languages].map((item, i) => (
+            <span key={i} className={`text-[12rem] font-bold uppercase tracking-tighter ${item.font}`}>
+              {item.text}
+            </span>
           ))}
         </div>
       </div>
 
-      {/* Pricing Cards */}
-      <section className="max-w-7xl mx-auto px-6 py-24 grid grid-cols-1 md:grid-cols-3 gap-8">
+      <main className="flex-grow z-10">
+        {/* Hero Section */}
+        <section className="pt-32 pb-16 px-6 text-center max-w-3xl mx-auto">
 
-        {/* Basic Tier */}
-        <div className="group relative p-8 bg-white dark:bg-slate-900/40 border border-gray-100 dark:border-slate-800/60 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 backdrop-blur-sm">
-          <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-6 text-blue-600 dark:text-blue-400">
-            <MessageSquare size={28} />
-          </div>
-          <h3 className="text-2xl font-bold mb-2">AI Chat Basic</h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">Perfect for individuals explored AI for the first time.</p>
-          <div className="mb-8">
-            <span className="text-4xl font-black">$0</span>
-            <span className="text-gray-400">/forever</span>
-          </div>
-          <ul className="space-y-4 mb-10">
-            {['Basic AI Chat Assistant', '100 queries per month', 'Community support', 'Standard response speed'].map((feat) => (
-              <li key={feat} className="flex items-center gap-3">
-                <Check size={18} className="text-red-500" />
-                <span className="text-gray-600 dark:text-gray-400">{feat}</span>
-              </li>
-            ))}
-          </ul>
-          <button className="w-full py-4 rounded-2xl bg-gray-900 dark:bg-slate-800 text-white font-bold hover:bg-black dark:hover:bg-slate-700 transition-colors">
-            Start Chatting
-          </button>
-        </div>
+          <h1 className="text-4xl md:text-6xl font-medium tracking-tight mb-6 leading-tight">
+            Powerful AI tools, <br className="hidden md:block" />
+            <span className="text-zinc-500 dark:text-zinc-400 italic">democratized.</span>
+          </h1>
+          <p className="text-base md:text-lg text-zinc-500 dark:text-zinc-400 font-light">
+            From smart assistants to complex workflows, experience the next generation of productivity without the barrier to entry.
+          </p>
+        </section>
 
-        {/* Pro Tier */}
-        <div className="group relative p-8 bg-red-50 dark:bg-red-950/20 border-2 border-red-500 rounded-[2rem] shadow-xl md:scale-110 z-10 backdrop-blur-sm">
-          <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-1 rounded-full text-sm font-bold">
-            MOST POPULAR
-          </div>
-          <div className="h-12 w-12 bg-red-500 rounded-xl flex items-center justify-center mb-6 text-white">
-            <Zap size={28} />
-          </div>
-          <h3 className="text-2xl font-bold mb-2">AI Pro Suite</h3>
-          <p className="text-gray-600 dark:text-gray-300 mb-6">Advanced power for professionals and power users.</p>
-          <div className="mb-8">
-            <span className="text-4xl font-black">$0</span>
-            <span className="text-red-600/60 line-through text-2xl ml-2">$29</span>
-            <span className="text-gray-400">/forever</span>
-          </div>
-          <ul className="space-y-4 mb-10">
-            {['Unlimited AI Chat', 'Custom AI Workflows', 'Priority Response Time', 'Early access to new tools'].map((feat) => (
-              <li key={feat} className="flex items-center gap-3">
-                <Check size={18} className="text-red-500" />
-                <span className="text-gray-700 dark:text-gray-200 font-medium">{feat}</span>
-              </li>
-            ))}
-          </ul>
-          <button className="w-full py-4 rounded-2xl bg-red-500 text-white font-bold hover:bg-red-600 shadow-lg shadow-red-200 transition-all">
-            Unlock Pro Free
-          </button>
-        </div>
+        {/* Pricing Cards */}
+        <section className="max-w-6xl mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
 
-        {/* Enterprise Tier */}
-        <div className="group relative p-8 bg-white dark:bg-slate-900/40 border border-gray-100 dark:border-slate-800/60 rounded-[2rem] shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 backdrop-blur-sm">
-          <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-6 text-purple-600 dark:text-purple-400">
-            <Cpu size={28} />
+          {/* Basic Tier */}
+          <div className="p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/20 backdrop-blur-xl flex flex-col hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+            <div className="mb-8">
+              <h3 className="text-lg font-medium mb-1">Basic</h3>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">For individual exploration.</p>
+            </div>
+            <div className="mb-8 flex items-baseline gap-1">
+              <span className="text-5xl font-light tracking-tighter">$0</span>
+              <span className="text-sm text-zinc-400">/ forever</span>
+            </div>
+            <ul className="space-y-4 mb-10 flex-grow">
+              {['Basic AI Assistant', '100 queries per month', 'Community support', 'Standard speed'].map((feat) => (
+                <li key={feat} className="flex items-start gap-3 text-sm text-zinc-600 dark:text-zinc-300">
+                  <Check size={16} className="mt-0.5 text-zinc-900 dark:text-zinc-100" />
+                  <span>{feat}</span>
+                </li>
+              ))}
+            </ul>
+            <button className="w-full flex items-center justify-between px-6 py-3 rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-sm font-medium">
+              Start Chatting
+              <ArrowRight size={16} />
+            </button>
           </div>
-          <h3 className="text-2xl font-bold mb-2">Enterprise AI</h3>
-          <p className="text-gray-500 dark:text-gray-400 mb-6">Scalable solutions for businesses and large teams.</p>
-          <div className="mb-8">
-            <span className="text-4xl font-black">$0</span>
-            <span className="text-gray-400">/forever</span>
-          </div>
-          <ul className="space-y-4 mb-10">
-            {['Custom AI Model Training', 'Full API Access', 'Team Collaboration Tools', 'Dedicated Support'].map((feat) => (
-              <li key={feat} className="flex items-center gap-3">
-                <Check size={18} className="text-red-500" />
-                <span className="text-gray-600 dark:text-gray-400">{feat}</span>
-              </li>
-            ))}
-          </ul>
-          <button className="w-full py-4 rounded-2xl bg-gray-100 dark:bg-slate-800 text-gray-900 dark:text-slate-100 font-bold hover:bg-gray-200 dark:hover:bg-slate-700 transition-colors">
-            Contact Sales
-          </button>
-        </div>
-      </section>
 
-      {/* Bottom Aesthetic Footer */}
-      <footer className="text-center pb-20 opacity-40 grayscale hover:grayscale-0 transition-all">
-        <p className="font-serif italic text-2xl">"The best intelligence is shared intelligence."</p>
+          {/* Pro Tier (Inverted for aesthetic emphasis) */}
+          <div className="p-8 rounded-3xl bg-zinc-900 dark:bg-zinc-100 text-zinc-50 dark:text-zinc-900 shadow-2xl flex flex-col relative overflow-hidden">
+            <div className="absolute top-0 right-8 px-3 py-1 bg-zinc-800 dark:bg-zinc-200 rounded-b-lg text-[10px] font-bold tracking-widest uppercase">
+              Most Popular
+            </div>
+            <div className="mb-8 mt-2">
+              <h3 className="text-lg font-medium mb-1">Pro Suite</h3>
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">For power users.</p>
+            </div>
+            <div className="mb-8 flex items-baseline gap-1">
+              <span className="text-5xl font-light tracking-tighter">$0</span>
+              <span className="text-sm text-zinc-400 dark:text-zinc-500">/ forever</span>
+            </div>
+            <ul className="space-y-4 mb-10 flex-grow">
+              {['Unlimited AI Chat', 'Custom AI Workflows', 'Priority Response Time', 'Early access to tools'].map((feat) => (
+                <li key={feat} className="flex items-start gap-3 text-sm">
+                  <Check size={16} className="mt-0.5 text-zinc-100 dark:text-zinc-900" />
+                  <span>{feat}</span>
+                </li>
+              ))}
+            </ul>
+            <button className="w-full flex items-center justify-between px-6 py-3 rounded-full bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white hover:opacity-90 transition-opacity text-sm font-medium">
+              Unlock Pro
+              <ArrowRight size={16} />
+            </button>
+          </div>
+
+          {/* Enterprise Tier */}
+          <div className="p-8 rounded-3xl border border-zinc-200 dark:border-zinc-800 bg-white/50 dark:bg-zinc-900/20 backdrop-blur-xl flex flex-col hover:border-zinc-300 dark:hover:border-zinc-700 transition-colors">
+            <div className="mb-8">
+              <h3 className="text-lg font-medium mb-1">Enterprise</h3>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">For scaling teams.</p>
+            </div>
+            <div className="mb-8 flex items-baseline gap-1">
+              <span className="text-5xl font-light tracking-tighter">$0</span>
+              <span className="text-sm text-zinc-400">/ forever</span>
+            </div>
+            <ul className="space-y-4 mb-10 flex-grow">
+              {['Custom Model Training', 'Full API Access', 'Team Collaboration', 'Dedicated Support'].map((feat) => (
+                <li key={feat} className="flex items-start gap-3 text-sm text-zinc-600 dark:text-zinc-300">
+                  <Check size={16} className="mt-0.5 text-zinc-900 dark:text-zinc-100" />
+                  <span>{feat}</span>
+                </li>
+              ))}
+            </ul>
+            <button className="w-full flex items-center justify-between px-6 py-3 rounded-full border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors text-sm font-medium">
+              Contact Sales
+              <ArrowRight size={16} />
+            </button>
+          </div>
+
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="text-center py-12 z-10">
+        <p className="text-sm text-zinc-400 dark:text-zinc-600">
+          The best intelligence is shared intelligence.
+        </p>
       </footer>
 
       {/* Animation Styles */}
@@ -172,7 +170,7 @@ const PricingPage = () => {
           100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-          animation: marquee 20s linear infinite;
+          animation: marquee 40s linear infinite;
         }
       `}</style>
     </div>

@@ -45,6 +45,7 @@
     "framer-motion": "^12.34.0",
     "gray-matter": "^4.0.3",
     "gsap": "^3.14.2",
+    "jose": "^4.15.9",
     "jszip": "^3.10.1",
     "locomotive-scroll": "^4.1.4",
     "lucide-react": "^0.536.0",

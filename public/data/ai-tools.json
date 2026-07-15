@@ -1,5 +1,7 @@
 [
   {
+    "id": 1,
+    "slug": "chatgpt",
     "name": "ChatGPT",
     "category": "AI Chat",
     "website": "https://chat.openai.com",
@@ -14,6 +16,8 @@
     ]
   },
   {
+    "id": 2,
+    "slug": "claude",
     "name": "Claude",
     "category": "AI Chat",
     "website": "https://claude.ai",
@@ -28,6 +32,8 @@
     ]
   },
   {
+    "id": 3,
+    "slug": "gemini",
     "name": "Gemini",
     "category": "AI Chat",
     "website": "https://gemini.google.com",
@@ -42,6 +48,8 @@
     ]
   },
   {
+    "id": 4,
+    "slug": "perplexity",
     "name": "Perplexity",
     "category": "AI Search",
     "website": "https://perplexity.ai",
@@ -56,6 +64,8 @@
     ]
   },
   {
+    "id": 5,
+    "slug": "midjourney",
     "name": "Midjourney",
     "category": "Image Generation",
     "website": "https://midjourney.com",
@@ -70,6 +80,8 @@
     ]
   },
   {
+    "id": 6,
+    "slug": "dall-e-3",
     "name": "DALL-E 3",
     "category": "Image Generation",
     "website": "https://openai.com/dall-e-3",
@@ -84,6 +96,8 @@
     ]
   },
   {
+    "id": 7,
+    "slug": "stable-diffusion",
     "name": "Stable Diffusion",
     "category": "Image Generation",
     "website": "https://stability.ai",
@@ -98,6 +112,8 @@
     ]
   },
   {
+    "id": 8,
+    "slug": "synthesia",
     "name": "Synthesia",
     "category": "Video Generation",
     "website": "https://synthesia.io",
@@ -112,6 +128,8 @@
     ]
   },
   {
+    "id": 9,
+    "slug": "runway-ml",
     "name": "Runway ML",
     "category": "Video Generation",
     "website": "https://runwayml.com",
@@ -126,6 +144,8 @@
     ]
   },
   {
+    "id": 10,
+    "slug": "luma-dream-machine",
     "name": "Luma Dream Machine",
     "category": "Video Generation",
     "website": "https://lumalabs.ai",
@@ -140,6 +160,8 @@
     ]
   },
   {
+    "id": 11,
+    "slug": "jasper-ai",
     "name": "Jasper AI",
     "category": "Content Writing",
     "website": "https://jasper.ai",
@@ -154,6 +176,8 @@
     ]
   },
   {
+    "id": 12,
+    "slug": "copy-ai",
     "name": "Copy.ai",
     "category": "Content Writing",
     "website": "https://copy.ai",
@@ -168,6 +192,8 @@
     ]
   },
   {
+    "id": 13,
+    "slug": "grammarly",
     "name": "Grammarly",
     "category": "Writing Assistant",
     "website": "https://grammarly.com",
@@ -182,6 +208,8 @@
     ]
   },
   {
+    "id": 14,
+    "slug": "notion-ai",
     "name": "Notion AI",
     "category": "Productivity",
     "website": "https://notion.so",
@@ -196,6 +224,8 @@
     ]
   },
   {
+    "id": 15,
+    "slug": "github-copilot",
     "name": "GitHub Copilot",
     "category": "Coding",
     "website": "https://github.com/features/copilot",
@@ -210,6 +240,8 @@
     ]
   },
   {
+    "id": 16,
+    "slug": "cursor",
     "name": "Cursor",
     "category": "Coding",
     "website": "https://cursor.sh",
@@ -224,6 +256,8 @@
     ]
   },
   {
+    "id": 17,
+    "slug": "replit",
     "name": "Replit",
     "category": "Coding",
     "website": "https://replit.com",
@@ -238,6 +272,8 @@
     ]
   },
   {
+    "id": 18,
+    "slug": "elevenlabs",
     "name": "ElevenLabs",
     "category": "Voice Generation",
     "website": "https://elevenlabs.io",
@@ -252,6 +288,8 @@
     ]
   },
   {
+    "id": 19,
+    "slug": "murf-ai",
     "name": "Murf AI",
     "category": "Voice Generation",
     "website": "https://murf.ai",
@@ -266,6 +304,8 @@
     ]
   },
   {
+    "id": 20,
+    "slug": "suno-ai",
     "name": "Suno AI",
     "category": "Music Generation",
     "website": "https://suno.ai",
@@ -280,6 +320,8 @@
     ]
   },
   {
+    "id": 21,
+    "slug": "udio",
     "name": "Udio",
     "category": "Music Generation",
     "website": "https://udio.com",
@@ -294,6 +336,8 @@
     ]
   },
   {
+    "id": 22,
+    "slug": "canva-ai",
     "name": "Canva AI",
     "category": "Design",
     "website": "https://canva.com",
@@ -308,6 +352,8 @@
     ]
   },
   {
+    "id": 23,
+    "slug": "figma-ai",
     "name": "Figma AI",
     "category": "Design",
     "website": "https://figma.com",
@@ -322,6 +368,8 @@
     ]
   },
   {
+    "id": 24,
+    "slug": "adobe-firefly",
     "name": "Adobe Firefly",
     "category": "Design",
     "website": "https://firefly.adobe.com",
@@ -336,6 +384,8 @@
     ]
   },
   {
+    "id": 25,
+    "slug": "zapier",
     "name": "Zapier",
     "category": "Automation",
     "website": "https://zapier.com",
@@ -350,6 +400,8 @@
     ]
   },
   {
+    "id": 26,
+    "slug": "make-integromat",
     "name": "Make (Integromat)",
     "category": "Automation",
     "website": "https://make.com",
@@ -364,6 +416,8 @@
     ]
   },
   {
+    "id": 27,
+    "slug": "anthropic-claude",
     "name": "Anthropic Claude",
     "category": "AI Assistant",
     "website": "https://claude.ai",
@@ -378,6 +432,8 @@
     ]
   },
   {
+    "id": 28,
+    "slug": "character-ai",
     "name": "Character.AI",
     "category": "AI Chat",
     "website": "https://character.ai",
@@ -392,6 +448,8 @@
     ]
   },
   {
+    "id": 29,
+    "slug": "poe-by-quora",
     "name": "Poe by Quora",
     "category": "AI Chat",
     "website": "https://poe.com",
@@ -406,6 +464,8 @@
     ]
   },
   {
+    "id": 30,
+    "slug": "bing-ai",
     "name": "Bing AI",
     "category": "AI Search",
     "website": "https://bing.com/chat",
@@ -420,6 +480,8 @@
     ]
   },
   {
+    "id": 31,
+    "slug": "you-com",
     "name": "You.com",
     "category": "AI Search",
     "website": "https://you.com",
@@ -434,6 +496,8 @@
     ]
   },
   {
+    "id": 32,
+    "slug": "phind",
     "name": "Phind",
     "category": "AI Search",
     "website": "https://phind.com",
@@ -448,6 +512,8 @@
     ]
   },
   {
+    "id": 33,
+    "slug": "leonardo-ai",
     "name": "Leonardo AI",
     "category": "Image Generation",
     "website": "https://leonardo.ai",
@@ -462,6 +528,8 @@
     ]
   },
   {
+    "id": 34,
+    "slug": "artbreeder",
     "name": "Artbreeder",
     "category": "Image Generation",
     "website": "https://artbreeder.com",
@@ -476,6 +544,8 @@
     ]
   },
   {
+    "id": 35,
+    "slug": "nightcafe",
     "name": "NightCafe",
     "category": "Image Generation",
     "website": "https://nightcafe.studio",
@@ -490,6 +560,8 @@
     ]
   },
   {
+    "id": 36,
+    "slug": "pika-labs",
     "name": "Pika Labs",
     "category": "Video Generation",
     "website": "https://pika.art",
@@ -504,6 +576,8 @@
     ]
   },
   {
+    "id": 37,
+    "slug": "invideo-ai",
     "name": "InVideo AI",
     "category": "Video Generation",
     "website": "https://invideo.io",
@@ -518,6 +592,8 @@
     ]
   },
   {
+    "id": 38,
+    "slug": "opusclip",
     "name": "OpusClip",
     "category": "Video Editing",
     "website": "https://opus.pro",
@@ -532,6 +608,8 @@
     ]
   },
   {
+    "id": 39,
+    "slug": "descript",
     "name": "Descript",
     "category": "Video Editing",
     "website": "https://descript.com",
@@ -546,6 +624,8 @@
     ]
   },
   {
+    "id": 40,
+    "slug": "writesonic",
     "name": "Writesonic",
     "category": "Content Writing",
     "website": "https://writesonic.com",
@@ -560,6 +640,8 @@
     ]
   },
   {
+    "id": 41,
+    "slug": "rytr",
     "name": "Rytr",
     "category": "Content Writing",
     "website": "https://rytr.me",
@@ -574,6 +656,8 @@
     ]
   },
   {
+    "id": 42,
+    "slug": "quillbot",
     "name": "QuillBot",
     "category": "Writing Assistant",
     "website": "https://quillbot.com",
@@ -588,6 +672,8 @@
     ]
   },
   {
+    "id": 43,
+    "slug": "hemingway-editor",
     "name": "Hemingway Editor",
     "category": "Writing Assistant",
     "website": "https://hemingwayapp.com",
@@ -602,6 +688,8 @@
     ]
   },
   {
+    "id": 44,
+    "slug": "todoist",
     "name": "Todoist",
     "category": "Productivity",
     "website": "https://todoist.com",
@@ -616,6 +704,8 @@
     ]
   },
   {
+    "id": 45,
+    "slug": "clickup",
     "name": "ClickUp",
     "category": "Productivity",
     "website": "https://clickup.com",
@@ -630,6 +720,8 @@
     ]
   },
   {
+    "id": 46,
+    "slug": "monday-com",
     "name": "Monday.com",
     "category": "Productivity",
     "website": "https://monday.com",
@@ -644,6 +736,8 @@
     ]
   },
   {
+    "id": 47,
+    "slug": "tabnine",
     "name": "Tabnine",
     "category": "Coding",
     "website": "https://tabnine.com",
@@ -658,6 +752,8 @@
     ]
   },
   {
+    "id": 48,
+    "slug": "codet5",
     "name": "CodeT5",
     "category": "Coding",
     "website": "https://github.com/salesforce/CodeT5",
@@ -672,6 +768,8 @@
     ]
   },
   {
+    "id": 49,
+    "slug": "amazon-codewhisperer",
     "name": "Amazon CodeWhisperer",
     "category": "Coding",
     "website": "https://aws.amazon.com/codewhisperer/",
@@ -686,6 +784,8 @@
     ]
   },
   {
+    "id": 50,
+    "slug": "speechify",
     "name": "Speechify",
     "category": "Voice Generation",
     "website": "https://speechify.com",
@@ -700,6 +800,8 @@
     ]
   },
   {
+    "id": 51,
+    "slug": "resemble-ai",
     "name": "Resemble AI",
     "category": "Voice Generation",
     "website": "https://resemble.ai",
@@ -714,6 +816,8 @@
     ]
   },
   {
+    "id": 52,
+    "slug": "aiva",
     "name": "AIVA",
     "category": "Music Generation",
     "website": "https://aiva.ai",
@@ -728,6 +832,8 @@
     ]
   },
   {
+    "id": 53,
+    "slug": "boomy",
     "name": "Boomy",
     "category": "Music Generation",
     "website": "https://boomy.com",
@@ -742,6 +848,8 @@
     ]
   },
   {
+    "id": 54,
+    "slug": "looka",
     "name": "Looka",
     "category": "Design",
     "website": "https://looka.com",
@@ -756,6 +864,8 @@
     ]
   },
   {
+    "id": 55,
+    "slug": "uizard",
     "name": "Uizard",
     "category": "Design",
     "website": "https://uizard.io",
@@ -770,6 +880,8 @@
     ]
   },
   {
+    "id": 56,
+    "slug": "khroma",
     "name": "Khroma",
     "category": "Design",
     "website": "https://khroma.co",
@@ -784,6 +896,8 @@
     ]
   },
   {
+    "id": 57,
+    "slug": "ifttt",
     "name": "IFTTT",
     "category": "Automation",
     "website": "https://ifttt.com",
@@ -798,6 +912,8 @@
     ]
   },
   {
+    "id": 58,
+    "slug": "n8n",
     "name": "n8n",
     "category": "Automation",
     "website": "https://n8n.io",
@@ -812,6 +928,8 @@
     ]
   },
   {
+    "id": 59,
+    "slug": "pi-ai",
     "name": "Pi AI",
     "category": "AI Assistant",
     "website": "https://pi.ai",
@@ -826,6 +944,8 @@
     ]
   },
   {
+    "id": 60,
+    "slug": "replika",
     "name": "Replika",
     "category": "AI Assistant",
     "website": "https://replika.ai",
@@ -840,6 +960,8 @@
     ]
   },
   {
+    "id": 61,
+    "slug": "gamma",
     "name": "Gamma",
     "category": "Presentation",
     "website": "https://gamma.app",
@@ -854,6 +976,8 @@
     ]
   },
   {
+    "id": 62,
+    "slug": "beautiful-ai",
     "name": "Beautiful.AI",
     "category": "Presentation",
     "website": "https://beautiful.ai",
@@ -868,6 +992,8 @@
     ]
   },
   {
+    "id": 63,
+    "slug": "tome",
     "name": "Tome",
     "category": "Presentation",
     "website": "https://tome.app",
@@ -882,6 +1008,8 @@
     ]
   },
   {
+    "id": 64,
+    "slug": "loom-ai",
     "name": "Loom AI",
     "category": "Video Communication",
     "website": "https://loom.com",
@@ -896,6 +1024,8 @@
     ]
   },
   {
+    "id": 65,
+    "slug": "otter-ai",
     "name": "Otter.ai",
     "category": "Transcription",
     "website": "https://otter.ai",
@@ -910,6 +1040,8 @@
     ]
   },
   {
+    "id": 66,
+    "slug": "rev-ai",
     "name": "Rev AI",
     "category": "Transcription",
     "website": "https://rev.ai",
@@ -924,6 +1056,8 @@
     ]
   },
   {
+    "id": 67,
+    "slug": "fathom",
     "name": "Fathom",
     "category": "Meeting Assistant",
     "website": "https://fathom.video",
@@ -938,6 +1072,8 @@
     ]
   },
   {
+    "id": 68,
+    "slug": "fireflies-ai",
     "name": "Fireflies.ai",
     "category": "Meeting Assistant",
     "website": "https://fireflies.ai",
@@ -952,6 +1088,8 @@
     ]
   },
   {
+    "id": 69,
+    "slug": "krisp",
     "name": "Krisp",
     "category": "Audio Enhancement",
     "website": "https://krisp.ai",
@@ -966,6 +1104,8 @@
     ]
   },
   {
+    "id": 70,
+    "slug": "remove-bg",
     "name": "Remove.bg",
     "category": "Image Editing",
     "website": "https://remove.bg",
@@ -980,6 +1120,8 @@
     ]
   },
   {
+    "id": 71,
+    "slug": "upscale-media",
     "name": "Upscale.media",
     "category": "Image Editing",
     "website": "https://upscale.media",
@@ -994,6 +1136,8 @@
     ]
   },
   {
+    "id": 72,
+    "slug": "cleanup-pictures",
     "name": "Cleanup.pictures",
     "category": "Image Editing",
     "website": "https://cleanup.pictures",
@@ -1008,6 +1152,8 @@
     ]
   },
   {
+    "id": 73,
+    "slug": "surfer-seo",
     "name": "Surfer SEO",
     "category": "SEO",
     "website": "https://surferseo.com",
@@ -1022,6 +1168,8 @@
     ]
   },
   {
+    "id": 74,
+    "slug": "semrush",
     "name": "Semrush",
     "category": "SEO",
     "website": "https://semrush.com",
@@ -1036,6 +1184,8 @@
     ]
   },
   {
+    "id": 75,
+    "slug": "ahrefs",
     "name": "Ahrefs",
     "category": "SEO",
     "website": "https://ahrefs.com",
@@ -1050,6 +1200,8 @@
     ]
   },
   {
+    "id": 76,
+    "slug": "chatpdf",
     "name": "ChatPDF",
     "category": "Document Analysis",
     "website": "https://chatpdf.com",
@@ -1064,6 +1216,8 @@
     ]
   },
   {
+    "id": 77,
+    "slug": "docuask",
     "name": "DocuAsk",
     "category": "Document Analysis",
     "website": "https://docuask.com",
@@ -1078,6 +1232,8 @@
     ]
   },
   {
+    "id": 78,
+    "slug": "scispace",
     "name": "SciSpace",
     "category": "Research",
     "website": "https://scispace.com",
@@ -1092,6 +1248,8 @@
     ]
   },
   {
+    "id": 79,
+    "slug": "elicit",
     "name": "Elicit",
     "category": "Research",
     "website": "https://elicit.org",
@@ -1106,6 +1264,8 @@
     ]
   },
   {
+    "id": 80,
+    "slug": "consensus",
     "name": "Consensus",
     "category": "Research",
     "website": "https://consensus.app",
@@ -1120,6 +1280,8 @@
     ]
   },
   {
+    "id": 81,
+    "slug": "scite",
     "name": "Scite",
     "category": "Research",
     "website": "https://scite.ai",
@@ -1134,6 +1296,8 @@
     ]
   },
   {
+    "id": 82,
+    "slug": "humata",
     "name": "Humata",
     "category": "Document Analysis",
     "website": "https://humata.ai",
@@ -1148,6 +1312,8 @@
     ]
   },
   {
+    "id": 83,
+    "slug": "monkeylearn",
     "name": "MonkeyLearn",
     "category": "Text Analysis",
     "website": "https://monkeylearn.com",
@@ -1162,6 +1328,8 @@
     ]
   },
   {
+    "id": 84,
+    "slug": "lexalytics",
     "name": "Lexalytics",
     "category": "Text Analysis",
     "website": "https://lexalytics.com",
@@ -1176,6 +1344,8 @@
     ]
   },
   {
+    "id": 85,
+    "slug": "assemblyai",
     "name": "AssemblyAI",
     "category": "Speech-to-Text",
     "website": "https://assemblyai.com",
@@ -1190,6 +1360,8 @@
     ]
   },
   {
+    "id": 86,
+    "slug": "deepgram",
     "name": "Deepgram",
     "category": "Speech-to-Text",
     "website": "https://deepgram.com",
@@ -1204,6 +1376,8 @@
     ]
   },
   {
+    "id": 87,
+    "slug": "riverside-fm",
     "name": "Riverside.fm",
     "category": "Podcast/Video",
     "website": "https://riverside.fm",
@@ -1218,6 +1392,8 @@
     ]
   },
   {
+    "id": 88,
+    "slug": "podcastle",
     "name": "Podcastle",
     "category": "Podcast/Video",
     "website": "https://podcastle.ai",
@@ -1232,6 +1408,8 @@
     ]
   },
   {
+    "id": 89,
+    "slug": "brand24",
     "name": "Brand24",
     "category": "Social Media Monitoring",
     "website": "https://brand24.com",
@@ -1246,6 +1424,8 @@
     ]
   },
   {
+    "id": 90,
+    "slug": "hootsuite-insights",
     "name": "Hootsuite Insights",
     "category": "Social Media Monitoring",
     "website": "https://hootsuite.com",
@@ -1260,6 +1440,8 @@
     ]
   },
   {
+    "id": 91,
+    "slug": "adcreative-ai",
     "name": "AdCreative.ai",
     "category": "Marketing",
     "website": "https://adcreative.ai",
@@ -1274,6 +1456,8 @@
     ]
   },
   {
+    "id": 92,
+    "slug": "pencil",
     "name": "Pencil",
     "category": "Marketing",
     "website": "https://trypencil.com",
@@ -1288,6 +1472,8 @@
     ]
   },
   {
+    "id": 93,
+    "slug": "mailchimp",
     "name": "Mailchimp",
     "category": "Email Marketing",
     "website": "https://mailchimp.com",
@@ -1302,6 +1488,8 @@
     ]
   },
   {
+    "id": 94,
+    "slug": "constant-contact",
     "name": "Constant Contact",
     "category": "Email Marketing",
     "website": "https://constantcontact.com",
@@ -1316,6 +1504,8 @@
     ]
   },
   {
+    "id": 95,
+    "slug": "salesforce-einstein",
     "name": "Salesforce Einstein",
     "category": "CRM",
     "website": "https://salesforce.com/products/einstein/",
@@ -1330,6 +1520,8 @@
     ]
   },
   {
+    "id": 96,
+    "slug": "hubspot-ai",
     "name": "HubSpot AI",
     "category": "CRM",
     "website": "https://hubspot.com",
@@ -1344,6 +1536,8 @@
     ]
   },
   {
+    "id": 97,
+    "slug": "datarobot",
     "name": "DataRobot",
     "category": "Machine Learning",
     "website": "https://datarobot.com",
@@ -1358,6 +1552,8 @@
     ]
   },
   {
+    "id": 98,
+    "slug": "h2o-ai",
     "name": "H2O.ai",
     "category": "Machine Learning",
     "website": "https://h2o.ai",
@@ -1372,6 +1568,8 @@
     ]
   },
   {
+    "id": 99,
+    "slug": "obviously-ai",
     "name": "Obviously AI",
     "category": "Machine Learning",
     "website": "https://obviously.ai",
@@ -1386,6 +1584,8 @@
     ]
   },
   {
+    "id": 100,
+    "slug": "tripo-ai",
     "name": "Tripo AI",
     "category": "3D Generation",
     "website": "https://tripo3d.ai",
@@ -1400,6 +1600,8 @@
     ]
   },
   {
+    "id": 101,
+    "slug": "sysarchitect",
     "name": "Sysarchitect",
     "category": "No-Code Development",
     "website": "https://sysarchitect.io",
@@ -1414,6 +1616,8 @@
     ]
   },
   {
+    "id": 102,
+    "slug": "icon",
     "name": "Icon",
     "category": "Marketing",
     "website": "https://icon.so",
@@ -1428,6 +1632,8 @@
     ]
   },
   {
+    "id": 103,
+    "slug": "videogen",
     "name": "VideoGen",
     "category": "Video Generation",
     "website": "https://videogen.io",
@@ -1442,6 +1648,8 @@
     ]
   },
   {
+    "id": 104,
+    "slug": "quickads-ai",
     "name": "Quickads AI",
     "category": "Marketing",
     "website": "https://quickads.ai",
@@ -1456,6 +1664,8 @@
     ]
   },
   {
+    "id": 105,
+    "slug": "thoughtly",
     "name": "Thoughtly",
     "category": "Voice AI",
     "website": "https://thoughtly.ai",
@@ -1470,6 +1680,8 @@
     ]
   },
   {
+    "id": 106,
+    "slug": "blaze-ai",
     "name": "Blaze AI",
     "category": "Marketing Automation",
     "website": "https://blaze.ai",
@@ -1484,6 +1696,8 @@
     ]
   },
   {
+    "id": 107,
+    "slug": "alphana",
     "name": "Alphana",
     "category": "Content Repurposing",
     "website": "https://alphana.ai",
@@ -1498,6 +1712,8 @@
     ]
   },
   {
+    "id": 108,
+    "slug": "learnworlds-ai",
     "name": "LearnWorlds AI",
     "category": "Education",
     "website": "https://learnworlds.com",
@@ -1512,6 +1728,8 @@
     ]
   },
   {
+    "id": 109,
+    "slug": "tiktok-symphony",
     "name": "TikTok Symphony",
     "category": "Social Media Marketing",
     "website": "https://ads.tiktok.com",
@@ -1526,6 +1744,8 @@
     ]
   },
   {
+    "id": 110,
+    "slug": "lovable-dev",
     "name": "Lovable.dev",
     "category": "Web Development",
     "website": "https://lovable.dev",
@@ -1540,6 +1760,8 @@
     ]
   },
   {
+    "id": 111,
+    "slug": "letterly",
     "name": "Letterly",
     "category": "Voice to Text",
     "website": "https://letterly.ai",
@@ -1554,6 +1776,8 @@
     ]
   },
   {
+    "id": 112,
+    "slug": "contentshake-ai",
     "name": "ContentShake AI",
     "category": "Content Writing",
     "website": "https://contentshake.ai",
@@ -1568,6 +1792,8 @@
     ]
   },
   {
+    "id": 113,
+    "slug": "munch",
     "name": "Munch",
     "category": "Video Editing",
     "website": "https://getmunch.com",
@@ -1582,6 +1808,8 @@
     ]
   },
   {
+    "id": 114,
+    "slug": "brandwell-ai-detector",
     "name": "Brandwell AI Detector",
     "category": "Content Analysis",
     "website": "https://brandwell.ai",
@@ -1596,6 +1824,8 @@
     ]
   },
   {
+    "id": 115,
+    "slug": "divi-ai",
     "name": "Divi AI",
     "category": "Web Design",
     "website": "https://elegantthemes.com/divi",
@@ -1610,6 +1840,8 @@
     ]
   },
   {
+    "id": 116,
+    "slug": "aiapply",
     "name": "AIApply",
     "category": "Job Search",
     "website": "https://aiapply.co",
@@ -1624,6 +1856,8 @@
     ]
   },
   {
+    "id": 117,
+    "slug": "clipchamp",
     "name": "Clipchamp",
     "category": "Video Editing",
     "website": "https://clipchamp.com",
@@ -1638,6 +1872,8 @@
     ]
   },
   {
+    "id": 118,
+    "slug": "contentbot",
     "name": "ContentBot",
     "category": "Content Writing",
     "website": "https://contentbot.ai",
@@ -1652,6 +1888,8 @@
     ]
   },
   {
+    "id": 119,
+    "slug": "bright-data",
     "name": "Bright Data",
     "category": "Data Collection",
     "website": "https://brightdata.com",
@@ -1666,6 +1904,8 @@
     ]
   },
   {
+    "id": 120,
+    "slug": "naturalreader",
     "name": "NaturalReader",
     "category": "Text-to-Speech",
     "website": "https://naturalreaders.com",
@@ -1680,6 +1920,8 @@
     ]
   },
   {
+    "id": 121,
+    "slug": "logoai",
     "name": "LogoAI",
     "category": "Design",
     "website": "https://logoai.com",
@@ -1694,6 +1936,8 @@
     ]
   },
   {
+    "id": 122,
+    "slug": "gptzero-bypass",
     "name": "GPTZero Bypass",
     "category": "Content Enhancement",
     "website": "https://gptzer.com",
@@ -1708,6 +1952,8 @@
     ]
   },
   {
+    "id": 123,
+    "slug": "postnitro",
     "name": "PostNitro",
     "category": "Social Media Design",
     "website": "https://postnitro.ai",
@@ -1722,6 +1968,8 @@
     ]
   },
   {
+    "id": 124,
+    "slug": "phrasly",
     "name": "Phrasly",
     "category": "Content Enhancement",
     "website": "https://phrasly.ai",
@@ -1736,6 +1984,8 @@
     ]
   },
   {
+    "id": 125,
+    "slug": "hix-bypass",
     "name": "HIX Bypass",
     "category": "Content Enhancement",
     "website": "https://hixbypass.ai",
@@ -1750,6 +2000,8 @@
     ]
   },
   {
+    "id": 126,
+    "slug": "apify",
     "name": "Apify",
     "category": "Data Collection",
     "website": "https://apify.com",
@@ -1764,6 +2016,8 @@
     ]
   },
   {
+    "id": 127,
+    "slug": "aitubo",
     "name": "Aitubo",
     "category": "Image/Video Generation",
     "website": "https://aitubo.ai",
@@ -1778,6 +2032,8 @@
     ]
   },
   {
+    "id": 128,
+    "slug": "vidnoz-ai",
     "name": "Vidnoz AI",
     "category": "Video Generation",
     "website": "https://vidnoz.com",
@@ -1792,6 +2048,8 @@
     ]
   },
   {
+    "id": 129,
+    "slug": "klap",
     "name": "Klap",
     "category": "Video Editing",
     "website": "https://klap.app",
@@ -1806,6 +2064,8 @@
     ]
   },
   {
+    "id": 130,
+    "slug": "arc-browser-ai",
     "name": "Arc Browser AI",
     "category": "Browser Assistant",
     "website": "https://arc.net",
@@ -1820,6 +2080,8 @@
     ]
   },
   {
+    "id": 131,
+    "slug": "waifu-labs",
     "name": "Waifu Labs",
     "category": "AI Art",
     "website": "https://waifulabs.com",
@@ -1834,6 +2096,8 @@
     ]
   },
   {
+    "id": 132,
+    "slug": "ppspy",
     "name": "PPSPY",
     "category": "E-commerce Analytics",
     "website": "https://ppspy.com",
@@ -1848,6 +2112,8 @@
     ]
   },
   {
+    "id": 133,
+    "slug": "heygen",
     "name": "HeyGen",
     "category": "Video Generation",
     "website": "https://heygen.com",
@@ -1862,6 +2128,8 @@
     ]
   },
   {
+    "id": 134,
+    "slug": "shortspilot",
     "name": "Shortspilot",
     "category": "Social Media",
     "website": "https://shortspilot.ai",
@@ -1876,6 +2144,8 @@
     ]
   },
   {
+    "id": 135,
+    "slug": "talkio-ai",
     "name": "Talkio AI",
     "category": "Language Learning",
     "website": "https://talkio.ai",
@@ -1890,6 +2160,8 @@
     ]
   },
   {
+    "id": 136,
+    "slug": "chatplayground-ai",
     "name": "ChatPlayground AI",
     "category": "AI Chat",
     "website": "https://chatplayground.ai",
@@ -1904,6 +2176,8 @@
     ]
   },
   {
+    "id": 137,
+    "slug": "submagic",
     "name": "SubMagic",
     "category": "Video Editing",
     "website": "https://submagic.co",
@@ -1918,6 +2192,8 @@
     ]
   },
   {
+    "id": 138,
+    "slug": "cliptalk",
     "name": "Cliptalk",
     "category": "Video Creation",
     "website": "https://cliptalk.ai",
@@ -1932,6 +2208,8 @@
     ]
   },
   {
+    "id": 139,
+    "slug": "snoooz",
     "name": "Snoooz",
     "category": "Email Management",
     "website": "https://snoooz.ai",
@@ -1946,6 +2224,8 @@
     ]
   },
   {
+    "id": 140,
+    "slug": "autoshorts",
     "name": "AutoShorts",
     "category": "Video Creation",
     "website": "https://autoshorts.ai",
@@ -1960,6 +2240,8 @@
     ]
   },
   {
+    "id": 141,
+    "slug": "bubble-ai",
     "name": "Bubble AI",
     "category": "No-Code Development",
     "website": "https://bubble.io",
@@ -1974,6 +2256,8 @@
     ]
   },
   {
+    "id": 142,
+    "slug": "vista-social",
     "name": "Vista Social",
     "category": "Social Media Management",
     "website": "https://vistasocial.com",
@@ -1988,6 +2272,8 @@
     ]
   },
   {
+    "id": 143,
+    "slug": "klear",
     "name": "Klear",
     "category": "Influencer Marketing",
     "website": "https://klear.com",
@@ -2002,6 +2288,8 @@
     ]
   },
   {
+    "id": 144,
+    "slug": "marketmuse",
     "name": "MarketMuse",
     "category": "SEO Content",
     "website": "https://marketmuse.com",
@@ -2016,6 +2304,8 @@
     ]
   },
   {
+    "id": 145,
+    "slug": "writecream",
     "name": "Writecream",
     "category": "Content Writing",
     "website": "https://writecream.com",
@@ -2030,6 +2320,8 @@
     ]
   },
   {
+    "id": 146,
+    "slug": "heights-platform-ai",
     "name": "Heights Platform AI",
     "category": "Course Creation",
     "website": "https://heights.ai",
@@ -2044,6 +2336,8 @@
     ]
   },
   {
+    "id": 147,
+    "slug": "vectorize",
     "name": "Vectorize",
     "category": "Image Enhancement",
     "website": "https://vectorize.ai",
@@ -2058,6 +2352,8 @@
     ]
   },
   {
+    "id": 148,
+    "slug": "veed-ai-video",
     "name": "VEED AI Video",
     "category": "Video Creation",
     "website": "https://veed.io",
@@ -2072,6 +2368,8 @@
     ]
   },
   {
+    "id": 149,
+    "slug": "aitwotool",
     "name": "AiTwoTool",
     "category": "AI Platform",
     "website": "https://aitool.com",
@@ -2086,6 +2384,8 @@
     ]
   },
   {
+    "id": 150,
+    "slug": "det-practice",
     "name": "DET Practice",
     "category": "Education",
     "website": "https://detpractice.com",
@@ -2100,6 +2400,8 @@
     ]
   },
   {
+    "id": 151,
+    "slug": "outgrow",
     "name": "Outgrow",
     "category": "Interactive Content",
     "website": "https://outgrow.co",
@@ -2114,6 +2416,8 @@
     ]
   },
   {
+    "id": 152,
+    "slug": "joggai",
     "name": "JoggAI",
     "category": "Video Advertising",
     "website": "https://jogg.ai",
@@ -2128,6 +2432,8 @@
     ]
   },
   {
+    "id": 153,
+    "slug": "syllaby",
     "name": "Syllaby",
     "category": "Video Marketing",
     "website": "https://syllaby.io",
@@ -2142,6 +2448,8 @@
     ]
   },
   {
+    "id": 154,
+    "slug": "harpa-ai",
     "name": "HARPA AI",
     "category": "Browser Extension",
     "website": "https://harpa.ai",
@@ -2156,6 +2464,8 @@
     ]
   },
   {
+    "id": 155,
+    "slug": "eagle",
     "name": "Eagle",
     "category": "Asset Management",
     "website": "https://eagle.cool",
@@ -2170,6 +2480,8 @@
     ]
   },
   {
+    "id": 156,
+    "slug": "qodex-ai",
     "name": "Qodex.ai",
     "category": "API Testing",
     "website": "https://qodex.ai",
@@ -2184,6 +2496,8 @@
     ]
   },
   {
+    "id": 157,
+    "slug": "liner",
     "name": "Liner",
     "category": "Research Assistant",
     "website": "https://liner.ai",
@@ -2198,6 +2512,8 @@
     ]
   },
   {
+    "id": 158,
+    "slug": "postwise",
     "name": "Postwise",
     "category": "Social Media",
     "website": "https://postwise.ai",
@@ -2212,6 +2528,8 @@
     ]
   },
   {
+    "id": 159,
+    "slug": "fellow-app",
     "name": "Fellow.app",
     "category": "Meeting Assistant",
     "website": "https://fellow.app",
@@ -2226,6 +2544,8 @@
     ]
   },
   {
+    "id": 160,
+    "slug": "super-so",
     "name": "Super.so",
     "category": "Website Builder",
     "website": "https://super.so",
@@ -2240,6 +2560,8 @@
     ]
   },
   {
+    "id": 161,
+    "slug": "batchtable",
     "name": "BatchTable",
     "category": "Image Metadata",
     "website": "https://batchtable.com",
@@ -2254,6 +2576,8 @@
     ]
   },
   {
+    "id": 162,
+    "slug": "chance-ai",
     "name": "Chance AI",
     "category": "Visual Intelligence",
     "website": "https://chance.ai",
@@ -2268,6 +2592,8 @@
     ]
   },
   {
+    "id": 163,
+    "slug": "dashworks",
     "name": "Dashworks",
     "category": "Enterprise AI",
     "website": "https://dashworks.ai",
@@ -2282,6 +2608,8 @@
     ]
   },
   {
+    "id": 164,
+    "slug": "d-id",
     "name": "D-ID",
     "category": "AI Video",
     "website": "https://d-id.com",
@@ -2296,6 +2624,8 @@
     ]
   },
   {
+    "id": 165,
+    "slug": "help-scout-ai",
     "name": "Help Scout AI",
     "category": "Customer Support",
     "website": "https://helpscout.com",
@@ -2310,6 +2640,8 @@
     ]
   },
   {
+    "id": 166,
+    "slug": "lensgo",
     "name": "LensGo",
     "category": "Video Styling",
     "website": "https://lensgo.ai",
@@ -2324,6 +2656,8 @@
     ]
   },
   {
+    "id": 167,
+    "slug": "seomatic",
     "name": "SEOmatic",
     "category": "SEO Content",
     "website": "https://seomatic.ai",
@@ -2338,6 +2672,8 @@
     ]
   },
   {
+    "id": 168,
+    "slug": "betterpic",
     "name": "BetterPic",
     "category": "Photography",
     "website": "https://betterpic.io",
@@ -2352,6 +2688,8 @@
     ]
   },
   {
+    "id": 169,
+    "slug": "biread",
     "name": "BiRead",
     "category": "Language Learning",
     "website": "https://biread.ai",
@@ -2366,6 +2704,8 @@
     ]
   },
   {
+    "id": 170,
+    "slug": "openai-playground",
     "name": "OpenAI Playground",
     "category": "AI Development",
     "website": "https://platform.openai.com/playground",
@@ -2380,6 +2720,8 @@
     ]
   },
   {
+    "id": 171,
+    "slug": "coda-ai",
     "name": "Coda AI",
     "category": "Productivity",
     "website": "https://coda.io",
@@ -2394,6 +2736,8 @@
     ]
   },
   {
+    "id": 172,
+    "slug": "guidejar",
     "name": "Guidejar",
     "category": "Documentation",
     "website": "https://guidejar.com",
@@ -2408,6 +2752,8 @@
     ]
   },
   {
+    "id": 173,
+    "slug": "frase",
     "name": "Frase",
     "category": "Content Marketing",
     "website": "https://frase.io",
@@ -2422,6 +2768,8 @@
     ]
   },
   {
+    "id": 174,
+    "slug": "waymark",
     "name": "Waymark",
     "category": "Video Marketing",
     "website": "https://waymark.com",
@@ -2436,6 +2784,8 @@
     ]
   },
   {
+    "id": 175,
+    "slug": "jupitrr-ai",
     "name": "Jupitrr AI",
     "category": "Video Enhancement",
     "website": "https://jupitrr.com",
@@ -2450,6 +2800,8 @@
     ]
   },
   {
+    "id": 176,
+    "slug": "link-whisper",
     "name": "Link Whisper",
     "category": "SEO Tools",
     "website": "https://linkwhisper.com",
@@ -2464,6 +2816,8 @@
     ]
   },
   {
+    "id": 177,
+    "slug": "typefully",
     "name": "Typefully",
     "category": "Social Media Writing",
     "website": "https://typefully.com",
@@ -2478,6 +2832,8 @@
     ]
   },
   {
+    "id": 178,
+    "slug": "merlin-ai",
     "name": "Merlin AI",
     "category": "Browser Assistant",
     "website": "https://merlin.foyer.work",
@@ -2492,6 +2848,8 @@
     ]
   },
   {
+    "id": 179,
+    "slug": "mimicpc",
     "name": "MimicPC",
     "category": "Cloud AI Tools",
     "website": "https://mimicpc.com",
@@ -2506,6 +2864,8 @@
     ]
   },
   {
+    "id": 180,
+    "slug": "colossyan",
     "name": "Colossyan",
     "category": "AI Video",
     "website": "https://colossyan.com",
@@ -2520,6 +2880,8 @@
     ]
   },
   {
+    "id": 181,
+    "slug": "copyleaks",
     "name": "Copyleaks",
     "category": "Content Detection",
     "website": "https://copyleaks.com",
@@ -2534,6 +2896,8 @@
     ]
   },
   {
+    "id": 182,
+    "slug": "ghostcontent",
     "name": "GhostContent",
     "category": "Content Repurposing",
     "website": "https://ghostcontent.ai",
@@ -2548,6 +2912,8 @@
     ]
   },
   {
+    "id": 183,
+    "slug": "turncage",
     "name": "TurnCage",
     "category": "Website Builder",
     "website": "https://turncage.com",
@@ -2562,6 +2928,8 @@
     ]
   },
   {
+    "id": 184,
+    "slug": "soundverse",
     "name": "Soundverse",
     "category": "Music Generation",
     "website": "https://soundverse.ai",
@@ -2576,6 +2944,8 @@
     ]
   },
   {
+    "id": 185,
+    "slug": "viseur-ai",
     "name": "Viseur AI",
     "category": "Medical AI",
     "website": "https://viseur.ai",
@@ -2590,6 +2960,8 @@
     ]
   },
   {
+    "id": 186,
+    "slug": "letplant",
     "name": "LetPlant",
     "category": "Indoor Farming",
     "website": "https://letplant.ai",
@@ -2604,6 +2976,8 @@
     ]
   },
   {
+    "id": 187,
+    "slug": "arthur-ai",
     "name": "Arthur AI",
     "category": "AI Monitoring",
     "website": "https://arthur.ai",
@@ -2618,6 +2992,8 @@
     ]
   },
   {
+    "id": 188,
+    "slug": "constant-contact-ai",
     "name": "Constant Contact AI",
     "category": "Email Marketing",
     "website": "https://constantcontact.com",
@@ -2632,6 +3008,8 @@
     ]
   },
   {
+    "id": 189,
+    "slug": "xero-ai",
     "name": "Xero AI",
     "category": "Accounting",
     "website": "https://xero.com",
@@ -2646,6 +3024,8 @@
     ]
   },
   {
+    "id": 190,
+    "slug": "quickbooks-ai",
     "name": "QuickBooks AI",
     "category": "Accounting",
     "website": "https://quickbooks.intuit.com",
@@ -2660,6 +3040,8 @@
     ]
   },
   {
+    "id": 191,
+    "slug": "sparktoro",
     "name": "SparkToro",
     "category": "Market Research",
     "website": "https://sparktoro.com",
@@ -2674,6 +3056,8 @@
     ]
   },
   {
+    "id": 192,
+    "slug": "trendwatching",
     "name": "TrendWatching",
     "category": "Trend Analysis",
     "website": "https://trendwatching.com",
@@ -2688,6 +3072,8 @@
     ]
   },
   {
+    "id": 193,
+    "slug": "tensorflow",
     "name": "TensorFlow",
     "category": "Machine Learning Framework",
     "website": "https://tensorflow.org",
@@ -2702,6 +3088,8 @@
     ]
   },
   {
+    "id": 194,
+    "slug": "pytorch",
     "name": "PyTorch",
     "category": "Machine Learning Framework",
     "website": "https://pytorch.org",
@@ -2716,6 +3104,8 @@
     ]
   },
   {
+    "id": 195,
+    "slug": "hugging-face",
     "name": "Hugging Face",
     "category": "AI Models",
     "website": "https://huggingface.co",
@@ -2730,6 +3120,8 @@
     ]
   },
   {
+    "id": 196,
+    "slug": "rapidminer",
     "name": "RapidMiner",
     "category": "Data Science",
     "website": "https://rapidminer.com",
@@ -2744,6 +3136,8 @@
     ]
   },
   {
+    "id": 197,
+    "slug": "google-ai-studio",
     "name": "Google AI Studio",
     "category": "AI Development",
     "website": "https://aistudio.google.com",

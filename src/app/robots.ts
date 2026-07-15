@@ -134,7 +134,7 @@ export default function robots(): MetadataRoute.Robots {
           '/settings',
         ],
       },
-      // Block crawlers that don't follow robots.txt well
+      // Block SEO-scraper / backlink-crawling bots (unrelated to AI crawling)
       {
         userAgent: [
           'AhrefsBot',
@@ -144,14 +144,25 @@ export default function robots(): MetadataRoute.Robots {
           'BacklinkCrawler',
           'SemrushBot',
           'SEOkicks-Robot',
-          'CCBot',
-          'ChatGPT-User',
+        ],
+        disallow: '/',
+      },
+      // Explicitly welcome AI crawlers/answer engines so TomatoAi content
+      // can be cited by ChatGPT, Claude, Google AI features, etc.
+      {
+        userAgent: [
           'GPTBot',
+          'ChatGPT-User',
+          'OAI-SearchBot',
           'Google-Extended',
           'anthropic-ai',
           'Claude-Web',
+          'ClaudeBot',
+          'PerplexityBot',
+          'CCBot',
         ],
-        disallow: '/',
+        allow: '/',
+        disallow: ['/api/', '/admin/', '/auth/', '/login', '/signup', '/dashboard', '/profile', '/settings'],
       },
     ],
     sitemap: `${baseUrl}/sitemap.xml`,

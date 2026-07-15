@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
-import { Globe, Paperclip, Plus, Send, Lightbulb } from "lucide-react"
+import { Globe, Paperclip, Plus, Send, Lightbulb, Square } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
@@ -12,39 +12,23 @@ import { Textarea } from "@/components/ui/textarea"
 // Helper function to get readable model name
 const getModelName = (modelId: string): string => {
   const modelNames: Record<string, string> = {
-    "arcee-ai/trinity-large-preview:free": "Trinity Large Preview",
-    "tngtech/deepseek-r1t2-chimera:free": "DeepSeek R1T2 Chimera",
-    "z-ai/glm-4.5-air:free": "GLM 4.5 Air",
-    "tngtech/deepseek-r1t-chimera:free": "DeepSeek R1T Chimera",
-    "deepseek/deepseek-r1-0528:free": "DeepSeek R1",
+    "tencent/hy3:free": "Tencent Hunyuan 3",
+    "nvidia/nemotron-3-ultra-550b-a55b:free": "Nemotron 3 Ultra 550B",
+    "poolside/laguna-m.1:free": "Laguna M.1",
+    "nvidia/nemotron-3-super-120b-a12b:free": "Nemotron 3 Super 120B",
+    "cohere/north-mini-code:free": "Cohere North Mini Code",
+    "poolside/laguna-xs-2.1:free": "Laguna XS 2.1",
     "nvidia/nemotron-3-nano-30b-a3b:free": "Nemotron 3 Nano 30B",
-    "stepfun/step-3.5-flash:free": "Step 3.5 Flash",
-    "tngtech/tng-r1t-chimera:free": "TNG R1T Chimera",
     "openai/gpt-oss-120b:free": "GPT OSS 120B",
-    "meta-llama/llama-3.3-70b-instruct:free": "Llama 3.3 70B",
-    "upstage/solar-pro-3:free": "Solar Pro 3",
-    "qwen/qwen3-coder:free": "Qwen 3 Coder",
-    "google/gemma-3-27b-it:free": "Gemma 3 27B",
-    "arcee-ai/trinity-mini:free": "Trinity Mini",
-    "qwen/qwen3-next-80b-a3b-instruct:free": "Qwen 3 Next 80B",
+    "google/gemma-4-31b-it:free": "Gemma 4 31B IT",
     "openai/gpt-oss-20b:free": "GPT OSS 20B",
-    "nvidia/nemotron-nano-12b-2-vl:free": "Nemotron Nano 12B VL",
-    "allenai/molmo2-8b:free": "Molmo 2 8B",
-    "nvidia/nemotron-nano-9b-v2:free": "Nemotron Nano 9B v2",
-    "venice/uncensored:free": "Venice Uncensored",
-    "liquidai/lfm2.5-1.2b-thinking:free": "LFM 2.5 1.2B Thinking",
-    "liquidai/lfm2.5-1.2b-instruct:free": "LFM 2.5 1.2B Instruct",
-    "nousresearch/hermes-3-405b-instruct:free": "Hermes 3 405B",
-    "mistralai/mistral-small-3.1-24b:free": "Mistral Small 3.1 24B",
-    "qwen/qwen3-4b:free": "Qwen 3 4B",
-    "google/gemma-3n-2b:free": "Gemma 3N 2B",
-    "meta-llama/llama-3.2-3b-instruct:free": "Llama 3.2 3B",
-    "google/gemma-3-12b-it:free": "Gemma 3 12B",
-    "google/gemma-3-4b:free": "Gemma 3 4B",
-    "qwen/qwen2.5-vl-7b-instruct:free": "Qwen 2.5 VL 7B",
-    "google/gemma-3n-4b:free": "Gemma 3N 4B",
-    "meta-llama/llama-3.1-405b-instruct:free": "Llama 3.1 405B",
-    "openrouter/free:free": "OpenRouter Default",
+    "qwen/qwen3-coder:free": "Qwen 3 Coder",
+    "meta-llama/llama-3.2-3b-instruct:free": "Llama 3.2 3B Instruct",
+    "nousresearch/hermes-3-llama-3.1-405b:free": "Hermes 3 Llama 3.1 405B",
+    "cognitivecomputations/dolphin-mistral-24b-venice-edition:free": "Dolphin Mistral 24B Venice",
+    "meta-llama/llama-3.3-70b-instruct:free": "Llama 3.3 70B Instruct",
+    "liquid/lfm-2.5-1.2b-thinking:free": "LFM 2.5 1.2B Thinking",
+    "liquid/lfm-2.5-1.2b-instruct:free": "LFM 2.5 1.2B Instruct",
   }
   return modelNames[modelId] || modelId.split("/")[1]?.replace(":free", "") || modelId.replace(":free", "")
 }
@@ -120,6 +104,7 @@ type AiInputProps = {
   onSubmitWithMode?: (text: string, isSearch: boolean) => void
   onFileSelect?: (file: File | null) => void
   onModelSelect?: () => void
+  onStop?: () => void
   placeholder?: string
   submitting?: boolean
   disabled?: boolean
@@ -134,6 +119,7 @@ export default function AiInput({
   onSubmitWithMode,
   onFileSelect,
   onModelSelect,
+  onStop,
   placeholder,
   submitting,
   disabled,
@@ -186,10 +172,10 @@ export default function AiInput({
 
   const handleSubmit = () => {
     if (!value.trim() || submitting || disabled) return;
-    
+
     const queryValue = value.trim();
     const q = encodeURIComponent(queryValue);
-    
+
     // Save to localStorage so it can be restored if user is redirected to login
     localStorage.setItem('pending_prompt', queryValue);
 
@@ -202,7 +188,7 @@ export default function AiInput({
       if (showSearch) {
         router.push(`/search?q=${q}`)
       } else {
-        router.push(`/tomato-ai?q=${q}`)
+        router.push(`/tomato-ai/chat?q=${q}`)
       }
     }
     // Clear the input and reset height
@@ -232,7 +218,7 @@ export default function AiInput({
   }, [imagePreview])
   return (
     <div className="w-full py-4">
-      <div className="relative bg-white dark:bg-neutral-900 max-w-3xl border rounded-[22px] border-black/5 p-1 w-full mx-auto">
+      <div className="relative bg-white dark:bg-neutral-900 max-w-3xl border border-black/10 dark:border-white/10 rounded-[22px] p-1 w-full mx-auto shadow-[0_18px_35px_rgba(0,0,0,0.07),_0_3px_10px_rgba(0,0,0,0.035)] dark:shadow-[0_18px_35px_rgba(0,0,0,0.35),_0_3px_10px_rgba(0,0,0,0.15)]">
         <div className="relative rounded-2xl border border-black/5 bg-neutral-800/5 flex flex-col">
           <div
             className="overflow-y-auto"
@@ -393,19 +379,29 @@ export default function AiInput({
               </button>
             </div>
             <div className="absolute right-3 bottom-3">
-              <button
-                type="button"
-                onClick={handleSubmit}
-                className={cn(
-                  "rounded-full p-2 transition-colors",
-                  value
-                    ? "bg-[#ff3f17]/15 text-[#ff3f17]"
-                    : "bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white"
-                )}
-                disabled={submitting || disabled}
-              >
-                <Send className="w-4 h-4" />
-              </button>
+              {submitting && onStop ? (
+                <button
+                  type="button"
+                  onClick={onStop}
+                  className="rounded-full p-2 transition-colors bg-[#ff3f17]/15 text-[#ff3f17] hover:bg-[#ff3f17]/25"
+                >
+                  <Square className="w-4 h-4 fill-current" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className={cn(
+                    "rounded-full p-2 transition-colors",
+                    value
+                      ? "bg-[#ff3f17]/15 text-[#ff3f17]"
+                      : "bg-black/5 dark:bg-white/5 text-black/40 dark:text-white/40 hover:text-black dark:hover:text-white"
+                  )}
+                  disabled={submitting || disabled}
+                >
+                  <Send className="w-4 h-4" />
+                </button>
+              )}
             </div>
           </div>
         </div>

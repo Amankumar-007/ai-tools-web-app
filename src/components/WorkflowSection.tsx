@@ -178,8 +178,17 @@ export default function WorkflowSection() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
                     {/* Sidebar Navigation */}
-                    <div className="lg:col-span-4 flex flex-col gap-1 relative z-20">
-                        <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 scrollbar-hide snap-x lg:snap-none">
+                    <div className="lg:col-span-4 flex flex-col gap-1 relative z-20 w-full overflow-hidden">
+                        <style jsx global>{`
+                            .no-scrollbar::-webkit-scrollbar {
+                                display: none;
+                            }
+                            .no-scrollbar {
+                                -ms-overflow-style: none;
+                                scrollbar-width: none;
+                            }
+                        `}</style>
+                        <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-3 lg:pb-0 snap-x lg:snap-none no-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0">
                             {roles.map((role, idx) => {
                                 const Icon = role.icon;
                                 const isActive = activeIdx === idx;
@@ -189,23 +198,23 @@ export default function WorkflowSection() {
                                         key={role.id}
                                         onClick={() => handleRoleClick(idx)}
                                         className={cn(
-                                            "relative flex-shrink-0 snap-center flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 text-left overflow-hidden border",
+                                            "relative flex-shrink-0 snap-center flex items-center gap-3 lg:gap-4 p-3 lg:p-4 rounded-xl lg:rounded-2xl transition-all duration-300 text-left overflow-hidden border",
                                             isActive
-                                                ? "bg-white dark:bg-white/10 border-black dark:border-white/20 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-none"
+                                                ? "bg-white dark:bg-white/10 border-black dark:border-white/20 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] lg:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-none"
                                                 : "bg-transparent border-transparent hover:border-black/10 dark:hover:border-white/10"
                                         )}
                                     >
                                         <div className={cn(
-                                            "w-10 h-10 rounded-xl flex items-center justify-center transition-colors duration-300",
+                                            "w-8 h-8 lg:w-10 lg:h-10 rounded-lg lg:rounded-xl flex items-center justify-center transition-colors duration-300",
                                             isActive
                                                 ? "text-black dark:text-white"
                                                 : "text-black/40 dark:text-white/40"
                                         )}>
-                                            <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                                            <Icon size={16} strokeWidth={isActive ? 2.5 : 2} />
                                         </div>
                                         <div>
                                             <h4 className={cn(
-                                                "text-sm font-medium transition-colors duration-300",
+                                                "text-xs lg:text-sm font-medium transition-colors duration-300",
                                                 isActive ? "text-black dark:text-white" : "text-black/50 dark:text-white/50"
                                             )}>
                                                 {role.title}
@@ -214,7 +223,7 @@ export default function WorkflowSection() {
                                                 <motion.p
                                                     initial={{ opacity: 0, y: 2 }}
                                                     animate={{ opacity: 1, y: 0 }}
-                                                    className="text-xs text-black/50 dark:text-white/50 mt-0.5"
+                                                    className="text-[10px] lg:text-xs text-black/50 dark:text-white/50 mt-0.5"
                                                 >
                                                     {role.badge} active
                                                 </motion.p>
@@ -223,7 +232,7 @@ export default function WorkflowSection() {
 
                                         {/* Minimal Progress Indicator */}
                                         {isActive && (
-                                            <div className="absolute bottom-0 left-4 right-4 lg:left-0 lg:right-auto lg:top-1/4 lg:bottom-1/4 lg:w-0.5 h-0.5 lg:h-auto bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
+                                            <div className="absolute bottom-0 left-3 right-3 lg:left-0 lg:right-auto lg:top-1/4 lg:bottom-1/4 lg:w-0.5 h-0.5 lg:h-auto bg-black/10 dark:bg-white/10 rounded-full overflow-hidden">
                                                 <motion.div
                                                     className="h-full w-full bg-black dark:bg-white lg:w-full lg:h-full origin-left lg:origin-top"
                                                     initial={false}
@@ -242,26 +251,26 @@ export default function WorkflowSection() {
                     </div>
 
                     {/* Main Content Area - Sleek Window */}
-                    <div className="lg:col-span-8 relative">
+                    <div className="lg:col-span-8 relative w-full">
                         <motion.div
-                            className="relative rounded-[2rem] bg-white dark:bg-white/[0.02] border-2 border-black dark:border-white/10 overflow-hidden flex flex-col min-h-[500px] backdrop-blur-sm shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] dark:shadow-none"
+                            className="relative rounded-2xl lg:rounded-[2rem] bg-white dark:bg-white/[0.02] border-2 border-black dark:border-white/10 overflow-hidden flex flex-col min-h-[360px] lg:min-h-[500px] backdrop-blur-sm shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] lg:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] dark:shadow-none"
                             initial={false}
                         >
                             {/* Minimal Browser Header */}
-                            <div className="flex items-center justify-between px-6 py-4 border-b border-black/5 dark:border-white/5">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-black/20 dark:bg-white/20" />
-                                    <div className="w-2.5 h-2.5 rounded-full bg-black/20 dark:bg-white/20" />
-                                    <div className="w-2.5 h-2.5 rounded-full bg-black/20 dark:bg-white/20" />
+                            <div className="flex items-center justify-between px-4 lg:px-6 py-3 lg:py-4 border-b border-black/5 dark:border-white/5">
+                                <div className="flex items-center gap-1.5 lg:gap-2">
+                                    <div className="w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-black/20 dark:bg-white/20" />
+                                    <div className="w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-black/20 dark:bg-white/20" />
+                                    <div className="w-2 h-2 lg:w-2.5 lg:h-2.5 rounded-full bg-black/20 dark:bg-white/20" />
                                 </div>
-                                <div className="flex items-center gap-2 px-3 py-1 bg-white dark:bg-white/5 border border-black dark:border-white/10 rounded-lg">
-                                    <Layout size={12} className="text-black/40 dark:text-white/40" />
-                                    <span className="text-[11px] font-medium text-black/50 dark:text-white/50">workspace.lorka.ai</span>
+                                <div className="flex items-center gap-1.5 lg:gap-2 px-2.5 lg:px-3 py-0.5 lg:py-1 bg-white dark:bg-white/5 border border-black dark:border-white/10 rounded-lg">
+                                    <Layout size={10} className="text-black/40 dark:text-white/40" />
+                                    <span className="text-[10px] lg:text-[11px] font-medium text-black/50 dark:text-white/50">workspace.lorka.ai</span>
                                 </div>
                             </div>
 
                             {/* Main Content Viewer */}
-                            <div className="flex-1 p-8 lg:p-12 relative flex flex-col justify-center">
+                            <div className="flex-1 p-6 lg:p-12 relative flex flex-col justify-center">
                                 <AnimatePresence mode="wait">
                                     <motion.div
                                         key={activeRole.id}

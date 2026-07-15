@@ -69,10 +69,15 @@ function Login() {
     setLoading(true);
 
     try {
+      const redirectTo = searchParams.get("redirect") || "/tomato-ai";
+      // Construct the absolute URL for Supabase redirect
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      const finalRedirectUrl = `${baseUrl}${redirectTo}`;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: 'https://ai-tools-web-app-topaz.vercel.app/tomato-ai',
+          redirectTo: finalRedirectUrl,
         },
       });
 

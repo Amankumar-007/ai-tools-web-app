@@ -21,9 +21,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Fail fast to the next fallback instead of hanging on a slow/unresponsive
+    // free-tier model. This only bounds time-to-first-byte; once headers come
+    // back the timeout is cleared and the stream is free to run to completion.
+    const CONNECT_TIMEOUT_MS = 12_000;
+
+    const fetchWithTimeout = async (url: string, init: RequestInit) => {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), CONNECT_TIMEOUT_MS);
+      try {
+        return await fetch(url, { ...init, signal: controller.signal });
+      } finally {
+        clearTimeout(timer);
+      }
+    };
+
     // --- Helper for OpenRouter Call ---
     const callOpenRouter = async (modelToUse: string) => {
-      const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      const res = await fetchWithTimeout("https://openrouter.ai/api/v1/chat/completions", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
@@ -35,7 +50,7 @@ export async function POST(req: NextRequest) {
           model: modelToUse,
           messages,
           temperature: temperature ?? 0.7,
-          max_tokens: 81920,
+          max_tokens: 4096,
           stream: true,
         }),
       });
@@ -46,7 +61,7 @@ export async function POST(req: NextRequest) {
     const callOpenAI = async (modelToUse: string) => {
       if (!process.env.OPENAI_API_KEY) return null;
 
-      const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      const res = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,

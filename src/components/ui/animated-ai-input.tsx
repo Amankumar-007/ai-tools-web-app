@@ -58,7 +58,7 @@ export default function AnimatedAiInput() {
         // Save to localStorage so it can be restored if user is redirected to login
         localStorage.setItem('pending_prompt', queryValue);
         
-        router.push(`/tomato-ai?q=${query}`);
+        router.push(`/tomato-ai/chat?q=${query}`);
         setInputValue("");
     };
 
@@ -68,8 +68,8 @@ export default function AnimatedAiInput() {
                 onSubmit={handleSubmit}
                 className={cn(
                     "relative flex items-center w-full min-h-[80px] px-6 py-3",
-                    "bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 rounded-full shadow-xl dark:shadow-2xl",
-                    "transition-all duration-300 focus-within:border-black/20 dark:focus-within:border-white/20 focus-within:shadow-black/5 dark:focus-within:shadow-white/5"
+                    "bg-white dark:bg-[#0a0a0a] border border-black/10 dark:border-white/10 rounded-full shadow-[0_18px_35px_rgba(0,0,0,0.07),_0_3px_10px_rgba(0,0,0,0.035)] dark:shadow-[0_18px_35px_rgba(0,0,0,0.35),_0_3px_10px_rgba(0,0,0,0.15)]",
+                    "transition-all duration-300 focus-within:border-black/20 dark:focus-within:border-white/20 focus-within:shadow-[0_22px_45px_rgba(0,0,0,0.09),_0_4px_12px_rgba(0,0,0,0.04)] dark:focus-within:shadow-[0_22px_45px_rgba(0,0,0,0.45),_0_4px_12px_rgba(0,0,0,0.2)]"
                 )}
             >
                 {/* Animated Icon Section */}

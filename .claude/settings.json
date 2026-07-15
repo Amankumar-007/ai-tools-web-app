@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(netstat -ano)",
+      "Bash(powershell -Command \"Stop-Process -Id 23520 -Force\")",
+      "Bash(rm -f /tmp/dev-restart.log)",
+      "Bash(npx next *)",
+      "Bash(echo \"started pid $!\")"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
+    ]
+  }
+}

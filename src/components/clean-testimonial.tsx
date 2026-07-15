@@ -1,8 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useState, useCallback, useRef, useEffect } from "react"
+import { useState, useCallback, useRef } from "react"
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion"
+import { User } from "lucide-react"
 
 // --- TYPES ---
 interface TestimonialData {
@@ -15,36 +16,55 @@ interface TestimonialData {
 
 const testimonials: TestimonialData[] = [
   {
-    quote: "The attention to detail is unmatched. Every interaction feels intentional.",
+    quote: "Finding the right LLM or AI tool used to take hours of searching. Tomato AI brings everything into a clean interface with solid workflow integrations.",
+    author: "Rohan Mehta",
+    role: "AI Engineer",
+    company: "Swiggy",
+    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120&h=120",
+  },
+  {
+    quote: "The playground features and comparative AI testing helped our design team prototype dynamic AI features in days instead of weeks.",
+    author: "Priya Sharma",
+    role: "Product Designer",
+    company: "Razorpay",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=120&h=120",
+  },
+  {
+    quote: "As a solo founder, saving time is everything. I found three prompt engineering tools here that cut my development cycle in half.",
+    author: "Aarav Patel",
+    role: "Founder",
+    company: "DevFlow AI",
+    avatar: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=120&h=120",
+  },
+  {
+    quote: "The tool discovery and prompt templates saved us dozens of hours. The attention to detail in this platform is unmatched.",
     author: "Sarah Chen",
     role: "Design Director",
     company: "Linear",
-    avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/professional-woman-minimal-portrait-JIXD2g3xUKSkFHnS0FEQZV7XFVRh96.png",
+    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=120&h=120",
   },
   {
-    quote: "Finally, someone who understands that simplicity is the ultimate sophistication.",
+    quote: "Finally, a platform that understands what developers actually need when integrating AI into their modern stack.",
     author: "Marcus Webb",
     role: "Creative Lead",
     company: "Vercel",
-    avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/professional-woman-asian-portrait-minimal-3JNilSFq6Lws8Gujkq8ZsV4v5owg2j.jpg",
+    avatar: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=120&h=120",
   },
   {
-    quote: "This work redefined our entire approach to digital experiences.",
+    quote: "We integrated the recommended agent workflows into our customer support system. The transition was incredibly seamless.",
+    author: "Kabir Joshi",
+    role: "Tech Lead",
+    company: "TCS",
+    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=120&h=120",
+  },
+  {
+    quote: "This catalog is the most comprehensive and well-curated index of productivity AI tools on the web right now.",
     author: "Elena Frost",
     role: "Head of Product",
     company: "Stripe",
-    avatar: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/attachments/gen-images/public/professional-man-minimal-portrait-iJTSwKlJgwle9ZhX3NdX2gDFF6hamm.png",
+    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=120&h=120",
   },
 ]
-
-function usePreloadImages(images: string[]) {
-  useEffect(() => {
-    images.forEach((src) => {
-      const img = new Image()
-      img.src = src
-    })
-  }, [images])
-}
 
 function SplitText({ text }: { text: string }) {
   const words = text.split(" ")
@@ -73,11 +93,9 @@ function SplitText({ text }: { text: string }) {
 export function TestimonialSection() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [isHovered, setIsHovered] = useState(false)
-  const [liveTestimonials, setLiveTestimonials] = useState<TestimonialData[]>(testimonials)
+  const [liveTestimonials] = useState<TestimonialData[]>(testimonials)
 
   const containerRef = useRef<HTMLDivElement>(null)
-
-  usePreloadImages(testimonials.map((t) => t.avatar))
 
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
@@ -181,11 +199,11 @@ export function TestimonialSection() {
           {liveTestimonials.map((t, i) => (
             <motion.div
               key={i}
-              className={`w-6 h-6 rounded-full border-2 border-background overflow-hidden transition-all duration-300 ${i === activeIndex ? "ring-1 ring-accent ring-offset-1 ring-offset-background" : "grayscale opacity-50"
+              className={`w-6 h-6 rounded-full border-2 border-background overflow-hidden relative transition-all duration-300 flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 ${i === activeIndex ? "ring-1 ring-accent ring-offset-1 ring-offset-background" : "opacity-50"
                 }`}
               whileHover={{ scale: 1.1, opacity: 1 }}
             >
-              <img src={t.avatar || "/placeholder.svg"} alt={t.author} className="w-full h-full object-cover" />
+              <User size={12} />
             </motion.div>
           ))}
         </motion.div>
@@ -216,17 +234,17 @@ export function TestimonialSection() {
                   transition={{ duration: 0.5 }}
                 />
                 {liveTestimonials.map((t, i) => (
-                  <motion.img
+                  <motion.div
                     key={`${t.author}-${i}`}
-                    src={t.avatar}
-                    alt={t.author}
-                    className="absolute inset-0 w-12 h-12 rounded-full object-cover grayscale hover:grayscale-0 transition-[filter] duration-500"
+                    className="absolute inset-0 w-12 h-12 rounded-full flex items-center justify-center bg-slate-100 dark:bg-slate-800 text-slate-500 overflow-hidden transition-[filter] duration-500"
                     animate={{
                       opacity: i === activeIndex ? 1 : 0,
                       zIndex: i === activeIndex ? 1 : 0,
                     }}
                     transition={{ duration: 0.4, ease: "easeInOut" }}
-                  />
+                  >
+                    <User size={24} />
+                  </motion.div>
                 ))}
               </div>
 

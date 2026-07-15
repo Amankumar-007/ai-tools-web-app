@@ -81,10 +81,14 @@ function RegisterPage() {
     setLoading(true);
 
     try {
+      const redirectTo = searchParams.get("redirect") || "/tomato-ai";
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      const finalRedirectUrl = `${baseUrl}${redirectTo}`;
+
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/ai-tools`,
+          redirectTo: finalRedirectUrl,
         },
       });
 

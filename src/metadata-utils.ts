@@ -1,18 +1,21 @@
 import type { Metadata } from 'next'
 
+export const SITE_NAME = 'TomatoAi'
+export const SITE_URL = 'https://tomatoai.in'
+
 // Base metadata template
 export const baseMetadata: Metadata = {
-  metadataBase: new URL('https://tomatoai.in'),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: 'TomatoAi India - Best AI Tools Directory & Reviews 2026',
-    template: '%s | TomatoAi'
+    template: `%s | ${SITE_NAME}`,
   },
   description: 'Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant for productivity, creativity, and automation.',
   keywords: [
     'AI tools',
     'artificial intelligence',
     'AI directory',
-    'best AI tools 2025',
+    'best AI tools 2026',
     'AI software',
     'machine learning tools',
     'AI productivity',
@@ -24,7 +27,7 @@ export const baseMetadata: Metadata = {
     'AI image generators',
     'AI video editors',
     'AI code assistants',
-    'AI marketing tools'
+    'AI marketing tools',
   ],
   authors: [{ name: 'TomatoAi Team' }],
   creator: 'TomatoAi',
@@ -52,15 +55,15 @@ export const baseMetadata: Metadata = {
   },
 }
 
-// Helper function to create page-specific metadata
-export function createPageMetadata(config: {
+interface PageMetadataConfig {
   title: string
   description: string
   keywords?: string[]
+  path: string
+  noIndex?: boolean
   openGraph?: {
     title?: string
     description?: string
-    url?: string
     images?: Array<{
       url: string
       width: number
@@ -73,33 +76,79 @@ export function createPageMetadata(config: {
     description?: string
     images?: string[]
   }
-  alternates?: {
-    canonical?: string
-  }
-}): Metadata {
+}
+
+// Shared helper every route uses to build consistent, page-specific metadata
+// (title, description, keywords, canonical, OG, Twitter).
+export function createPageMetadata(config: PageMetadataConfig): Metadata {
+  const canonical = config.path === '/' ? '/' : `/${config.path.replace(/^\/+/, '')}`
+  const url = `${SITE_URL}${canonical === '/' ? '' : canonical}`
+
+  // Next.js resolves `title.template` inheritance inconsistently across
+  // nested layouts that mix static `metadata` exports with `generateMetadata`
+  // functions (some pages ended up double-branded, others un-branded).
+  // Using `absolute` sidesteps that entirely: every page controls its exact
+  // final title.
+  const brandedTitle = /tomatoai/i.test(config.title) ? config.title : `${config.title} | ${SITE_NAME}`
+
   return {
-    ...baseMetadata,
-    title: {
-      default: config.title,
-      template: `%s | ${config.title}`
-    },
+    title: { absolute: brandedTitle },
     description: config.description,
     keywords: config.keywords || baseMetadata.keywords,
+    alternates: {
+      canonical,
+    },
     openGraph: {
       ...baseMetadata.openGraph,
       title: config.openGraph?.title || config.title,
       description: config.openGraph?.description || config.description,
-      url: config.openGraph?.url || `https://tomatoai.in${config.alternates?.canonical || ''}`,
-      images: config.openGraph?.images || baseMetadata.openGraph?.images,
+      url,
+      images: config.openGraph?.images || [
+        {
+          url: '/og-image.jpg',
+          width: 1200,
+          height: 630,
+          alt: `${config.title} | TomatoAi`,
+        },
+      ],
     },
     twitter: {
       ...baseMetadata.twitter,
       title: config.twitter?.title || config.title,
       description: config.twitter?.description || config.description,
-      images: config.twitter?.images || baseMetadata.twitter?.images,
+      images: config.twitter?.images || ['/twitter-image.jpg'],
     },
-    alternates: {
-      canonical: config.alternates?.canonical,
-    },
+    robots: config.noIndex
+      ? { index: false, follow: false }
+      : baseMetadata.robots,
   }
+}
+
+interface ToolMetadataConfig {
+  name: string
+  slug: string
+  category: string
+  description: string
+  pricing?: string
+}
+
+// Per-tool metadata for the dynamic /ai-tools/[slug] pages.
+export function createToolMetadata(tool: ToolMetadataConfig): Metadata {
+  const title = `${tool.name} - AI Tool Review, Pricing & Features`
+  const description = `${tool.name} (${tool.category}): ${tool.description} See pricing${tool.pricing ? ` (${tool.pricing})` : ''}, features, and alternatives on TomatoAi.`
+
+  return createPageMetadata({
+    title,
+    description,
+    path: `/ai-tools/${tool.slug}`,
+    keywords: [
+      tool.name,
+      `${tool.name} review`,
+      `${tool.name} pricing`,
+      `${tool.name} alternatives`,
+      tool.category,
+      'AI tools',
+      'AI tools directory',
+    ],
+  })
 }

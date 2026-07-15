@@ -8,6 +8,7 @@ import {
   Sparkles, RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -18,6 +19,7 @@ import { getCurrentUser, signOut, User } from "@/lib/supabase";
 // --- 1. ROBUST DATA STRUCTURE ---
 interface Tool {
   id: number;
+  slug?: string;
   name: string;
   category: string;
   description: string;
@@ -102,7 +104,7 @@ const ToolCard = ({ tool, isSelected, onToggle, isMaxReached }: any) => (
       {isSelected ? <CheckCircle2 size={14} /> : <Plus size={14} />}
     </button>
 
-    <div className="flex flex-col mb-6">
+    <Link href={tool.slug ? `/ai-tools/${tool.slug}` : '#'} className="flex flex-col mb-6">
       <div className="w-12 h-12 rounded-xl border border-slate-100 dark:border-slate-800 p-2.5 flex items-center justify-center mb-5 bg-white dark:bg-[#0B0F1A]">
         <img src={tool.logo} alt={tool.name} className="w-full h-full object-contain" />
       </div>
@@ -115,7 +117,7 @@ const ToolCard = ({ tool, isSelected, onToggle, isMaxReached }: any) => (
 
       <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white mb-2">{tool.name}</h3>
       <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">{tool.description}</p>
-    </div>
+    </Link>
 
     <div className="flex items-center justify-between pt-5 border-t border-slate-100 dark:border-slate-800/50">
       <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
@@ -125,6 +127,7 @@ const ToolCard = ({ tool, isSelected, onToggle, isMaxReached }: any) => (
       <a
         href={tool.website}
         target="_blank"
+        rel="noopener noreferrer"
         className="text-xs font-medium text-slate-900 dark:text-white flex items-center gap-1 hover:opacity-70 transition-opacity"
       >
         Visit <ArrowRight size={12} />
@@ -180,6 +183,7 @@ function AIToolsContent() {
 
         const transformedTools = data.map((item: any, index: number) => ({
           id: `${item.name}-${index}`,
+          slug: item.slug,
           name: item.name,
           category: item.category,
           description: item.description,

@@ -1,35 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins, Montserrat, Inter } from "next/font/google";
+import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-import { supabase } from "@/lib/supabase";
-import Script from "next/script";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
+import Script from "next/script";
+import JsonLd, { WebSiteStructuredData, OrganizationStructuredData } from "@/components/JsonLd";
+import ExpiringModelsModal from "@/components/ExpiringModelsModal";
 
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["600", "700", "800"],
-  display: "swap",
-});
-
-const montserrat = Montserrat({
-  variable: "--font-montserrat",
-  subsets: ["latin"],
-  weight: ["300", "400"],
   display: "swap",
 });
 
@@ -121,10 +103,15 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'your-google-verification-code',
-    yandex: 'your-yandex-verification-code',
-  },
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION || process.env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION
+    ? {
+      verification: {
+        ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION }),
+        ...(process.env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION && { yandex: process.env.NEXT_PUBLIC_YANDEX_SITE_VERIFICATION }),
+        ...(process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION && { other: { 'msvalidate.01': process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION } }),
+      },
+    }
+    : {}),
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -175,9 +162,8 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://images.pexels.com" />
-        <link rel="preconnect" href="https://images.unsplash.com" />
-        <link rel="preconnect" href="https://assets.lummi.ai" />
+        <JsonLd data={WebSiteStructuredData} />
+        <JsonLd data={OrganizationStructuredData} />
       </head>
       <Script async src="https://www.googletagmanager.com/gtag/js?id=G-YDZ0RQNZ2M" strategy="afterInteractive" />
       <Script id="google-analytics" strategy="afterInteractive">
@@ -190,7 +176,7 @@ export default function RootLayout({
         `}
       </Script>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${montserrat.variable} ${inter.variable} antialiased`}
+        className={`${poppins.variable} ${inter.variable} antialiased font-inter`}
       >
         <ThemeProvider
           attribute="class"
@@ -199,6 +185,7 @@ export default function RootLayout({
         >
           <TooltipProvider delayDuration={0}>
             {children}
+            <ExpiringModelsModal />
             <Toaster position="top-center" richColors />
           </TooltipProvider>
 

@@ -36,7 +36,9 @@ import {
   Scissors,
   Maximize2,
   Cat,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Square,
+  Plus
 } from 'lucide-react';
 import { extractTextFromPdf } from "@/services/pdfService";
 import { toast } from "sonner";
@@ -95,9 +97,12 @@ function formatTitleFromPrompt(text: string) {
 // Code Block Component with Copy Functionality
 const CodeBlock = ({ language, value, copiedCode, onCopy }: { language: string, value: string, copiedCode: string, onCopy: (code: string, id: string) => void }) => {
   const codeId = useMemo(() => Math.random().toString(36).substring(7), []);
+  const codeRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    Prism.highlightAll();
+    if (codeRef.current) {
+      Prism.highlightElement(codeRef.current);
+    }
   }, [value, language]);
 
   return (
@@ -135,7 +140,7 @@ const CodeBlock = ({ language, value, copiedCode, onCopy }: { language: string, 
         </button>
       </div>
       <pre className={`language-${language}`} style={{ margin: 0, padding: '1.5rem', fontSize: '0.875rem', lineHeight: '1.5', background: 'transparent' }}>
-        <code className={`language-${language}`}>{value}</code>
+        <code ref={codeRef} className={`language-${language}`}>{value}</code>
       </pre>
     </div>
   );
@@ -149,39 +154,23 @@ function ModelSelectionModal({ isOpen, onClose, selectedModel, onSelectModel }: 
   onSelectModel: (model: string) => void;
 }) {
   const models = [
-    { id: "arcee-ai/trinity-large-preview:free", name: "Trinity Large Preview", type: "reasoning" },
-    { id: "tngtech/deepseek-r1t2-chimera:free", name: "DeepSeek R1T2 Chimera", type: "reasoning" },
-    { id: "z-ai/glm-4.5-air:free", name: "GLM 4.5 Air", type: "fast" },
-    { id: "tngtech/deepseek-r1t-chimera:free", name: "DeepSeek R1T Chimera", type: "reasoning" },
-    { id: "deepseek/deepseek-r1-0528:free", name: "DeepSeek R1", type: "reasoning" },
-    { id: "nvidia/nemotron-3-nano-30b-a3b:free", name: "Nemotron 3 Nano 30B", type: "compact" },
-    { id: "stepfun/step-3.5-flash:free", name: "Step 3.5 Flash", type: "multimodal" },
-    { id: "tngtech/tng-r1t-chimera:free", name: "TNG R1T Chimera", type: "reasoning" },
-    { id: "openai/gpt-oss-120b:free", name: "GPT OSS 120B", type: "large" },
-    { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B", type: "balanced" },
-    { id: "upstage/solar-pro-3:free", name: "Solar Pro 3", type: "pro" },
-    { id: "qwen/qwen3-coder:free", name: "Qwen 3 Coder", type: "code" },
-    { id: "google/gemma-3-27b-it:free", name: "Gemma 3 27B", type: "balanced" },
-    { id: "arcee-ai/trinity-mini:free", name: "Trinity Mini", type: "compact" },
-    { id: "qwen/qwen3-next-80b-a3b-instruct:free", name: "Qwen 3 Next 80B", type: "next" },
-    { id: "openai/gpt-oss-20b:free", name: "GPT OSS 20B", type: "compact" },
-    { id: "nvidia/nemotron-nano-12b-2-vl:free", name: "Nemotron Nano 12B VL", type: "multimodal" },
-    { id: "allenai/molmo2-8b:free", name: "Molmo 2 8B", type: "multimodal" },
-    { id: "nvidia/nemotron-nano-9b-v2:free", name: "Nemotron Nano 9B v2", type: "compact" },
-    { id: "venice/uncensored:free", name: "Venice Uncensored", type: "uncensored" },
-    { id: "liquidai/lfm2.5-1.2b-thinking:free", name: "LFM 2.5 1.2B Thinking", type: "reasoning" },
-    { id: "liquidai/lfm2.5-1.2b-instruct:free", name: "LFM 2.5 1.2B Instruct", type: "balanced" },
-    { id: "nousresearch/hermes-3-405b-instruct:free", name: "Hermes 3 405B", type: "large" },
-    { id: "mistralai/mistral-small-3.1-24b:free", name: "Mistral Small 3.1 24B", type: "compact" },
-    { id: "qwen/qwen3-4b:free", name: "Qwen 3 4B", type: "compact" },
-    { id: "google/gemma-3n-2b:free", name: "Gemma 3N 2B", type: "compact" },
-    { id: "meta-llama/llama-3.2-3b-instruct:free", name: "Llama 3.2 3B", type: "compact" },
-    { id: "google/gemma-3-12b-it:free", name: "Gemma 3 12B", type: "balanced" },
-    { id: "google/gemma-3-4b:free", name: "Gemma 3 4B", type: "compact" },
-    { id: "qwen/qwen2.5-vl-7b-instruct:free", name: "Qwen 2.5 VL 7B", type: "multimodal" },
-    { id: "google/gemma-3n-4b:free", name: "Gemma 3N 4B", type: "compact" },
-    { id: "meta-llama/llama-3.1-405b-instruct:free", name: "Llama 3.1 405B", type: "large" },
-    { id: "openrouter/free:free", name: "OpenRouter Default", type: "default" },
+    { id: "tencent/hy3:free", name: "Tencent Hunyuan 3", type: "large", logo: "https://www.google.com/s2/favicons?domain=tencent.com&sz=128" },
+    { id: "nvidia/nemotron-3-ultra-550b-a55b:free", name: "Nemotron 3 Ultra 550B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
+    { id: "poolside/laguna-m.1:free", name: "Laguna M.1", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=poolside.ai&sz=128" },
+    { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 3 Super 120B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
+    { id: "cohere/north-mini-code:free", name: "Cohere North Mini Code", type: "code", logo: "https://www.google.com/s2/favicons?domain=cohere.com&sz=128" },
+    { id: "poolside/laguna-xs-2.1:free", name: "Laguna XS 2.1", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=poolside.ai&sz=128" },
+    { id: "nvidia/nemotron-3-nano-30b-a3b:free", name: "Nemotron 3 Nano 30B", type: "compact", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
+    { id: "openai/gpt-oss-120b:free", name: "GPT OSS 120B", type: "large", logo: "https://www.google.com/s2/favicons?domain=openai.com&sz=128" },
+    { id: "google/gemma-4-31b-it:free", name: "Gemma 4 31B IT", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=google.com&sz=128" },
+    { id: "openai/gpt-oss-20b:free", name: "GPT OSS 20B", type: "compact", logo: "https://www.google.com/s2/favicons?domain=openai.com&sz=128" },
+    { id: "qwen/qwen3-coder:free", name: "Qwen 3 Coder", type: "code", logo: "https://www.google.com/s2/favicons?domain=qwenlm.ai&sz=128" },
+    { id: "meta-llama/llama-3.2-3b-instruct:free", name: "Llama 3.2 3B Instruct", type: "compact", logo: "https://www.google.com/s2/favicons?domain=meta.com&sz=128" },
+    { id: "nousresearch/hermes-3-llama-3.1-405b:free", name: "Hermes 3 Llama 3.1 405B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nousresearch.com&sz=128" },
+    { id: "cognitivecomputations/dolphin-mistral-24b-venice-edition:free", name: "Dolphin Mistral 24B Venice", type: "uncensored", logo: "https://avatars.githubusercontent.com/u/148782075?s=128&v=4" },
+    { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B Instruct", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=meta.com&sz=128" },
+    { id: "liquid/lfm-2.5-1.2b-thinking:free", name: "LFM 2.5 1.2B Thinking", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=liquid.ai&sz=128" },
+    { id: "liquid/lfm-2.5-1.2b-instruct:free", name: "LFM 2.5 1.2B Instruct", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=liquid.ai&sz=128" },
   ];
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -194,34 +183,41 @@ function ModelSelectionModal({ isOpen, onClose, selectedModel, onSelectModel }: 
       isOpen={isOpen}
       onRequestClose={onClose}
       className="fixed inset-0 flex items-center justify-center p-4 z-[9999]"
-      overlayClassName="fixed inset-0 bg-black/40 z-[9998]"
+      overlayClassName="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md z-[9998]"
     >
       <MotionDiv
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.15, ease: "easeOut" }}
-        className="bg-white dark:bg-[#111111] rounded-2xl w-full max-w-sm shadow-2xl border border-gray-200 dark:border-white/10 overflow-hidden"
+        initial={{ opacity: 0, scale: 0.96, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+        className="relative bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xl rounded-[32px] w-full max-w-[460px] shadow-2xl border border-white/20 dark:border-white/10 overflow-hidden"
       >
-        <div className="p-5 border-b border-gray-100 dark:border-white/5 flex items-center justify-between">
-          <h2 className="font-semibold text-gray-900 dark:text-white">Switch Model</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+        {/* Ambient Glows */}
+        <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-[80px] translate-x-1/3 translate-y-1/3 pointer-events-none" />
+
+        <div className="relative p-6 pb-4 border-b border-gray-100/50 dark:border-white/5 flex items-center justify-between z-10">
+          <div>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Intelligence Models</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Select the AI brain for your task</p>
+          </div>
+          <button onClick={onClose} className="p-2 bg-gray-100 dark:bg-white/5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="p-4">
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400" />
+        <div className="relative p-6 pt-4 z-10">
+          <div className="relative mb-6">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search models..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-xl focus:outline-none text-sm dark:text-gray-200"
+              className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm font-medium dark:text-gray-200 transition-all placeholder-gray-400 dark:placeholder-gray-500"
             />
           </div>
 
-          <div className="space-y-1 max-h-[50vh] overflow-y-auto px-1 custom-scrollbar">
+          <div className="space-y-2 max-h-[50vh] overflow-y-auto px-1 custom-scrollbar pr-2">
             {filteredModels.map((model) => (
               <button
                 key={model.id}
@@ -229,16 +225,25 @@ function ModelSelectionModal({ isOpen, onClose, selectedModel, onSelectModel }: 
                   onSelectModel(model.id);
                   onClose();
                 }}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm transition-all ${selectedModel === model.id
-                  ? "bg-gray-900 dark:bg-white text-white dark:text-black font-medium"
-                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5"
+                className={`w-full flex items-center justify-between p-3 rounded-2xl text-left transition-all duration-200 group ${selectedModel === model.id
+                  ? "bg-slate-900 dark:bg-white border-transparent shadow-md"
+                  : "bg-white/50 dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.04] border border-gray-100 dark:border-white/5"
                   }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="truncate">{model.name}</span>
-                  <span className="text-[10px] opacity-40 uppercase tracking-widest">{model.type}</span>
+                <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center p-1.5 overflow-hidden bg-white shadow-sm border border-gray-100 dark:border-white/10 transition-colors">
+                    <img src={model.logo} alt={model.name} className="w-full h-full object-contain drop-shadow-sm" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className={`text-sm font-semibold truncate ${selectedModel === model.id ? 'text-white dark:text-gray-900' : 'text-gray-900 dark:text-gray-100'}`}>{model.name}</span>
+                    <span className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${selectedModel === model.id ? 'text-white/70 dark:text-gray-900/70' : 'text-gray-400 dark:text-gray-500'}`}>{model.type}</span>
+                  </div>
                 </div>
-                {selectedModel === model.id && <Check className="w-3.5 h-3.5" />}
+                {selectedModel === model.id && (
+                  <div className="w-6 h-6 rounded-full bg-white/20 dark:bg-black/10 flex items-center justify-center mr-1">
+                    <Check className="w-3.5 h-3.5 text-white dark:text-gray-900" />
+                  </div>
+                )}
               </button>
             ))}
           </div>
@@ -350,7 +355,8 @@ function SuggestionMarquee({ onSelect }: { onSelect: (query: string) => void }) 
   );
 }
 
-function ChatInterface() {
+function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [convos, setConvos] = useState<Conversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
@@ -366,29 +372,55 @@ function ChatInterface() {
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [attachment, setAttachment] = useState<{ type: 'image' | 'text', content?: string, url?: string, name: string } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("tngtech/deepseek-r1t2-chimera:free");
+  const [selectedModel, setSelectedModel] = useState("meta-llama/llama-3.3-70b-instruct:free");
   const [showModelModal, setShowModelModal] = useState(false);
+  const [customMemory, setCustomMemory] = useState("");
+  const [showMemoryModal, setShowMemoryModal] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const stopGenerating = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+  };
+
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isInputHovered, setIsInputHovered] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get("q");
   const hasTriggeredRef = useRef(false);
 
   useEffect(() => {
-    if (!isAuthChecking && query && !hasTriggeredRef.current) {
+    if (isAuthChecking) return;
+    if (!isLoaded) return;
+    if (hasTriggeredRef.current) return;
+
+    const pendingPrompt = localStorage.getItem('pending_prompt');
+    const urlQuery = query;
+    const promptToUse = pendingPrompt || urlQuery;
+
+    if (promptToUse) {
       hasTriggeredRef.current = true;
 
-      const newUrl = new URL(window.location.href);
-      newUrl.searchParams.delete('q');
-      window.history.replaceState({}, '', newUrl.toString());
+      const isFromUrl = !!urlQuery;
 
-      setTimeout(() => {
-        submitMessage(query);
-      }, 100);
+      // Cleanup localStorage and URL
+      if (pendingPrompt) localStorage.removeItem('pending_prompt');
+      if (urlQuery) {
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('q');
+        window.history.replaceState({}, '', newUrl.toString());
+      }
+
+      // Submit immediately without timeout which can be lost if React drops it
+      submitMessage(promptToUse, isFromUrl);
     }
-  }, [isAuthChecking, query]);
+  }, [isAuthChecking, isLoaded, query]);
 
   // Copy code to clipboard function
   const copyToClipboard = async (code: string, codeId: string) => {
@@ -404,23 +436,15 @@ function ChatInterface() {
   // Authentication check
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      const currentUser = session?.user ?? null;
-      setUser(currentUser);
-      setIsAuthChecking(false);
-
-      // Restore pending prompt if user just logged in
-      if (currentUser) {
-        const pendingPrompt = localStorage.getItem('pending_prompt');
-        if (pendingPrompt) {
-          localStorage.removeItem('pending_prompt');
-          // If we're not already processing a query from the URL
-          if (!query) {
-            setInput(pendingPrompt);
-            // Optionally auto-submit if you want
-            // submitMessage(pendingPrompt); 
-          }
-        }
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const currentUser = session?.user ?? null;
+        setUser(currentUser);
+      } catch (err) {
+        console.error("Auth session error:", err);
+        setUser(null);
+      } finally {
+        setIsAuthChecking(false);
       }
     };
 
@@ -451,16 +475,50 @@ function ChatInterface() {
 
   // Load conversations from localStorage
   useEffect(() => {
-    if (!user) return;
+    if (isAuthChecking) return;
+    const uid = user?.id || 'anon';
 
     try {
-      const raw = localStorage.getItem(`chatgpt_convos_v1_${user.id}`);
+      // Migrate anonymous chats on login
+      if (user) {
+        const anonRaw = localStorage.getItem('chatgpt_convos_v1_anon');
+        if (anonRaw) {
+          const anonParsed = JSON.parse(anonRaw) as Conversation[];
+          if (anonParsed.length > 0) {
+            const userRaw = localStorage.getItem(`chatgpt_convos_v1_${user.id}`);
+            const userParsed = userRaw ? (JSON.parse(userRaw) as Conversation[]) : [];
+            const existingIds = new Set(userParsed.map(c => c.id));
+            const newAnonParsed = anonParsed.filter(c => !existingIds.has(c.id));
+
+            const merged = [...newAnonParsed, ...userParsed];
+            localStorage.setItem(`chatgpt_convos_v1_${user.id}`, JSON.stringify(merged));
+            localStorage.removeItem('chatgpt_convos_v1_anon');
+
+            const anonActiveId = sessionStorage.getItem('tomato_ai_active_id_anon');
+            if (anonActiveId) {
+              sessionStorage.setItem(`tomato_ai_active_id_${user.id}`, anonActiveId);
+              sessionStorage.removeItem('tomato_ai_active_id_anon');
+            }
+          } else {
+            localStorage.removeItem('chatgpt_convos_v1_anon');
+          }
+        }
+      }
+
+      const raw = localStorage.getItem(`chatgpt_convos_v1_${uid}`);
       if (raw) {
         const parsed = JSON.parse(raw) as Conversation[];
-        setConvos(parsed);
+        setConvos(prev => {
+          if (prev.length > 0) {
+            const existingIds = new Set(prev.map(c => c.id));
+            const newParsed = parsed.filter(c => !existingIds.has(c.id));
+            return [...prev, ...newParsed];
+          }
+          return parsed;
+        });
 
         // Load activeId from sessionStorage (reset on tab close)
-        const sessionActiveId = sessionStorage.getItem(`tomato_ai_active_id_${user.id}`);
+        const sessionActiveId = sessionStorage.getItem(`tomato_ai_active_id_${uid}`);
         if (sessionActiveId && parsed.some(c => c.id === sessionActiveId)) {
           setActiveId(sessionActiveId);
           setHasStartedChat(true);
@@ -470,19 +528,30 @@ function ChatInterface() {
           setHasStartedChat(false);
         }
       }
-    } catch { }
-  }, [user]);
+
+      // Load custom memory
+      const memory = localStorage.getItem(`tomato_ai_custom_memory_${uid}`);
+      if (memory) {
+        setCustomMemory(memory);
+      } else {
+        setCustomMemory("");
+      }
+    } catch { } finally {
+      setIsLoaded(true);
+    }
+  }, [user, isAuthChecking]);
 
   // Persist conversations to localStorage
   useEffect(() => {
-    if (!user) return;
+    if (isAuthChecking) return;
+    const uid = user?.id || 'anon';
 
     try {
-      localStorage.setItem(`chatgpt_convos_v1_${user.id}`, JSON.stringify(convos));
+      localStorage.setItem(`chatgpt_convos_v1_${uid}`, JSON.stringify(convos));
       if (activeId) {
-        sessionStorage.setItem(`tomato_ai_active_id_${user.id}`, activeId);
+        sessionStorage.setItem(`tomato_ai_active_id_${uid}`, activeId);
       } else {
-        sessionStorage.removeItem(`tomato_ai_active_id_${user.id}`);
+        sessionStorage.removeItem(`tomato_ai_active_id_${uid}`);
       }
     } catch { }
   }, [convos, user, activeId]);
@@ -502,6 +571,17 @@ function ChatInterface() {
     }
   }, [active?.messages.length]);
 
+  // Track scroll position to collapse input
+  useEffect(() => {
+    const el = listRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      setIsScrolled(el.scrollTop > 60);
+    };
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [hasStartedChat]);
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setConvos([]);
@@ -509,6 +589,14 @@ function ChatInterface() {
     setHasStartedChat(false);
     sessionStorage.clear();
   };
+
+  function startNewConversation() {
+    setActiveId(null);
+    setHasStartedChat(false);
+    setSidebarOpen(false);
+    setMessageAnimations(new Set());
+    router.push('/tomato-ai');
+  }
 
   function createNewChat(seed?: string) {
     const id = uid();
@@ -605,14 +693,16 @@ function ChatInterface() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  async function submitMessage(text: string) {
+  async function submitMessage(text: string, forceNewChat = false) {
     if (!text) return;
 
     if (!user) {
-      // Save prompt to localStorage before showing login popup
-      localStorage.setItem('pending_prompt', text);
-      setShowLoginPopup(true);
-      return;
+      const totalAnonMessages = convos.reduce((acc, c) => acc + c.messages.filter(m => m.role === 'user').length, 0);
+      if (totalAnonMessages >= 1) {
+        localStorage.setItem('pending_prompt', text);
+        setShowLoginPopup(true);
+        return;
+      }
     }
 
     setLoading(true);
@@ -621,7 +711,7 @@ function ChatInterface() {
 
     if (!hasStartedChat) setHasStartedChat(true);
 
-    let convo = active;
+    let convo = forceNewChat ? null : active;
     if (!convo) {
       convo = createNewChat();
     }
@@ -666,7 +756,7 @@ function ChatInterface() {
     let apiMessages = [
       {
         role: "system",
-        content: `You are TomatoAI, a helpful and professional AI assistant.`
+        content: `You are TomatoAI, a helpful and professional AI assistant.` + (customMemory.trim() ? `\n\nUser's Custom Context Memory:\n${customMemory.trim()}` : "")
       },
       ...convo!.messages.map((m) => ({ role: m.role, content: m.content })),
     ];
@@ -687,6 +777,9 @@ function ChatInterface() {
     apiMessages.push({ role: "user", content: lastMessageContent });
 
     try {
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       const payload = {
         messages: apiMessages,
         model: modelToUse,
@@ -697,6 +790,7 @@ function ChatInterface() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
@@ -728,6 +822,7 @@ function ChatInterface() {
         }
       }
     } catch (err: any) {
+      if (err.name === 'AbortError') return;
       setConvos(prev =>
         prev.map(c =>
           c.id === convo!.id
@@ -789,13 +884,7 @@ function ChatInterface() {
     if (user) {
       localStorage.removeItem(`chatgpt_convos_v1_${user.id}`);
     }
-  }
-
-  function startNewConversation() {
-    setActiveId(null);
-    setHasStartedChat(false);
-    setSidebarOpen(false);
-    setMessageAnimations(new Set());
+    router.push('/tomato-ai');
   }
 
   const MarkdownRenderer = ({ content }: { content: string }) => {
@@ -1061,6 +1150,49 @@ function ChatInterface() {
         onClose={() => setShowLoginPopup(false)}
       />
 
+      {/* Memory Modal */}
+      <Modal
+        isOpen={showMemoryModal}
+        onRequestClose={() => setShowMemoryModal(false)}
+        className="fixed inset-0 flex items-center justify-center p-4 z-[9999]"
+        overlayClassName="fixed inset-0 bg-black/40 dark:bg-black/80 backdrop-blur-sm z-[9998] transition-all duration-300"
+      >
+        <div className="bg-white dark:bg-zinc-950 p-6 rounded-2xl max-w-md w-full shadow-2xl border border-zinc-200 dark:border-zinc-800 flex flex-col gap-5">
+          <div>
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50 tracking-tight">Custom Instructions</h2>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+              Add rules and preferences that TomatoAI will remember across all chats.
+            </p>
+          </div>
+
+          <textarea
+            value={customMemory}
+            onChange={(e) => setCustomMemory(e.target.value)}
+            className="w-full h-36 p-4 rounded-xl bg-transparent border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-100 resize-none outline-none focus:border-zinc-400 dark:focus:border-zinc-600 focus:ring-1 focus:ring-zinc-400/20 dark:focus:ring-zinc-600/20 placeholder-zinc-400 dark:placeholder-zinc-600 transition-all text-sm leading-relaxed"
+            placeholder="For example: Always write code in Python. Keep answers concise. Speak in a friendly tone."
+          />
+
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setShowMemoryModal(false)}
+              className="px-4 py-2.5 rounded-xl text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 font-medium text-xs transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                const uid = user?.id || 'anon';
+                localStorage.setItem(`tomato_ai_custom_memory_${uid}`, customMemory);
+                setShowMemoryModal(false);
+              }}
+              className="px-4 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-50 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-900 font-medium text-xs transition-all shadow-sm"
+            >
+              Save instructions
+            </button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Model Selection Modal */}
       <ModelSelectionModal
         isOpen={showModelModal}
@@ -1069,73 +1201,6 @@ function ChatInterface() {
         onSelectModel={setSelectedModel}
       />
 
-      {/* Transparent Navbar */}
-      <div className="fixed top-0 left-0 right-0 z-30">
-        <div className="flex items-center justify-between px-4 py-3">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors md:hidden backdrop-blur-sm"
-          >
-            <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
-          <Link href="/" className="flex items-center gap-2">
-            <MotionDiv
-              whileHover={{ scale: 1.07, rotate: 5 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 320, damping: 18 }}
-            >
-              <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-lg shadow-sm" />
-            </MotionDiv>
-            <span className="font-bold text-gray-900 dark:text-gray-100">TomatoAI</span>
-          </Link>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setShowModelModal(true)}
-              className="p-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors backdrop-blur-sm"
-              title="Select AI Model"
-            >
-              <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-            </button>
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-800/50 transition-colors backdrop-blur-sm"
-              title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {isDarkMode ? (
-                <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clipRule="evenodd" />
-                </svg>
-              )}
-            </button>
-
-            {user ? (
-              <button
-                onClick={handleSignOut}
-                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white/30 dark:bg-gray-700/30 hover:bg-gray-200/50 dark:hover:bg-gray-600/50 rounded-lg transition-colors backdrop-blur-sm"
-              >
-                Sign Out
-              </button>
-            ) : (
-              <button
-                onClick={() => setShowLoginPopup(true)}
-                className="px-4 py-2 text-sm font-medium text-white bg-gray-900/90 dark:bg-gray-700/90 hover:bg-gray-800/90 dark:hover:bg-gray-600/90 rounded-lg transition-colors backdrop-blur-sm"
-              >
-                Login
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
 
       {/* Transparent Sidebar Toggle Button */}
       <button
@@ -1190,6 +1255,16 @@ function ChatInterface() {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                     </svg>
                     New Conversation
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setShowMemoryModal(true)}
+                  className="w-full px-4 py-3 mt-3 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-xl transition-all font-medium border border-indigo-500/20 shadow-sm shadow-indigo-500/10"
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    <img src="/brain-svgrepo-com.svg" className="w-4 h-4 object-contain" alt="Brain" />
+                    Context Memory
                   </div>
                 </button>
               </div>
@@ -1272,9 +1347,88 @@ function ChatInterface() {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative pt-16 overflow-hidden">
+      <main className="flex-1 flex flex-col relative overflow-hidden">
+        {/* Uncensored Model Quick Select FAB */}
+        <button
+          onClick={() => setSelectedModel("cognitivecomputations/dolphin-mistral-24b-venice-edition:free")}
+          className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-40 group flex flex-col items-center justify-center p-3 md:p-4 rounded-[28px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/60 border border-white/50 dark:border-white/10 backdrop-blur-xl shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-x-1"
+        >
+          <div className="w-12 h-12 rounded-full overflow-hidden bg-white dark:bg-slate-900 flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(168,85,247,0.4)] group-hover:shadow-[0_0_25px_rgba(168,85,247,0.6)] transition-all duration-300 border border-white/20">
+            <img src="https://avatars.githubusercontent.com/u/148782075?s=128&v=4" alt="Dolphin Model" className="w-full h-full object-cover p-1.5" />
+          </div>
+          <span className="text-[11px] font-black tracking-[0.25em] text-slate-700 dark:text-slate-300 uppercase rotate-180 transition-colors group-hover:text-purple-600 dark:group-hover:text-purple-400" style={{ writingMode: 'vertical-rl' }}>
+            Uncensored
+          </span>
+        </button>
+
+        {/* Transparent Navbar — inline, scrolls with content, takes no fixed space */}
+        <div className="flex-shrink-0 flex items-center justify-between px-4 py-3">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="p-2 rounded-lg hover:bg-gray-100/20 dark:hover:bg-gray-800/20 transition-colors md:hidden"
+          >
+            <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <Link href="/" className="flex items-center gap-2">
+            <MotionDiv
+              whileHover={{ scale: 1.07, rotate: 5 }}
+              whileTap={{ scale: 0.98 }}
+              transition={{ type: "spring", stiffness: 320, damping: 18 }}
+            >
+              <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-lg shadow-sm" />
+            </MotionDiv>
+            <span className="font-bold text-gray-900 dark:text-gray-100">TomatoAI</span>
+          </Link>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowModelModal(true)}
+              className="p-2 rounded-lg hover:bg-gray-100/20 dark:hover:bg-gray-800/20 transition-colors"
+              title="Select AI Model"
+            >
+              <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+            </button>
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className="p-2 rounded-lg hover:bg-gray-100/20 dark:hover:bg-gray-800/20 transition-colors"
+              title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDarkMode ? (
+                <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
+                </svg>
+              ) : (
+                <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clipRule="evenodd" />
+                </svg>
+              )}
+            </button>
+
+            {user ? (
+              <button
+                onClick={handleSignOut}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100/20 dark:hover:bg-gray-700/20 rounded-lg transition-colors"
+              >
+                Sign Out
+              </button>
+            ) : (
+              <button
+                onClick={() => setShowLoginPopup(true)}
+                className="px-4 py-2 text-sm font-medium text-white bg-gray-900/70 dark:bg-gray-700/70 hover:bg-gray-800/80 dark:hover:bg-gray-600/80 rounded-lg transition-colors"
+              >
+                Login
+              </button>
+            )}
+          </div>
+        </div>
+
         <div ref={listRef} className="flex-1 overflow-y-auto w-full">
-          {(!hasStartedChat || (!active && !loading)) ? (
+          {(!forceChatView && (!hasStartedChat || (!active && !loading))) ? (
             <div className="flex flex-col items-center justify-center h-full px-4 relative">
               <div className="max-w-2xl w-full text-center mb-12">
                 <div className="mb-8 bounce-in">
@@ -1293,10 +1447,25 @@ function ChatInterface() {
                       className="rounded-2xl shadow-xl"
                     />
                   </MotionDiv>
-                  <h1 className="text-5xl font-bold mb-4 text-gray-900 dark:text-gray-100 fade-in font-['Inter','system-ui','-apple-system','sans-serif'] tracking-tight">
-                    Hi, I'm TomatoAI
-                  </h1>
-                  <p className="text-xl text-gray-600 dark:text-gray-400 font-light fade-in font-['Inter','system-ui','-apple-system','sans-serif']" style={{ animationDelay: '200ms' }}>How can I help you today?</p>
+                  {selectedModel === "cognitivecomputations/dolphin-mistral-24b-venice-edition:free" ? (
+                    <>
+                      <h1 className="text-6xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 fade-in font-['Inter','system-ui','-apple-system','sans-serif'] tracking-tighter drop-shadow-sm uppercase">
+                        Uncensored
+                      </h1>
+                      <p className="text-xl text-gray-600 dark:text-gray-400 font-medium fade-in font-['Inter','system-ui','-apple-system','sans-serif']" style={{ animationDelay: '200ms' }}>
+                        No limits. Pure intelligence.
+                      </p>
+                    </>
+                  ) : (
+                    <>
+                      <h1 className="text-5xl font-bold mb-4 text-gray-900 dark:text-gray-100 fade-in font-['Inter','system-ui','-apple-system','sans-serif'] tracking-tight">
+                        Hi, I'm TomatoAI
+                      </h1>
+                      <p className="text-xl text-gray-600 dark:text-gray-400 font-light fade-in font-['Inter','system-ui','-apple-system','sans-serif']" style={{ animationDelay: '200ms' }}>
+                        How can I help you today?
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 <div className="relative mb-8">
@@ -1305,9 +1474,10 @@ function ChatInterface() {
                       if (isSearch) {
                         router.push(`/search?q=${encodeURIComponent(text)}`);
                       } else {
-                        sendText(text);
+                        router.push(`/tomato-ai/chat?q=${encodeURIComponent(text)}`);
                       }
                     }}
+                    onStop={stopGenerating}
                     submitting={loading}
                     disabled={loading}
                     onModelSelect={() => setShowModelModal(true)}
@@ -1373,7 +1543,7 @@ function ChatInterface() {
           )}
         </div>
 
-        {hasStartedChat && (
+        {(hasStartedChat || forceChatView) && (
           <div className="hidden md:block border-t border-gray-200/50 dark:border-gray-700/50 bg-white/20 dark:bg-gray-900/20 backdrop-blur-md">
             <div className="max-w-4xl mx-auto">
               <div className="relative">
@@ -1385,6 +1555,7 @@ function ChatInterface() {
                       sendText(text);
                     }
                   }}
+                  onStop={stopGenerating}
                   submitting={loading}
                   disabled={loading}
                   onFileSelect={handleAiInputFileSelect}
@@ -1485,15 +1656,18 @@ function ChatInterface() {
               )}
 
               <button
-                type="submit"
-                disabled={!input.trim() || loading}
-                className={`p-2 rounded-full transition-all duration-200 ${input.trim()
-                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
-                  : 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                type={loading ? "button" : "submit"}
+                disabled={!loading && !input.trim()}
+                onClick={loading ? stopGenerating : undefined}
+                className={`p-2 rounded-full transition-all duration-200 ${loading
+                  ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30 shadow-lg hover:shadow-xl transform hover:scale-105'
+                  : input.trim()
+                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+                    : 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
                   }`}
               >
                 {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <Square className="w-5 h-5 fill-current" />
                 ) : (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
