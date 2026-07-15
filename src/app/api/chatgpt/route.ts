@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
           model: modelToUse,
           messages,
           temperature: temperature ?? 0.7,
-          max_tokens: 4096,
+          max_tokens: 81920,
           stream: true,
         }),
       });
