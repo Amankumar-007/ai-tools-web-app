@@ -14,7 +14,7 @@ const MODELS = [
     tags: ["LARGE"],
     desc: "OPENAI FOUNDATION",
     iconBg: "bg-[#00A699]/10 text-[#00A699]",
-    logoUrl: "https://cdn.simpleicons.org/openai/00A699"
+    logoUrl: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/openai.svg"
   },
   {
     id: "nemotron-3-ultra",
@@ -22,7 +22,7 @@ const MODELS = [
     tags: ["LARGE"],
     desc: "NVIDIA SUPERCOMPUTER",
     iconBg: "bg-[#76B900]/10 text-[#76B900]",
-    logoUrl: "https://cdn.simpleicons.org/nvidia/76B900"
+    logoUrl: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/nvidia.svg"
   },
   {
     id: "gemma-4-31b",
@@ -30,7 +30,7 @@ const MODELS = [
     tags: ["BALANCED"],
     desc: "GOOGLE DEEPMIND",
     iconBg: "bg-[#4285F4]/10 text-[#4285F4]",
-    logoUrl: "https://cdn.simpleicons.org/google/4285F4"
+    logoUrl: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/gemma-color.svg"
   },
   {
     id: "llama-3-3",
@@ -38,7 +38,7 @@ const MODELS = [
     tags: ["BALANCED"],
     desc: "META AI OPEN SOURCE",
     iconBg: "bg-[#0467F1]/10 text-[#0467F1]",
-    logoUrl: "https://cdn.simpleicons.org/meta/0467F1"
+    logoUrl: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/meta-color.svg"
   },
   {
     id: "cohere-north-mini",
@@ -46,7 +46,7 @@ const MODELS = [
     tags: ["CODE"],
     desc: "COHERE ENTERPRISE",
     iconBg: "bg-white/10 text-white",
-    logoUrl: "https://cdn.simpleicons.org/cohere/ffffff"
+    logoUrl: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/cohere-color.svg"
   },
   {
     id: "qwen-3-coder",
@@ -54,7 +54,7 @@ const MODELS = [
     tags: ["CODE"],
     desc: "ALIBABA GROUP",
     iconBg: "bg-[#FF6A00]/10 text-[#FF6A00]",
-    logoUrl: "https://cdn.simpleicons.org/alibaba/FF6A00"
+    logoUrl: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/qwen-color.svg"
   }
 ];
 

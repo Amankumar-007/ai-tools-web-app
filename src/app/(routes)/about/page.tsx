@@ -1,257 +1,639 @@
-// src/app/(routes)/about/page.tsx
 "use client";
 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { motion, useScroll, useSpring, useTransform } from "framer-motion";
-import { useRef, memo } from "react";
-import styles from "./page.module.scss";
-import Logo from '../../../components/Logo';
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Search,
+  Cpu,
+  Layers,
+  Shield,
+  ArrowUpRight,
+  Mail,
+  CheckCircle2,
+  Workflow,
+  Sparkles,
+  Database,
+  Terminal,
+  Zap,
+  TrendingUp,
+  Lock,
+  Code
+} from "lucide-react";
+import { getCurrentUser, signOut } from "@/lib/supabase";
+import MainNavbar from "@/components/MainNavbar";
+import JsonLd, {
+  OrganizationStructuredData,
+  breadcrumbListStructuredData,
+  faqPageStructuredData
+} from "@/components/JsonLd";
 
-// Use string paths for public images with next/image
-const Pic1 = "/images/1.jpeg";
-const Pic2 = "/images/2.jpeg";
-const Pic3 = "/images/3.jpeg";
-const Pic4 = "/images/4.jpeg";
-const Pic5 = "/images/5.jpeg";
-const Pic6 = "/images/6.jpeg";
-const Pic7 = "/images/7.jpeg";
-const Pic8 = "/images/8.jpeg";
-
-// Memoized gallery card for performance
-const GalleryCard = memo(function GalleryCard({ src, alt, idx }: { src: string; alt: string; idx: number }) {
-  return (
-    <article className={styles.cardSnap}>
-      <div className={styles.cardMedia}>
-        <Image
-          src={src}
-          alt={alt}
-          fill
-          sizes="(min-width: 1024px) 25vw, 80vw"
-          loading="lazy"
-        />
-      </div>
-      <div className={styles.cardBody}>
-        <h5>AI Tool {idx + 1}</h5>
-        <p>
-          Discover innovative AI tools for text, images, code, productivity, and automation. 
-          Boost your workflow with the latest in artificial intelligence.
-        </p>
-      </div>
-    </article>
-  );
-});
+interface User {
+  id: string;
+  email: string;
+  subscription_tier: 'FREE' | 'PRO' | 'PREMIUM';
+  subscription_status: 'active' | 'canceled' | 'past_due' | 'unpaid';
+}
 
 export default function About() {
-  // Global scroll progress bar
-  const { scrollYProgress: pageY } = useScroll();
-  const progress = useSpring(pageY, { stiffness: 120, damping: 24, mass: 0.2 });
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [activeTab, setActiveTab] = useState<"mission" | "orchestration" | "roadmap">("mission");
+  const [email, setEmail] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
-  // Scene 1 — Sticky zoom
-  const s1Ref = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress: s1P } = useScroll({
-    target: s1Ref,
-    offset: ["start start", "end end"],
-  });
-  const s1Scale = useSpring(useTransform(s1P, [0, 1], [1, 4]), {
-    stiffness: 120,
-    damping: 24,
-    mass: 0.2,
-  });
-  const s1Overlay = useTransform(s1P, [0, 1], [0, 0.25]);
-  const s1TitleOpacity = useTransform(s1P, [0, 0.4, 0.8, 1], [1, 0.8, 0.3, 0]);
-  const s1Radius = useTransform(s1P, [0, 0.7, 1], [20, 10, 0]);
+  // Fetch current user on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const currentUser = await getCurrentUser();
+        setUser(currentUser as User | null);
+      } catch (error) {
+        console.error("Error retrieving user session:", error);
+      }
+    };
+    fetchUser();
+  }, []);
 
-  // Scene 2 — Split images slide-in + scale
-  const s2Ref = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress: s2P } = useScroll({
-    target: s2Ref,
-    offset: ["start start", "end end"],
-  });
-  const s2LeftX = useTransform(s2P, [0, 1], ["-40vw", "0vw"]);
-  const s2RightX = useTransform(s2P, [0, 1], ["40vw", "0vw"]);
-  const s2Scale = useSpring(useTransform(s2P, [0, 1], [0.9, 1.2]), {
-    stiffness: 120,
-    damping: 24,
-    mass: 0.2,
-  });
-  const s2Rotate = useTransform(s2P, [0, 1], [-3, 0]);
-  const s2TitleOpacity = useTransform(s2P, [0, 0.35, 1], [1, 1, 0]);
+  const handleProtectedLink = (
+    e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement | HTMLDivElement>,
+    href: string
+  ) => {
+    e.preventDefault();
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(href)}`);
+    } else {
+      router.push(href);
+    }
+  };
 
-  // Scene 3 — Crossfade between two full-bleed images
-  const s3Ref = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress: s3P } = useScroll({
-    target: s3Ref,
-    offset: ["start start", "end end"],
-  });
-  const s3AOpacity = useTransform(s3P, [0, 0.5, 1], [1, 0.35, 0]);
-  const s3BOpacity = useTransform(s3P, [0, 0.5, 1], [0, 0.5, 1]);
-  const s3AScale = useTransform(s3P, [0, 1], [1.08, 1]);
-  const s3BScale = useTransform(s3P, [0, 1], [1.18, 1.02]);
-  const s3TitleY = useTransform(s3P, [0, 1], [0, -40]);
-  const s3TitleOpacity = useTransform(s3P, [0, 0.6, 1], [1, 1, 0]);
+  const handleSignOut = async () => {
+    await signOut();
+    setUser(null);
+    router.push("/");
+  };
 
-  // Scene 4 — Parallax collage (3 layers)
-  const s4Ref = useRef<HTMLDivElement | null>(null);
-  const { scrollYProgress: s4P } = useScroll({
-    target: s4Ref,
-    offset: ["start end", "end start"],
-  });
-  const s4Y1 = useTransform(s4P, [0, 1], [0, -140]);
-  const s4Y2 = useTransform(s4P, [0, 1], [0, -80]);
-  const s4Y3 = useTransform(s4P, [0, 1], [0, -200]);
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email.trim()) {
+      setIsSubmitted(true);
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setEmail("");
+      }, 4000);
+    }
+  };
 
-  // Images array for gallery
-  const galleryImages = [
-    { src: Pic1, alt: "AI Chatbot" },
-    { src: Pic2, alt: "Image Generator" },
-    { src: Pic3, alt: "Text Summarizer" },
-    { src: Pic4, alt: "Voice Assistant" },
-    { src: Pic5, alt: "Code Generator" },
-    { src: Pic6, alt: "Data Analyzer" },
-    { src: Pic7, alt: "Content Creator" },
-    { src: Pic8, alt: "Productivity Booster" },
+  // Structured Data for SEO
+  const aboutFaqs = [
+    {
+      question: "What is TomatoAi?",
+      answer: "TomatoAi is a premium curated AI tools, SaaS platforms, and workflows directory. We help developers, professionals, and creators find the best artificial intelligence SaaS tools, compared by pricing, API costs, and community reviews."
+    },
+    {
+      question: "Is TomatoAi free to use?",
+      answer: "Yes, searching our curated SaaS database, copy-pasting developer prompts, and importing workflows is completely free."
+    }
   ];
+
+  const breadcrumbs = breadcrumbListStructuredData([
+    { name: "Home", url: "https://tomatoai.in" },
+    { name: "About Us", url: "https://tomatoai.in/about" }
+  ]);
+
+  const faqSchema = faqPageStructuredData(aboutFaqs);
+
+  // Tab text contents for dynamic story section (Tailored for SaaS & detailed)
+  const tabContents = {
+    mission: {
+      title: "Empowering Workflows Everywhere",
+      description: "We believe every developer, engineer, and creator deserves a distraction-free discovery layer. Our mission is to connect builders with production-ready AI capabilities and empower them to automate manual, repetitive tasks. TomatoAi filters out raw landing page noise to unlock your true automated potential, focusing strictly on high-performance integrations.",
+      kicker: "01 . CORE PURPOSE"
+    },
+    orchestration: {
+      title: "Multi-Agent Integration Pipelines",
+      description: "TomatoAi is engineered for professional workflow integration. We provide complete integration pathways, custom developer blueprints, and multi-agent n8n templates to orchestrate AI models directly inside your enterprise software stack, allowing you to run autonomous background workflows with ease.",
+      kicker: "02 . ENGINEERING"
+    },
+    roadmap: {
+      title: "The Future of Autonomous Workspaces",
+      description: "Our 2026/2027 vision introduces real-time token cost calculators, direct API endpoints to query trending AI products programmatically, and unified team dashboards to share and execute workflows collectively. We are building the foundational infrastructure for agentic orchestration.",
+      kicker: "03 . VISION 2027"
+    }
+  };
 
   return (
     <>
-    <Logo/>
-    
-    <main className={styles.page} style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}>
-      <style>{`
-        ::-webkit-scrollbar { display: none; }
-        html, body { scrollbar-width: none !important; -ms-overflow-style: none !important; }
-      `}</style>
-      {/* Progress bar */}
-      <motion.div className={styles.progress} style={{ scaleX: progress }} />
+      <JsonLd data={OrganizationStructuredData} />
+      <JsonLd data={breadcrumbs} />
+      <JsonLd data={faqSchema} />
 
-      {/* Intro */}
-      <section className={styles.intro}>
-        <div className={styles.introInner}>
-          <p className={styles.kicker}>AI Tools Platform</p>
-          <h1 className={styles.headline}>
-            Supercharge Your Workflow with <span>AI Tools</span>
-          </h1>
-          <p className={styles.subhead}>
-            Discover, compare, and use the latest AI tools for text, images, code, productivity, and automation. 
-            Our platform brings together the best artificial intelligence solutions to help you create, innovate, and save time.
-          </p>
-        </div>
-      </section>
+      {/* Actual Nav Bar displayed at the top */}
+      <MainNavbar
+        user={user}
+        onSignOut={handleSignOut}
+        onProtectedLink={handleProtectedLink}
+      />
 
-      {/* Scene 1 — Sticky zoom */}
-      <div ref={s1Ref} className={`${styles.scene} ${styles.sceneZoom}`}>
-        <div className={styles.sticky}>
-          <motion.div style={{ scale: s1Scale }} className={styles.el}>
-            <div className={styles.imageContainer} style={{ borderRadius: s1Radius as never }}>
-              <Image
-                src={Pic1}
-                alt="AI Chatbot"
-                fill
-                priority
-                sizes="(min-width: 1024px) 25vw, 80vw"
-              />
+      <main className="min-h-screen bg-[#fafafc] dark:bg-[#08080c] text-[#0f172a] dark:text-[#f8fafc] font-sans transition-colors duration-300 pb-16">
+
+        {/* ===================== HERO CARD SECTION ===================== */}
+        <div className="pt-16 md:pt-24 px-4 sm:px-6 lg:px-8 w-full">
+          <section className="relative w-full min-h-[calc(100vh-8rem)] bg-gradient-to-br from-[#d4e4f7] via-[#e2edfa] to-[#f2f7fc] dark:from-[#131b26] dark:via-[#182333] dark:to-[#0f1520] p-8 sm:p-16 rounded-[40px] flex flex-col justify-between overflow-hidden shadow-sm">
+
+            {/* Spacer */}
+            <div className="w-full h-8 z-10" />
+
+            {/* Mid Layout: Heading & Summary Side by Side */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end z-10 pt-8 sm:pt-16 w-full max-w-7xl mx-auto">
+              <div className="lg:col-span-7 flex flex-col items-start">
+
+                <h2 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.08] text-slate-900 dark:text-white max-w-2xl">
+                  Empowering Workflows Everywhere
+                </h2>
+              </div>
+              <div className="lg:col-span-5 flex flex-col items-start lg:items-end lg:text-right gap-4">
+                <p className="text-sm sm:text-base text-slate-700/90 dark:text-slate-300 max-w-sm font-light leading-relaxed">
+                  A premium SaaS directory and automation hub for developers to search, compare, and integrate the world&apos;s best AI tools.
+                </p>
+                <button
+                  onClick={(e) => handleProtectedLink(e, "/ai-tools")}
+                  className="px-8 py-3.5 rounded-full bg-slate-950 dark:bg-white text-white dark:text-black font-semibold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-md cursor-pointer"
+                >
+                  Explore AI Directory
+                </button>
+              </div>
             </div>
-            <motion.div className={styles.overlay} style={{ opacity: s1Overlay }} />
-            <motion.h2 className={styles.zoomTitle} style={{ opacity: s1TitleOpacity }}>
-              AI That Empowers You
-            </motion.h2>
-          </motion.div>
-        </div>
-      </div>
 
-      {/* Scene 2 — Split slide-in */}
-      <div ref={s2Ref} className={`${styles.scene} ${styles.sceneSplit}`}>
-        <div className={styles.sticky}>
-          <motion.div className={styles.el} style={{ scale: s2Scale, rotate: s2Rotate }}>
-            <motion.div className={`${styles.split} ${styles.left}`} style={{ x: s2LeftX }}>
-              <Image src={Pic2} alt="Image Generator" fill />
-            </motion.div>
-            <motion.div className={`${styles.split} ${styles.right}`} style={{ x: s2RightX }}>
-              <Image src={Pic3} alt="Text Summarizer" fill />
-            </motion.div>
-            <motion.div className={styles.centerBadge} style={{ opacity: s2TitleOpacity }}>
-              Tools for Every AI Need
-            </motion.div>
-          </motion.div>
-        </div>
-      </div>
+            {/* Public ab.png Image in the center (absolute positioned, extra big format) */}
+            <div className="absolute inset-x-0 bottom-0 flex justify-center items-end pointer-events-none z-0">
+              <div className="relative w-[380px] sm:w-[580px] md:w-[820px] h-[380px] sm:h-[580px] md:h-[820px] translate-y-24 sm:translate-y-36">
+                <Image
+                  src="/ab.png"
+                  alt="TomatoAi Assistant Panel"
+                  fill
+                  className="object-contain"
+                  priority
+                  sizes="(max-width: 640px) 350px, (max-width: 1024px) 580px, 820px"
+                />
+              </div>
+            </div>
 
-      {/* Scene 3 — Crossfade full-bleed */}
-      <div ref={s3Ref} className={`${styles.scene} ${styles.sceneCrossfade}`}>
-        <div className={styles.sticky}>
-          <div className={styles.full}>
-            <motion.div className={styles.fullImage} style={{ opacity: s3AOpacity, scale: s3AScale }}>
-              <Image src={Pic4} alt="Voice Assistant" fill />
-            </motion.div>
-            <motion.div className={styles.fullImage} style={{ opacity: s3BOpacity, scale: s3BScale }}>
-              <Image src={Pic5} alt="Code Generator" fill />
-            </motion.div>
-            <motion.h3 className={styles.crossTitle} style={{ y: s3TitleY, opacity: s3TitleOpacity }}>
-              From Content Creation to Automation
-            </motion.h3>
-          </div>
-        </div>
-      </div>
+            {/* Huge "About Us" heading aligned exactly like mockup */}
+            <div className="relative z-10 w-full select-none pointer-events-none mt-24 max-w-7xl mx-auto">
+              <h1 className="text-[4.5rem] sm:text-[9rem] md:text-[14rem] font-bold leading-none tracking-tighter text-slate-955 dark:text-white text-center sm:text-left drop-shadow-sm">
+                About Us
+              </h1>
+            </div>
 
-      {/* Scene 4 — Parallax collage */}
-      <section ref={s4Ref} className={styles.parallax}>
-        <div className={styles.parallaxInner}>
-          <motion.div className={`${styles.card} ${styles.cardTall}`} style={{ y: s4Y1 }}>
-            <Image src={Pic6} alt="Data Analyzer" fill />
-            <div className={styles.cardLabel}>Data Analysis</div>
-          </motion.div>
-          <motion.div className={`${styles.card} ${styles.cardWide}`} style={{ y: s4Y2 }}>
-            <Image src={Pic7} alt="Content Creator" fill />
-            <div className={styles.cardLabel}>Content Creation</div>
-          </motion.div>
-          <motion.div className={`${styles.card} ${styles.cardSquare}`} style={{ y: s4Y3 }}>
-            <Image src={Pic8} alt="Productivity Booster" fill />
-            <div className={styles.cardLabel}>Productivity</div>
-          </motion.div>
+          </section>
         </div>
-      </section>
 
-      {/* Horizontal gallery with snap */}
-      <section className={styles.scroller}>
-        <div className={styles.scrollerHeader}>
-          <h4>Featured AI Projects</h4>
-          <span>Swipe/scroll horizontally</span>
-        </div>
-        <div className={styles.rail}>
-          {galleryImages.map((img, i) => (
-            <GalleryCard key={i} src={img.src} alt={img.alt} idx={i} />
-          ))}
-        </div>
-      </section>
+        {/* Outer container for subsequent sections */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-24 flex flex-col gap-24">
 
-      {/* Outro */}
-      <section className={styles.outro}>
-        <div className={styles.outroInner}>
-          <motion.h3
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
-          >
-            Why Use Our AI Tools?
-          </motion.h3>
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6, ease: "easeOut", delay: 0.05 }}
-          >
-            Our AI platform helps you automate tasks, generate content, analyze data, and boost productivity. 
-            Experience seamless integration, easy-to-use interfaces, and the latest advancements in artificial intelligence—all in one place.
-          </motion.p>
-          <div style={{ marginTop: 32, textAlign: "center" }}>
-            <span style={{ fontWeight: 600, color: "#ff6600", fontSize: 18 }}>
-              Built by Aman Kumar
-            </span>
-          </div>
+          {/* ===================== HOW TO SCALE WITH TOMATOAI ===================== */}
+          <section className="py-8 text-center flex flex-col items-center">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white mb-16 tracking-tight">
+              How to scale your output with TomatoAi
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-6xl">
+
+              {/* Step 1 */}
+              <div className="group relative p-8 rounded-3xl bg-white dark:bg-[#0c0d10] border border-slate-200/50 dark:border-white/5 hover:border-blue-500/30 dark:hover:border-blue-500/20 transition-all duration-300 flex flex-col items-center text-center shadow-sm">
+                <span className="absolute top-4 right-6 text-4xl font-extrabold text-slate-100 dark:text-white/5 select-none transition-colors group-hover:text-blue-500/10">01</span>
+                <div className="w-14 h-14 rounded-2xl bg-[#ebf4fa] dark:bg-slate-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6 shadow-sm border border-slate-200/20 transition-transform group-hover:scale-105">
+                  <Search className="w-5 h-5" />
+                </div>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white mb-2">Search AI Tools</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                  Browse through our curated index of 1200+ verified AI models, SaaS platforms, and software with detailed filter options.
+                </p>
+              </div>
+
+              {/* Step 2 */}
+              <div className="group relative p-8 rounded-3xl bg-white dark:bg-[#0c0d10] border border-slate-200/50 dark:border-white/5 hover:border-pink-500/30 dark:hover:border-pink-500/20 transition-all duration-300 flex flex-col items-center text-center shadow-sm">
+                <span className="absolute top-4 right-6 text-4xl font-extrabold text-slate-100 dark:text-white/5 select-none transition-colors group-hover:text-pink-500/10">02</span>
+                <div className="w-14 h-14 rounded-2xl bg-[#ebf4fa] dark:bg-slate-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6 shadow-sm border border-slate-200/20 transition-transform group-hover:scale-105">
+                  <Database className="w-5 h-5" />
+                </div>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white mb-2">Compare Pricing</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                  Analyze subscription options, free quotas, and API pricing models side-by-side to optimize your developer spend.
+                </p>
+              </div>
+
+              {/* Step 3 */}
+              <div className="group relative p-8 rounded-3xl bg-white dark:bg-[#0c0d10] border border-slate-200/50 dark:border-white/5 hover:border-indigo-500/30 dark:hover:border-indigo-500/20 transition-all duration-300 flex flex-col items-center text-center shadow-sm">
+                <span className="absolute top-4 right-6 text-4xl font-extrabold text-slate-100 dark:text-white/5 select-none transition-colors group-hover:text-indigo-500/10">03</span>
+                <div className="w-14 h-14 rounded-2xl bg-[#ebf4fa] dark:bg-slate-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6 shadow-sm border border-slate-200/20 transition-transform group-hover:scale-105">
+                  <Workflow className="w-5 h-5" />
+                </div>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white mb-2">Load Workflows</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                  Access pre-built n8n templates, python integration scripts, and custom API execution blueprints for quick deployment.
+                </p>
+              </div>
+
+              {/* Step 4 */}
+              <div className="group relative p-8 rounded-3xl bg-white dark:bg-[#0c0d10] border border-slate-200/50 dark:border-white/5 hover:border-violet-500/30 dark:hover:border-violet-500/20 transition-all duration-300 flex flex-col items-center text-center shadow-sm">
+                <span className="absolute top-4 right-6 text-4xl font-extrabold text-slate-100 dark:text-white/5 select-none transition-colors group-hover:text-violet-500/10">04</span>
+                <div className="w-14 h-14 rounded-2xl bg-[#ebf4fa] dark:bg-slate-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 mb-6 shadow-sm border border-slate-200/20 transition-transform group-hover:scale-105">
+                  <Cpu className="w-5 h-5" />
+                </div>
+                <h3 className="font-bold text-base text-slate-900 dark:text-white mb-2">Deploy Automation</h3>
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                  Chain multiple AI tools together to automate complex business operations and scale your weekly output speed.
+                </p>
+              </div>
+
+            </div>
+          </section>
+
+          {/* ===================== WHAT IS THE STORY SECTION ===================== */}
+          <section className="py-8 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+            {/* Left Content Column */}
+            <div className="lg:col-span-6 flex flex-col items-start">
+              <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 dark:text-white mb-8">
+                What is the story of tomatoTool?
+              </h2>
+
+              {/* Interactive Pill Tabs */}
+              <div className="flex gap-2 mb-8 bg-slate-100 dark:bg-white/5 p-1 rounded-full border border-slate-200/20 dark:border-white/10 shadow-inner">
+                {(["mission", "orchestration", "roadmap"] as const).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-6 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all duration-300 cursor-pointer ${activeTab === tab
+                      ? "bg-slate-950 dark:bg-white text-white dark:text-black shadow-md"
+                      : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
+                      }`}
+                  >
+                    {tab === "mission" ? "Mission" : tab === "orchestration" ? "Orchestration" : "Future Roadmap"}
+                  </button>
+                ))}
+              </div>
+
+              {/* Story Tab Description Panel */}
+              <div className="min-h-[180px] w-full">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeTab}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.25 }}
+                    className="flex flex-col items-start"
+                  >
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 mb-2">
+                      {tabContents[activeTab].kicker}
+                    </span>
+                    <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+                      {tabContents[activeTab].title}
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-light text-base sm:text-lg">
+                      {tabContents[activeTab].description}
+                    </p>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </div>
+
+            {/* Right Image Column (High tech code matrix graphic) */}
+            <div className="lg:col-span-6 w-full flex justify-center lg:justify-end">
+              <div className="relative w-full max-w-[440px] aspect-[4/5] rounded-[32px] overflow-hidden shadow-lg border border-slate-200/50 dark:border-white/5 bg-slate-950">
+                <Image
+                  src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80"
+                  alt="Premium abstract digital code visualization"
+                  fill
+                  className="object-cover opacity-75"
+                  sizes="(max-width: 768px) 100vw, 440px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
+                <div className="absolute bottom-6 left-6 z-10">
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 border border-blue-500/20 text-blue-400">
+                    <Terminal className="w-3.5 h-3.5" /> Tomato OS v4.1
+                  </span>
+                </div>
+              </div>
+            </div>
+
+          </section>
+
+          {/* ===================== STATISTICS DASHBOARD ===================== */}
+          <section className="py-8 flex flex-col gap-6">
+
+            {/* Top Row: 3 Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+              {/* Stat 1 */}
+              <div className="group p-8 rounded-[24px] bg-white dark:bg-[#0c0d10] border border-slate-200/60 dark:border-white/5 hover:border-blue-500/20 dark:hover:border-blue-500/10 transition-all duration-300 flex flex-col justify-between min-h-[220px] shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Global SaaS Tools</span>
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                    <Search className="w-4 h-4" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mt-4 group-hover:scale-[1.02] transition-transform duration-300 origin-left">1,200+</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal font-light mt-4">
+                    AI tools and platforms cataloged with complete pricing data, key features, and reviews.
+                  </p>
+                </div>
+              </div>
+
+              {/* Stat 2 */}
+              <div className="group p-8 rounded-[24px] bg-white dark:bg-[#0c0d10] border border-slate-200/60 dark:border-white/5 hover:border-pink-500/20 dark:hover:border-pink-500/10 transition-all duration-300 flex flex-col justify-between min-h-[220px] shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Active Builders</span>
+                  <div className="w-8 h-8 rounded-lg bg-pink-500/10 text-pink-500 flex items-center justify-center">
+                    <Zap className="w-4 h-4" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mt-4 group-hover:scale-[1.02] transition-transform duration-300 origin-left">15K+</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal font-light mt-4">
+                    SaaS builders and developers sharing custom prompt templates and automated workflows.
+                  </p>
+                </div>
+              </div>
+
+              {/* Stat 3 */}
+              <div className="group p-8 rounded-[24px] bg-white dark:bg-[#0c0d10] border border-slate-200/60 dark:border-white/5 hover:border-indigo-500/20 dark:hover:border-indigo-500/10 transition-all duration-300 flex flex-col justify-between min-h-[220px] shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Integration Rate</span>
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mt-4 group-hover:scale-[1.02] transition-transform duration-300 origin-left">92%</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal font-light mt-4">
+                    Reduction in custom software research time compared to bulk un-vetted directories.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Bottom Row: Large Stat, Robot Image & Small Stat */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+              {/* Stat 4: Secure Payments (Left - 5 cols) */}
+              <div className="lg:col-span-5 p-8 rounded-[24px] bg-white dark:bg-[#0c0d10] border border-slate-200/60 dark:border-white/5 flex flex-col justify-between min-h-[240px] shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">API Actions Run</span>
+                  <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                    <Terminal className="w-4 h-4" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mt-4">10.000.000+</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal font-light mt-4">
+                    Automated prompts and API workflows executed through our ready-to-run blueprints.
+                  </p>
+                </div>
+              </div>
+
+              {/* Horizontal Robot Image Card (Center - 4 cols) */}
+              <div className="lg:col-span-4 relative rounded-[24px] overflow-hidden min-h-[240px] border border-slate-200/60 dark:border-white/5 shadow-md bg-slate-900">
+                <Image
+                  src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80"
+                  alt="Robot Assistant working on technology systems"
+                  fill
+                  className="object-cover opacity-85"
+                  sizes="(max-width: 1024px) 100vw, 400px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60" />
+              </div>
+
+              {/* Stat 5: Fast Growth (Right - 3 cols) */}
+              <div className="lg:col-span-3 p-8 rounded-[24px] bg-white dark:bg-[#0c0d10] border border-slate-200/60 dark:border-white/5 flex flex-col justify-between min-h-[240px] shadow-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">Growth Velocity</span>
+                  <div className="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                </div>
+                <div>
+                  <h3 className="text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white mt-4">x5</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal font-light mt-4">
+                    Expansion in our automation templates and verified list over the past quarter.
+                  </p>
+                </div>
+              </div>
+
+            </div>
+          </section>
+
+          {/* ===================== WHY DEVELOPERS CHOOSE US ===================== */}
+          <section className="py-8 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+
+            {/* Left Column: Title + Grid Checklist */}
+            <div className="lg:col-span-6 flex flex-col items-start">
+              <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white mb-12">
+                Why builders choose us?
+              </h2>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full">
+
+                <div className="p-2.5 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-white/5 transition-all">
+                  <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-600 dark:text-orange-400 flex items-center justify-center mb-3">
+                    <Search className="w-4 h-4" />
+                  </div>
+                  <h4 className="font-bold text-base text-slate-900 dark:text-white mb-2">Seamless Searching</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                    Easily filter down to the exact SaaS model, API tool, or framework in just a click.
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-white/5 transition-all">
+                  <div className="w-8 h-8 rounded-lg bg-pink-500/10 text-pink-600 dark:text-pink-400 flex items-center justify-center mb-3">
+                    <Code className="w-4 h-4" />
+                  </div>
+                  <h4 className="font-bold text-base text-slate-900 dark:text-white mb-2">Developer Ready</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                    Get straight to execution with complete code triggers, n8n JSON nodes, and prompt sheets.
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-white/5 transition-all">
+                  <div className="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mb-3">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <h4 className="font-bold text-base text-slate-900 dark:text-white mb-2">Vetted Curation</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                    Every tool is tested by our engineering team to verify pricing accuracy and capability.
+                  </p>
+                </div>
+
+                <div className="p-2.5 rounded-2xl hover:bg-slate-100/50 dark:hover:bg-white/5 transition-all">
+                  <div className="w-8 h-8 rounded-lg bg-violet-500/10 text-violet-600 dark:text-violet-400 flex items-center justify-center mb-3">
+                    <Lock className="w-4 h-4" />
+                  </div>
+                  <h4 className="font-bold text-base text-slate-900 dark:text-white mb-2">Ad-Free Platform</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed font-light">
+                    No flashing banners or tracking scripts. A clean, high-performance interface focused on search.
+                  </p>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Right Column: Code IDE Image Mockup */}
+            <div className="lg:col-span-6 w-full flex justify-center lg:justify-end">
+              <div className="relative w-full max-w-[500px] aspect-[4/3] rounded-[24px] overflow-hidden shadow-lg border border-slate-200/50 dark:border-white/5 bg-slate-900">
+                <Image
+                  src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80"
+                  alt="Code IDE visualization"
+                  fill
+                  className="object-cover opacity-80"
+                  sizes="(max-width: 768px) 100vw, 500px"
+                />
+                <div className="absolute inset-0 bg-gradient-to-tr from-slate-950 via-transparent to-transparent opacity-40" />
+              </div>
+            </div>
+
+          </section>
+
+          {/* ===================== TESTIMONIAL PANEL ===================== */}
+          <section className="py-8">
+            <div className="w-full rounded-[32px] bg-[#ebf4fa] dark:bg-[#121922] p-8 sm:p-12 border border-slate-200/40 dark:border-white/5 shadow-sm grid grid-cols-1 md:grid-cols-12 gap-8 items-center relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full blur-xl pointer-events-none" />
+
+              {/* Left Column: Robot face portrait */}
+              <div className="md:col-span-4 flex justify-center">
+                <div className="relative w-full max-w-[220px] aspect-square rounded-[24px] overflow-hidden shadow-inner border border-white/20">
+                  <Image
+                    src="https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&w=500&q=80"
+                    alt="Sleek white humanoid robot portrait representation"
+                    fill
+                    className="object-cover animate-[float_6s_ease-in-out_infinite]"
+                    sizes="220px"
+                  />
+                </div>
+              </div>
+
+              {/* Right Column: Quote and Name */}
+              <div className="md:col-span-8 flex flex-col items-start text-left">
+                <div className="flex items-center gap-2 mb-6">
+                  <span className="text-xl md:text-2xl font-bold tracking-tighter text-[#0f172a] dark:text-white uppercase font-[Montserrat]">
+                    TOMATOAI
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wide bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    Verified Creator
+                  </span>
+                </div>
+                <blockquote className="text-base sm:text-lg text-slate-700 dark:text-slate-200 font-light leading-relaxed mb-6 italic">
+                  &ldquo;TomatoAi has become our primary resource for researching LLMs and finding emerging developer tools. The n8n automation templates alone saved our team weeks of development effort. It is the ultimate directory for modern SaaS builders looking to maximize their engineering output.&rdquo;
+                </blockquote>
+                <cite className="not-italic flex items-center gap-3">
+                  <div>
+                    <span className="font-bold text-slate-955 dark:text-white block text-sm sm:text-base">Aman Kumar</span>
+                    <span className="text-xs text-slate-400 dark:text-slate-500">Lead Architect, TomatoAi Group</span>
+                  </div>
+                </cite>
+              </div>
+
+            </div>
+          </section>
+
+          {/* ===================== JOIN OUR NEWSLETTER ===================== */}
+          <section className="py-12 relative rounded-[32px] overflow-hidden bg-gradient-to-br from-[#d4e4f7] via-[#e2edfa] to-[#f2f7fc] dark:from-[#131b26] dark:via-[#182333] dark:to-[#0f1520] p-8 md:p-16 border border-slate-200/40 dark:border-white/5 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-8 items-center w-full">
+
+            {/* Left Info Column */}
+            <div className="lg:col-span-6 flex flex-col items-start text-left">
+              <h2 className="text-2xl sm:text-4xl font-extrabold text-slate-900 dark:text-white mb-4 tracking-tight leading-tight">
+                Stay Ahead of the AI Curve
+              </h2>
+              <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed font-light mb-6">
+                Be the first to discover emerging AI SaaS tools, newly loaded n8n workflows, and expert integration guides.
+              </p>
+
+              {/* Checkbox Checklist */}
+              <div className="flex flex-col gap-2.5 text-xs text-slate-600 dark:text-slate-300 font-semibold mb-8 lg:mb-0">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Weekly Top 5 SaaS releases analyzed</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>3 free pre-built n8n templates</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                  <span>Zero spam, unsubscribe at any time</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Form Column */}
+            <div className="lg:col-span-6 w-full flex justify-center lg:justify-end">
+              <div className="w-full max-w-md p-6 bg-white/70 dark:bg-black/25 backdrop-blur-md border border-white/40 dark:border-white/5 rounded-2xl shadow-sm">
+                <AnimatePresence mode="wait">
+                  {!isSubmitted ? (
+                    <motion.form
+                      onSubmit={handleSubscribe}
+                      className="w-full flex flex-col gap-3"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <input
+                        type="email"
+                        required
+                        placeholder="Your Business Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="px-5 py-3 rounded-full bg-white dark:bg-[#151c28] text-[#0f172a] dark:text-white border border-slate-300/40 dark:border-white/10 text-sm focus:outline-none focus:border-slate-500 font-light"
+                      />
+                      <button
+                        type="submit"
+                        className="w-full px-6 py-3 rounded-full bg-slate-950 dark:bg-white text-white dark:text-black font-semibold text-xs uppercase tracking-wider hover:opacity-90 transition-all cursor-pointer whitespace-nowrap"
+                      >
+                        Subscribe Now
+                      </button>
+                    </motion.form>
+                  ) : (
+                    <motion.div
+                      className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-semibold px-6 py-4 rounded-full bg-green-500/10 border border-green-500/20 text-sm"
+                      initial={{ scale: 0.95, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                    >
+                      <CheckCircle2 className="w-4 h-4 shrink-0" />
+                      <span>Success! You have been subscribed.</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
+
+          </section>
+
+          {/* ===================== MINIMAL FOOTER & GIANT LOGO ===================== */}
+          <section className="pt-8 pb-8 flex flex-col gap-12">
+
+            {/* Giant Logo Watermark */}
+            <div className="w-full overflow-hidden select-none pointer-events-none">
+              <h1 className="text-[5rem] sm:text-[9rem] md:text-[14rem] font-bold text-slate-900/5 dark:text-white/5 uppercase tracking-tighter text-center leading-none">
+                tomatoTool
+              </h1>
+            </div>
+
+            {/* Copyright block */}
+            <div className="flex justify-between items-center text-xs text-slate-400 font-light border-t border-slate-200/50 dark:border-white/5 pt-6 w-full">
+              <span>&copy; 2026 tomatoTool. All rights reserved.</span>
+              <span className="cursor-pointer hover:text-slate-600 dark:hover:text-slate-300" onClick={() => router.push("/")}>Back to Home</span>
+            </div>
+
+          </section>
+
         </div>
-      </section>
-    </main>
+
+      </main>
     </>
   );
 }

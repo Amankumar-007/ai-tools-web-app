@@ -7,10 +7,10 @@ export const SITE_URL = 'https://tomatoai.in'
 export const baseMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'TomatoAi India - Best AI Tools Directory & Reviews 2026',
+    default: 'Find Best AI Tool for Your Work - TomatoAi India Directory & Reviews',
     template: `%s | ${SITE_NAME}`,
   },
-  description: 'Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant for productivity, creativity, and automation.',
+  description: 'Find the best AI tools for your work. Search, rank, and explore our comprehensive directory of AI tools, trending GitHub repos, news, and more for productivity and automation.',
   keywords: [
     'AI tools',
     'artificial intelligence',
@@ -96,7 +96,10 @@ export function createPageMetadata(config: PageMetadataConfig): Metadata {
     description: config.description,
     keywords: config.keywords || baseMetadata.keywords,
     alternates: {
-      canonical,
+      canonical: url,
+      languages: {
+        'en-US': '/en-US',
+      },
     },
     openGraph: {
       ...baseMetadata.openGraph,
@@ -105,9 +108,9 @@ export function createPageMetadata(config: PageMetadataConfig): Metadata {
       url,
       images: config.openGraph?.images || [
         {
-          url: '/og-image.jpg',
-          width: 1200,
-          height: 630,
+          url: '/ab.png',
+          width: 1536,
+          height: 1024,
           alt: `${config.title} | TomatoAi`,
         },
       ],
@@ -116,7 +119,7 @@ export function createPageMetadata(config: PageMetadataConfig): Metadata {
       ...baseMetadata.twitter,
       title: config.twitter?.title || config.title,
       description: config.twitter?.description || config.description,
-      images: config.twitter?.images || ['/twitter-image.jpg'],
+      images: config.twitter?.images || ['/ab.png'],
     },
     robots: config.noIndex
       ? { index: false, follow: false }

@@ -90,6 +90,24 @@ export const itemListStructuredData = (items: Array<{ name: string; url: string;
   })),
 })
 
+export const howToStructuredData = (guide: {
+  name: string
+  description: string
+  totalTime?: string
+  steps: Array<{ name: string; text: string }>
+}) => ({
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: guide.name,
+  description: guide.description,
+  ...(guide.totalTime ? { totalTime: guide.totalTime } : {}),
+  step: guide.steps.map((step) => ({
+    '@type': 'HowToStep',
+    name: step.name,
+    text: step.text,
+  })),
+})
+
 export const softwareApplicationStructuredData = (tool: {
   name: string
   description: string

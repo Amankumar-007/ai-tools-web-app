@@ -4,9 +4,10 @@ import JsonLd, { itemListStructuredData } from '@/components/JsonLd'
 import { getAllTools } from '@/lib/tools'
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'AI Tools Directory - Best Artificial Intelligence Software',
-  description: 'Explore a comprehensive directory of AI tools for productivity, creativity, automation, and more. Compare features, read reviews, and find the perfect AI assistant for your needs.',
+  title: 'Find Best AI Tool for Your Work - Just Search Here',
+  description: 'Find the best AI tool for your work. Just search here to explore our comprehensive directory of AI tools categorized by their ecosystems, pricing, and capabilities.',
   keywords: [
+    'find best ai tool',
     'AI tools directory',
     'artificial intelligence software',
     'best AI tools',

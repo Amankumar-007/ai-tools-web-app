@@ -5,7 +5,9 @@
       "Bash(powershell -Command \"Stop-Process -Id 23520 -Force\")",
       "Bash(rm -f /tmp/dev-restart.log)",
       "Bash(npx next *)",
-      "Bash(echo \"started pid $!\")"
+      "Bash(echo \"started pid $!\")",
+      "Bash(node -e ' *)",
+      "Bash(grep -o \"application/ld+json\\\\\">{\\\\\"@context\\\\\":\\\\\"https://schema.org\\\\\",\\\\\"@type\\\\\":\\\\\"FAQPage\\\\\"\" \".next/server/app.html\")"
     ],
     "additionalDirectories": [
       "\\tmp"

@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ExternalLink, HelpCircle, Shield, Zap, Cpu, Search, Database, Plus, Minus, Code, FileText, UserPlus } from "lucide-react";
 import Link from "next/link";
 
-const FAQS = [
+export const FAQS = [
   {
     question: "Is TomatoAI really free?",
     answer: "Yes, you can use our top-tier AI models directly in your browser without requiring any sign-ups or payments. We want to provide a frictionless experience for everyone.",

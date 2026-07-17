@@ -5,9 +5,9 @@ import { createPageMetadata } from '@/metadata-utils'
 import { getTrendingNews, getTrendingTools, getGithubTrendingRepos } from '@/lib/trending'
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'Trending AI Tools & News',
-  description: 'Discover the fastest-growing AI products and the latest AI news. We track real Hacker News discussion signal and developer activity to find the next AI super tools. Updated daily.',
-  keywords: ['AI tools', 'trending AI', 'artificial intelligence news', 'AI product directory', 'best AI tools', 'ChatGPT', 'DeepSeek', 'AI updates'],
+  title: 'Check Out Latest Trending Github Repo and News and Tools',
+  description: 'Check out the latest trending GitHub repos, AI news, tools and more. We track real developer activity and Hacker News discussion signal to find the next AI super tools. Updated daily.',
+  keywords: ['trending github repo', 'AI news', 'trending tools', 'artificial intelligence news', 'AI product directory', 'best AI tools', 'ChatGPT', 'DeepSeek', 'AI updates'],
   path: '/trending',
 })
 

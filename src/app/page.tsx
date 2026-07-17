@@ -17,16 +17,22 @@ import { useTheme } from "next-themes";
 import MainNavbar from "@/components/MainNavbar";
 import AnimatedAiInput from "@/components/ui/animated-ai-input";
 import { BackgroundBeamsWithCollision } from "@/components/ui/background-beams-with-collision";
+import { OrbitingCircles } from "@/components/ui/orbiting-circles";
+import JsonLd, { faqPageStructuredData } from "@/components/JsonLd";
+import { FAQS } from "@/components/FAQSection";
 
-// Dynamic imports for below-the-fold components
-const AIToolsGrid = dynamic(() => import('../components/AIToolsGrid'), { ssr: true });
-const ToolMarquee = dynamic(() => import('@/components/ToolMarquee'), { ssr: false });
-const WorkflowSection = dynamic(() => import('@/components/WorkflowSection'), { ssr: false });
-const TestimonialSection = dynamic(() => import('@/components/clean-testimonial').then(mod => mod.TestimonialSection), { ssr: false });
-const AgentManager = dynamic(() => import('@/components/AgentManager'), { ssr: false });
-const VeniceSection = dynamic(() => import('@/components/VeniceSection'), { ssr: false });
-const FAQSection = dynamic(() => import('@/components/FAQSection'), { ssr: false });
-const Footer = dynamic(() => import('@/components/footer'), { ssr: true });
+// Dynamic imports for below-the-fold components. SSR is left on (the
+// default) for all of these so their real text content renders into the
+// initial HTML for crawlers/answer engines instead of appearing only after
+// client-side hydration.
+const AIToolsGrid = dynamic(() => import('../components/AIToolsGrid'));
+const ToolMarquee = dynamic(() => import('@/components/ToolMarquee'));
+const WorkflowSection = dynamic(() => import('@/components/WorkflowSection'));
+const TestimonialSection = dynamic(() => import('@/components/clean-testimonial').then(mod => mod.TestimonialSection));
+const AgentManager = dynamic(() => import('@/components/AgentManager'));
+const VeniceSection = dynamic(() => import('@/components/VeniceSection'));
+const FAQSection = dynamic(() => import('@/components/FAQSection'));
+const Footer = dynamic(() => import('@/components/footer'));
 
 // Define types for user and video
 interface User {
@@ -144,6 +150,11 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
+      <JsonLd
+        data={faqPageStructuredData(
+          FAQS.map((faq) => ({ question: faq.question, answer: faq.answer }))
+        )}
+      />
       {/* Mobile Background Image */}
       <div className="fixed inset-0 -z-10 md:hidden">
         <Image
@@ -181,6 +192,89 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden pt-26">
         <BackgroundBeamsWithCollision className="h-full w-full bg-transparent dark:bg-transparent flex flex-col items-center justify-center border-none">
+          {/* Static Concentric Rings */}
+          <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none">
+            {/* Subtle rings */}
+            <div className="absolute w-[650px] h-[650px] rounded-full border border-black/[0.04] dark:border-white/[0.04]" />
+            <div className="absolute w-[950px] h-[950px] rounded-full border border-black/[0.04] dark:border-white/[0.04]" />
+            <div className="absolute w-[1250px] h-[1250px] rounded-full border border-black/[0.04] dark:border-white/[0.04]" />
+            <div className="absolute w-[1550px] h-[1550px] rounded-full border border-black/[0.04] dark:border-white/[0.04]" />
+
+            {/* ── LEFT SIDE – 5 AI models, spread top-to-bottom further out ── */}
+            {/* Top-left (ChatGPT) */}
+            <div className="absolute"
+              style={{ left: 'calc(50% - 580px)', top: 'calc(50% - 200px)' }}>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg border border-gray-100 p-2.5">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg" alt="ChatGPT" className="w-full h-full object-contain" />
+              </div>
+            </div>
+            {/* Mid-upper-left (Gemini) */}
+            <div className="absolute"
+              style={{ left: 'calc(50% - 490px)', top: 'calc(50% - 70px)' }}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg border border-gray-100 p-2">
+                <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/gemini-color.svg" alt="Gemini" className="w-full h-full object-contain" />
+              </div>
+            </div>
+            {/* Center-left (Claude - widest point) */}
+            <div className="absolute"
+              style={{ left: 'calc(50% - 630px)', top: 'calc(50% + 40px)' }}>
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg border border-gray-100 p-3">
+                <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/claude-color.svg" alt="Claude" className="w-full h-full object-contain" />
+              </div>
+            </div>
+            {/* Lower-left (Mistral) */}
+            <div className="absolute"
+              style={{ left: 'calc(50% - 490px)', top: 'calc(50% + 150px)' }}>
+              <div className="flex h-13 w-13 items-center justify-center rounded-full bg-white shadow-lg border border-gray-100 p-2.5" style={{ width: '52px', height: '52px' }}>
+                <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/mistral-color.svg" alt="Mistral" className="w-full h-full object-contain" />
+              </div>
+            </div>
+            {/* Bottom-left (HuggingFace) */}
+            <div className="absolute"
+              style={{ left: 'calc(50% - 390px)', top: 'calc(50% + 250px)' }}>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg border border-gray-100 p-2.5">
+                <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/huggingface-color.svg" alt="Hugging Face" className="w-full h-full object-contain" />
+              </div>
+            </div>
+
+            {/* ── RIGHT SIDE – 5 AI models, spread top-to-bottom further out ── */}
+            {/* Top-right (DeepSeek) */}
+            <div className="absolute"
+              style={{ left: 'calc(50% + 520px)', top: 'calc(50% - 200px)' }}>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg border border-gray-100 p-2.5">
+                <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/deepseek-color.svg" alt="DeepSeek" className="w-full h-full object-contain" />
+              </div>
+            </div>
+            {/* Mid-upper-right (Grok) */}
+            <div className="absolute"
+              style={{ left: 'calc(50% + 430px)', top: 'calc(50% - 70px)' }}>
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg border border-gray-100 p-2">
+                <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/grok.svg" alt="Grok" className="w-full h-full object-contain" />
+              </div>
+            </div>
+            {/* Center-right (Meta Llama - widest point) */}
+            <div className="absolute"
+              style={{ left: 'calc(50% + 570px)', top: 'calc(50% + 40px)' }}>
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-lg border border-gray-100 p-3">
+                <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/meta-color.svg" alt="Meta Llama" className="w-full h-full object-contain" />
+              </div>
+            </div>
+            {/* Lower-right (Cohere) */}
+            <div className="absolute"
+              style={{ left: 'calc(50% + 430px)', top: 'calc(50% + 150px)' }}>
+              <div className="flex h-13 w-13 items-center justify-center rounded-full bg-white shadow-lg border border-gray-100 p-2" style={{ width: '52px', height: '52px' }}>
+                <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/cohere-color.svg" alt="Cohere" className="w-full h-full object-contain" />
+              </div>
+            </div>
+            {/* Bottom-right (Perplexity) */}
+            <div className="absolute"
+              style={{ left: 'calc(50% + 330px)', top: 'calc(50% + 250px)' }}>
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white shadow-lg border border-gray-100 p-2.5">
+                <img src="https://unpkg.com/@lobehub/icons-static-svg@latest/icons/perplexity-color.svg" alt="Perplexity" className="w-full h-full object-contain" />
+              </div>
+            </div>
+          </div>
+
           <div className="relative z-10 text-center px-4 w-full max-w-4xl mx-auto">
             <h1
               className="text-5xl md:text-7xl font-bold mb-6 animate-hero opacity-0"
@@ -209,7 +303,11 @@ export default function Home() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
+              className="relative w-full max-w-3xl mx-auto z-0"
             >
+              {/* Glowing shadow background */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[85%] h-[60%] bg-gradient-to-r from-blue-500/25 to-indigo-500/30 dark:from-blue-500/35 dark:to-indigo-500/40 rounded-full blur-[65px] pointer-events-none -z-10 animate-pulse-slow" />
+
               <div className="w-full max-w-2xl mx-auto my-8 md:hidden">
                 <AiInput />
               </div>

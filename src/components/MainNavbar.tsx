@@ -22,7 +22,7 @@ const NAV_LINKS = [
   { href: "/ai-tools", label: "AI Tools" },
   { href: "/#categories", label: "Categories" },
   { href: "/trending", label: "Trending" },
-  { href: "/About", label: "About" },
+  { href: "/about", label: "About" },
   { href: "/pricing", label: "Pricing" },
 ];
 
@@ -34,7 +34,6 @@ const EXPLORE_LINKS = [
   { path: '/ai-videos', label: 'AI Video Tools' },
   { path: '/content-generator', label: 'Content Generator' },
   { path: '/prompt-generator', label: 'Prompt Generator' },
-  { path: '/roadmap-generator', label: 'Roadmap Gen' },
   { path: '/resume-analyzer', label: 'Resume Analyzer' },
   { path: '/summarization', label: 'Summarization' },
   { path: '/portfolio', label: 'Portfolio' },
@@ -250,13 +249,12 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
             <div className="flex items-center gap-1 
-              backdrop-blur-2xl bg-white/60 dark:bg-black/30
-              border border-white/40 dark:border-white/10
-              shadow-xl shadow-black/10 dark:shadow-black/30
+              backdrop-blur-sm bg-white/20 dark:bg-black/10
+              border border-white/20 dark:border-white/5
+              shadow-sm
               rounded-full px-5 py-2.5
               relative overflow-visible
-              hover:bg-white/70 hover:dark:bg-black/40
-              hover:border-white/60 hover:dark:border-white/20
+              hover:bg-white/30 hover:dark:bg-black/20
               transition-all duration-300"
             >
 

@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { getAllTools } from '@/lib/tools'
+import { agentWorkflows } from '@/app/data/agent-workflows'
 
 const baseUrl = 'https://tomatoai.in'
 
@@ -28,6 +29,9 @@ const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: Me
   { path: '/ai-workflows', priority: 0.6, changeFrequency: 'weekly' },
   { path: '/n8n-templates', priority: 0.6, changeFrequency: 'weekly' },
   { path: '/tomato-ai', priority: 0.6, changeFrequency: 'weekly' },
+  { path: '/docs', priority: 0.5, changeFrequency: 'monthly' },
+  { path: '/trending/repos', priority: 0.7, changeFrequency: 'hourly' },
+  { path: '/ai-tools/analyze', priority: 0.4, changeFrequency: 'monthly' },
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -45,5 +49,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.6,
   }))
 
-  return [...staticPages, ...toolPages]
+  const workflowPages = agentWorkflows.map((workflow) => ({
+    url: `${baseUrl}/ai-workflows/${workflow.slug}`,
+    lastModified: SITE_BUILD_DATE,
+    changeFrequency: 'monthly' as const,
+    priority: 0.6,
+  }))
+
+  return [...staticPages, ...toolPages, ...workflowPages]
 }
