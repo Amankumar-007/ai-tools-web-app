@@ -10,7 +10,7 @@ const jwtSecret = process.env.SUPABASE_JWT_SECRET
   ? new TextEncoder().encode(process.env.SUPABASE_JWT_SECRET)
   : null;
 
-async function isValidToken(token: string, supabase: any): Promise<boolean> {
+async function isValidToken(token: string, getSupabase: () => any): Promise<boolean> {
   if (jwtSecret) {
     try {
       const { payload } = await jwtVerify(token, jwtSecret, { audience: "authenticated" });
@@ -21,6 +21,8 @@ async function isValidToken(token: string, supabase: any): Promise<boolean> {
   }
 
   try {
+    const supabase = getSupabase();
+    if (!supabase) return false;
     const { data: { user } } = await supabase.auth.getUser(token);
     return !!user;
   } catch {
@@ -83,90 +85,117 @@ function isPublicApiRoute(pathname: string): boolean {
 }
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next();
-  const { pathname } = req.nextUrl;
+  try {
+    const res = NextResponse.next();
+    const { pathname } = req.nextUrl;
 
-  // Create Supabase client for middleware
-  const supabase = createMiddlewareClient({ req, res });
-
-  // ─── Rate Limiting (all /api/* routes) ──────────────────────────
-  if (pathname.startsWith("/api/")) {
-    cleanupStaleEntries();
-
-    const ip =
-      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
-      req.headers.get("x-real-ip") ||
-      "unknown";
-
-    const { limited, retryAfter } = isRateLimited(ip);
-    if (limited) {
-      return new NextResponse(
-        JSON.stringify({ error: "Too many requests. Please slow down." }),
-        {
-          status: 429,
-          headers: {
-            "Content-Type": "application/json",
-            "Retry-After": String(retryAfter),
-          },
+    // Helper to lazily and safely create the Supabase middleware client only when needed
+    const getSupabase = () => {
+      try {
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+          console.error("Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY in environment");
+          return null;
         }
+        return createMiddlewareClient({ req, res });
+      } catch (err) {
+        console.error("Failed to initialize createMiddlewareClient in Edge runtime:", err);
+        return null;
+      }
+    };
+
+    // ─── Rate Limiting (all /api/* routes) ──────────────────────────
+    if (pathname.startsWith("/api/")) {
+      cleanupStaleEntries();
+
+      const ip =
+        req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+        req.headers.get("x-real-ip") ||
+        "unknown";
+
+      const { limited, retryAfter } = isRateLimited(ip);
+      if (limited) {
+        return new NextResponse(
+          JSON.stringify({ error: "Too many requests. Please slow down." }),
+          {
+            status: 429,
+            headers: {
+              "Content-Type": "application/json",
+              "Retry-After": String(retryAfter),
+            },
+          }
+        );
+      }
+
+      // ─── Auth Check (protected /api/* routes only) ──────────────
+      if (!isPublicApiRoute(pathname)) {
+        // Extract token from Authorization header or cookies
+        const authHeader = req.headers.get("authorization");
+        let token: string | undefined;
+
+        if (authHeader?.startsWith("Bearer ")) {
+          token = authHeader.slice(7);
+        }
+
+        if (!token) {
+          // Try common Supabase cookie names
+          token =
+            req.cookies.get("sb-access-token")?.value ||
+            req.cookies.get("sb-lsvporilyjyufxfmxcoy-auth-token")?.value;
+        }
+
+        if (!token) {
+          return new NextResponse(
+            JSON.stringify({ error: "Authentication required" }),
+            { status: 401, headers: { "Content-Type": "application/json" } }
+          );
+        }
+
+        // Verify the token (locally when SUPABASE_JWT_SECRET is set, else via Supabase)
+        const valid = await isValidToken(token, getSupabase);
+        if (!valid) {
+          return new NextResponse(
+            JSON.stringify({ error: "Invalid or expired token" }),
+            { status: 401, headers: { "Content-Type": "application/json" } }
+          );
+        }
+      }
+    }
+
+    // ─── Paid-content gate (existing logic) ──────────────────────────
+    if (pathname === "/locked-page") {
+      const supabase = getSupabase();
+      if (!supabase) {
+        return NextResponse.redirect(new URL("/login", req.url));
+      }
+
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      
+      if (!session?.user) return NextResponse.redirect(new URL("/login", req.url));
+
+      const { data } = await supabase
+        .from("users")
+        .select("has_paid")
+        .eq("id", session.user.id)
+        .single();
+
+      if (!data?.has_paid) {
+        return NextResponse.redirect(new URL("/checkout", req.url));
+      }
+    }
+
+    return res;
+  } catch (error) {
+    console.error("Unhandled Edge Middleware Error:", error);
+    if (req.nextUrl.pathname.startsWith("/api/")) {
+      return new NextResponse(
+        JSON.stringify({ error: "Internal Server Error in Middleware" }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
       );
     }
-
-    // ─── Auth Check (protected /api/* routes only) ──────────────
-    if (!isPublicApiRoute(pathname)) {
-      // Extract token from Authorization header or cookies
-      const authHeader = req.headers.get("authorization");
-      let token: string | undefined;
-
-      if (authHeader?.startsWith("Bearer ")) {
-        token = authHeader.slice(7);
-      }
-
-      if (!token) {
-        // Try common Supabase cookie names
-        token =
-          req.cookies.get("sb-access-token")?.value ||
-          req.cookies.get("sb-lsvporilyjyufxfmxcoy-auth-token")?.value;
-      }
-
-      if (!token) {
-        return new NextResponse(
-          JSON.stringify({ error: "Authentication required" }),
-          { status: 401, headers: { "Content-Type": "application/json" } }
-        );
-      }
-
-      // Verify the token (locally when SUPABASE_JWT_SECRET is set, else via Supabase)
-      const valid = await isValidToken(token, supabase);
-      if (!valid) {
-        return new NextResponse(
-          JSON.stringify({ error: "Invalid or expired token" }),
-          { status: 401, headers: { "Content-Type": "application/json" } }
-        );
-      }
-    }
+    return NextResponse.next();
   }
-
-  // ─── Paid-content gate (existing logic) ──────────────────────────
-  if (pathname === "/locked-page") {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    
-    if (!session?.user) return NextResponse.redirect(new URL("/login", req.url));
-
-    const { data } = await supabase
-      .from("users")
-      .select("has_paid")
-      .eq("id", session.user.id)
-      .single();
-
-    if (!data?.has_paid) {
-      return NextResponse.redirect(new URL("/checkout", req.url));
-    }
-  }
-
-  return res;
 }
 
 export const config = {
