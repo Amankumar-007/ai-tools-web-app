@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Define types for user
 interface User {
@@ -44,6 +46,8 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [exploreOpen, setExploreOpen] = useState(false);
+  const [hoveredHref, setHoveredHref] = useState<string | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,6 +69,30 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
   }, [drawerOpen]);
 
   const closeDrawer = () => setDrawerOpen(false);
+
+  const isLinkActive = (href: string) => {
+    if (!pathname) return false;
+    if (href === "/ai-tools") {
+      return pathname === "/ai-tools" || pathname.startsWith("/ai-tools/");
+    }
+    if (href === "/trending") {
+      return pathname === "/trending" || pathname.startsWith("/trending/");
+    }
+    if (href === "/about") {
+      return pathname === "/about";
+    }
+    if (href === "/pricing") {
+      return pathname === "/pricing";
+    }
+    if (href === "/#categories") {
+      return pathname === "/" && typeof window !== "undefined" && window.location.hash === "#categories";
+    }
+    return pathname === href;
+  };
+
+  const isExploreActive = EXPLORE_LINKS.some(
+    (item) => pathname === item.path || (pathname && pathname.startsWith(item.path + "/"))
+  );
 
   return (
     <>
@@ -103,7 +131,7 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
       <AnimatePresence>
         {drawerOpen && (
           <>
-            {/* Backdrop (Removed backdrop-blur-sm for high-performance mobile paint) */}
+            {/* Backdrop */}
             <motion.div
               key="backdrop"
               initial={{ opacity: 0 }}
@@ -135,18 +163,26 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
               </div>
 
               <div className="flex-1 overflow-y-auto no-scrollbar px-8 py-4">
-                {/* Main Nav Links (Rendered statically to prevent GPU layout calculation bottlenecks during transitions) */}
+                {/* Main Nav Links */}
                 <nav className="flex flex-col gap-6 mb-8">
-                  {NAV_LINKS.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={closeDrawer}
-                      className="text-2xl font-light tracking-tight text-slate-800 dark:text-slate-100 hover:text-blue-500 dark:hover:text-blue-400 transition-colors block py-1"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
+                  {NAV_LINKS.map((link) => {
+                    const active = isLinkActive(link.href);
+                    return (
+                      <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={closeDrawer}
+                        className={cn(
+                          "text-2xl font-light tracking-tight transition-colors block py-1",
+                          active
+                            ? "text-blue-600 dark:text-blue-400 font-normal"
+                            : "text-slate-800 dark:text-slate-100 hover:text-blue-500 dark:hover:text-blue-400"
+                        )}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  })}
                 </nav>
 
                 <div className="border-t border-slate-100 dark:border-white/5 pt-6">
@@ -170,16 +206,24 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                         className="overflow-hidden"
                       >
                         <div className="grid grid-cols-1 gap-4 py-2">
-                          {EXPLORE_LINKS.map((item) => (
-                            <Link
-                              key={item.path}
-                              href={item.path}
-                              onClick={closeDrawer}
-                              className="text-base font-light text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors block py-0.5"
-                            >
-                              {item.label}
-                            </Link>
-                          ))}
+                          {EXPLORE_LINKS.map((item) => {
+                            const itemActive = pathname === item.path || (pathname && pathname.startsWith(item.path + "/"));
+                            return (
+                              <Link
+                                key={item.path}
+                                href={item.path}
+                                onClick={closeDrawer}
+                                className={cn(
+                                  "text-base transition-colors block py-0.5",
+                                  itemActive
+                                    ? "text-blue-600 dark:text-blue-400 font-medium"
+                                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-light"
+                                )}
+                              >
+                                {item.label}
+                              </Link>
+                            );
+                          })}
                         </div>
                       </motion.div>
                     )}
@@ -226,17 +270,17 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
 
       {/* ===================== DESKTOP NAV ===================== */}
       <motion.nav
-        className={`hidden md:block fixed left-0 right-0 z-50 transition-all duration-500 ease-out ${isScrolled ? 'top-0 py-4 bg-transparent' : 'top-4 py-4 bg-transparent'}`}
-        initial={{ y: -100, opacity: 0 }}
+        className={`hidden md:block fixed left-0 right-0 z-50 transition-all duration-500 ease-out ${isScrolled ? 'top-0 py-3 bg-transparent' : 'top-3 py-3 bg-transparent'}`}
+        initial={false}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
       >
-        <div className="flex items-center justify-between px-6 relative">
+        <div className="flex items-center justify-between px-8 relative">
           {/* Desktop Logo */}
-          <Link href="/" className="flex items-center z-30">
-            <div className="flex items-center">
-              <Image src="/logo.png" alt="TomatoTool Logo" width={40} height={40} priority className="w-9 h-9" />
-              <span className="ml-3 font-bold tracking-wide bg-gradient-to-r from-[#ff512f] to-[#dd2476] bg-clip-text text-transparent font-[Montserrat] text-xl">
+          <Link href="/" className="flex items-center z-30 group">
+            <div className="flex items-center gap-3">
+              <Image src="/logo.png" alt="TomatoTool Logo" width={40} height={40} priority className="w-10 h-10 group-hover:scale-105 transition-transform" />
+              <span className="font-bold tracking-wide bg-gradient-to-r from-[#ff512f] to-[#dd2476] bg-clip-text text-transparent font-[Montserrat] text-2xl">
                 tomato<span className="font-light">Tool</span>
               </span>
             </div>
@@ -244,53 +288,145 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
 
           {/* Liquid Glass Nav Pill */}
           <motion.div
-            className="absolute left-1/2 -translate-x-1/2"
+            className="absolute left-1/2 -translate-x-1/2 z-30"
             animate={{ scale: 1 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            <div className="flex items-center gap-1 
-              backdrop-blur-sm bg-white/20 dark:bg-black/10
-              border border-white/20 dark:border-white/5
-              shadow-sm
-              rounded-full px-5 py-2.5
-              relative overflow-visible
-              hover:bg-white/30 hover:dark:bg-black/20
-              transition-all duration-300"
+            <div
+              className="flex items-center gap-1.5 
+                backdrop-blur-md bg-white/50 dark:bg-black/50
+                border border-white/50 dark:border-white/10
+                shadow-xl shadow-black/5
+                rounded-full px-5 py-2.5
+                relative overflow-visible
+                transition-all duration-300"
+              onMouseLeave={() => setHoveredHref(null)}
             >
-
-              <span className="text-xs bg-gradient-to-r from-orange-500 to-orange-600 text-white px-2.5 py-1 rounded-full font-semibold shadow-sm mr-1">
+              <span className="text-xs bg-gradient-to-r from-orange-500 to-pink-600 text-white px-3 py-1 rounded-full font-semibold shadow-sm mr-1 pointer-events-none select-none">
                 Beta
               </span>
 
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={(e) => link.href !== "/#categories" && link.href !== "/trending" ? onProtectedLink(e, link.href) : undefined}
-                  className="relative text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3.5 py-2 rounded-full font-medium text-sm transition-all duration-200 hover:bg-white/50 dark:hover:bg-white/10"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {NAV_LINKS.map((link) => {
+                const active = isLinkActive(link.href);
+                const isHovered = hoveredHref === link.href;
+
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onMouseEnter={() => setHoveredHref(link.href)}
+                    onClick={(e) => link.href !== "/#categories" && link.href !== "/trending" ? onProtectedLink(e, link.href) : undefined}
+                    className={cn(
+                      "relative px-4 py-2 rounded-full text-sm transition-colors duration-200 flex items-center justify-center select-none",
+                      active
+                        ? "text-slate-950 dark:text-white font-semibold"
+                        : "text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white font-medium"
+                    )}
+                  >
+                    {/* Active Background Pill with Smooth Layout Animation */}
+                    {active && (
+                      <motion.span
+                        layoutId="navbar-active-pill"
+                        className="absolute inset-0 rounded-full bg-white dark:bg-white/20 shadow-md border border-slate-200/80 dark:border-white/20 -z-10"
+                        transition={{
+                          type: "spring",
+                          stiffness: 380,
+                          damping: 28,
+                          mass: 0.8
+                        }}
+                      />
+                    )}
+
+                    {/* Shared Hover Background Pill */}
+                    {!active && isHovered && (
+                      <motion.span
+                        layoutId="navbar-hover-pill"
+                        className="absolute inset-0 rounded-full bg-slate-900/5 dark:bg-white/10 -z-10"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 400,
+                          damping: 30
+                        }}
+                      />
+                    )}
+
+                    <span className="relative z-10">{link.label}</span>
+                  </Link>
+                );
+              })}
 
               {/* Desktop Explore Dropdown */}
-              <div className="relative group/dropdown">
-                <button className="flex items-center gap-1 text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3.5 py-2 rounded-full font-medium text-sm transition-all duration-200 hover:bg-white/50 dark:hover:bg-white/10">
-                  Explore
-                  <ChevronDown className="w-3.5 h-3.5 opacity-60 transition-transform duration-300 group-hover/dropdown:rotate-180" />
+              <div
+                className="relative group/dropdown"
+                onMouseEnter={() => setHoveredHref("explore")}
+              >
+                <button
+                  className={cn(
+                    "relative flex items-center gap-1.5 px-4 py-2 rounded-full text-sm transition-colors duration-200 select-none cursor-pointer",
+                    isExploreActive
+                      ? "text-slate-950 dark:text-white font-semibold"
+                      : "text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white font-medium"
+                  )}
+                >
+                  {isExploreActive && (
+                    <motion.span
+                      layoutId="navbar-active-pill"
+                      className="absolute inset-0 rounded-full bg-white dark:bg-white/20 shadow-md border border-slate-200/80 dark:border-white/20 -z-10"
+                      transition={{
+                        type: "spring",
+                        stiffness: 380,
+                        damping: 28,
+                        mass: 0.8
+                      }}
+                    />
+                  )}
+
+                  {!isExploreActive && hoveredHref === "explore" && (
+                    <motion.span
+                      layoutId="navbar-hover-pill"
+                      className="absolute inset-0 rounded-full bg-slate-900/5 dark:bg-white/10 -z-10"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 30
+                      }}
+                    />
+                  )}
+
+                  <span className="relative z-10 flex items-center gap-1">
+                    Explore
+                    <ChevronDown className="w-4 h-4 opacity-60 transition-transform duration-300 group-hover/dropdown:rotate-180" />
+                  </span>
                 </button>
 
-                <div className="absolute top-full right-0 mt-2 pt-2 w-48 opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200 origin-top-right scale-95 group-hover/dropdown:scale-100 z-50">
+                <div className="absolute top-full right-0 mt-2 pt-2 w-52 opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200 origin-top-right scale-95 group-hover/dropdown:scale-100 z-50">
                   <div className="backdrop-blur-2xl bg-white/95 dark:bg-[#111111]/95 border border-slate-200/80 dark:border-white/10 shadow-2xl rounded-2xl p-1.5 flex flex-col max-h-[60vh] overflow-y-auto no-scrollbar">
-                    {EXPLORE_LINKS.map((item) => (
-                      <Link
-                        key={item.path}
-                        href={item.path}
-                        className="px-3.5 py-2 rounded-xl text-sm font-medium text-slate-700 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
+                    {EXPLORE_LINKS.map((item) => {
+                      const itemActive = pathname === item.path || (pathname && pathname.startsWith(item.path + "/"));
+                      return (
+                        <Link
+                          key={item.path}
+                          href={item.path}
+                          className={cn(
+                            "px-3.5 py-2 rounded-xl text-sm font-medium transition-colors flex items-center justify-between",
+                            itemActive
+                              ? "bg-orange-500/10 text-orange-600 dark:text-orange-400 font-semibold"
+                              : "text-slate-700 dark:text-slate-300 hover:text-slate-955 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
+                          )}
+                        >
+                          <span>{item.label}</span>
+                          {itemActive && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+                          )}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -298,26 +434,26 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
           </motion.div>
 
           {/* Desktop Right */}
-          <div className="flex items-center gap-2 ml-auto z-30">
+          <div className="flex items-center gap-3 ml-auto z-30">
             <ThemeToggleButton variant="circle-blur" start="top-right" />
             {user ? (
               <div className="flex items-center gap-2">
-                <span className="text-xs bg-blue-500/20 text-blue-700 dark:text-blue-300 px-3 py-1.5 rounded-full border border-blue-500/30 font-medium">
+                <span className="text-xs bg-blue-500/20 text-blue-700 dark:text-blue-300 px-3.5 py-1.5 rounded-full border border-blue-500/30 font-semibold">
                   {user.subscription_tier}
                 </span>
                 <button
                   onClick={onSignOut}
-                  className="text-sm font-medium text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors"
+                  className="text-sm font-medium text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 py-1"
                 >
                   Logout
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors">
+              <div className="flex items-center gap-3">
+                <Link href="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white transition-colors px-2 py-1">
                   Login
                 </Link>
-                <Link href="/register" className="text-sm font-semibold text-white px-4 py-2 rounded-full bg-gradient-to-r from-orange-500 to-pink-600 hover:opacity-90 transition-all shadow-md shadow-orange-500/20">
+                <Link href="/register" className="text-sm font-semibold text-white px-5 py-2.5 rounded-full bg-gradient-to-r from-orange-500 to-pink-600 hover:opacity-90 transition-all shadow-md shadow-orange-500/20">
                   Sign Up
                 </Link>
               </div>
@@ -335,3 +471,4 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
     </>
   );
 }
+

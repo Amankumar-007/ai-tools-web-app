@@ -97,9 +97,6 @@ export function createPageMetadata(config: PageMetadataConfig): Metadata {
     keywords: config.keywords || baseMetadata.keywords,
     alternates: {
       canonical: url,
-      languages: {
-        'en-US': '/en-US',
-      },
     },
     openGraph: {
       ...baseMetadata.openGraph,

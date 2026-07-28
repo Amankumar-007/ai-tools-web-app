@@ -57,10 +57,6 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://tomatoai.in'),
   alternates: {
     canonical: '/',
-    languages: {
-      'en-US': '/en-US',
-      'en-GB': '/en-GB',
-    },
   },
   openGraph: {
     type: 'website',

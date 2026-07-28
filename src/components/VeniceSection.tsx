@@ -73,142 +73,91 @@ export default function VeniceSection() {
   };
 
   return (
-    <section className="relative w-full py-20 px-6 md:px-12 bg-[#F5F4EF] dark:bg-transparent transition-colors duration-500 overflow-hidden rounded-[2.5rem] my-16 border border-slate-200/50 dark:border-white/5">
+    <section className="relative w-full py-20 px-6 md:px-12  duration-500 overflow-hidden rounded-[2.5rem] my-4 border border-slate-200/50 dark:border-white/5">
       {/* Decorative ambient glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[30vw] bg-blue-500/5 dark:bg-blue-500/5 rounded-full blur-[160px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
-        
-        {/* ===================== LEFT: AI MODELS CARD ===================== */}
-        <div className="lg:col-span-4 flex justify-center">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center relative z-10">
+
+        {/* ===================== LEFT: CONTENT & INPUT ===================== */}
+        <div className="flex flex-col justify-center text-left px-2 lg:px-0 lg:pr-8">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="w-full max-w-[340px] bg-black text-slate-100 rounded-3xl border border-white/10 shadow-2xl p-5 flex flex-col gap-3 relative overflow-hidden"
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col gap-7 max-w-[540px]"
           >
-            {/* Glossy top border light */}
-            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-            
-            {MODELS.map((model) => (
-              <motion.div
-                key={model.id}
-                onMouseEnter={() => setHoveredModel(model.id)}
-                onMouseLeave={() => setHoveredModel(null)}
-                whileHover={{ scale: 1.02, x: 4 }}
-                className={`flex items-center gap-4.5 p-3 rounded-2xl transition-all duration-300 cursor-pointer ${
-                  hoveredModel === model.id ? "bg-white/5 border-white/10" : "bg-transparent border-transparent"
-                } border`}
-              >
-                {/* Icon Box */}
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${model.iconBg} flex-shrink-0 transition-transform overflow-hidden ${
-                  hoveredModel === model.id ? "scale-110 rotate-3" : ""
-                }`}>
-                  <img src={model.logoUrl} alt={model.name} className="w-7 h-7 object-contain" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-                </div>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-[1.15]">
+              Intelligence, <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500">Unleashed.</span>
+            </h2>
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="font-semibold text-sm tracking-tight truncate">{model.name}</span>
-                    {model.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className={`text-[8px] font-black tracking-wider px-1.5 py-0.5 rounded ${
-                          tag === "PRO" 
-                            ? "bg-gradient-to-r from-orange-500 to-pink-500 text-white" 
-                            : "bg-white/10 text-slate-300"
-                        }`}
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                  <span className="text-[10px] text-slate-500 font-medium tracking-wide block mt-1">
-                    {model.desc}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-
-        {/* ===================== CENTER: COPY & ASK ANYTHING ===================== */}
-        <div className="lg:col-span-5 flex flex-col justify-center text-center items-center px-2">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="flex flex-col gap-6 max-w-[460px]"
-          >
-            <p className="text-slate-800 dark:text-slate-200 text-base md:text-[17px] font-medium leading-relaxed tracking-tight">
-              We&apos;ve created a platform that&apos;s faster, simpler, and more responsive to the latest advancements in AI. 
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500"> No accounts required</span>, 
-              no downloads, no data collection – just powerful AI at your fingertips.
+            <p className="text-slate-700 dark:text-slate-300 text-lg md:text-[19px] font-medium leading-relaxed tracking-tight">
+              We&apos;ve created a platform that&apos;s faster, simpler, and more responsive to the latest advancements in AI.
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-pink-500"> No accounts required</span>,
+              no downloads, no data collection.
             </p>
 
-            <p className="text-slate-500 dark:text-slate-400 text-sm md:text-[15px] leading-relaxed">
-              We believe AI should enhance human capability while respecting human dignity. It should be a tool for exploration and creation, 
+            <p className="text-slate-500 dark:text-slate-400 text-base leading-relaxed">
+              We believe AI should enhance human capability while respecting human dignity. It should be a tool for exploration and creation,
               not surveillance and control. Venice exists to make this vision a reality.
             </p>
 
-            <p className="text-slate-500 dark:text-slate-400 text-sm md:text-[15px] font-medium leading-relaxed">
-              Join over <span className="font-bold text-slate-800 dark:text-slate-100">1,000,000+ users</span> and experience AI as it should be – powerful, private, and permissionless.
-            </p>
-
             {/* Ask Anything Input Bar */}
-            <form onSubmit={handleSearchSubmit} className="w-full relative mt-4">
-              <div className="relative flex items-center bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl shadow-slate-200/50 dark:shadow-none p-1.5 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all duration-300">
-                <Search className="w-5 h-5 text-slate-400 ml-3.5 flex-shrink-0" />
+            <form onSubmit={handleSearchSubmit} className="w-full relative mt-6 group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-purple-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
+              <div className="relative flex items-center bg-white dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-white/10 rounded-2xl shadow-xl p-2 focus-within:ring-2 focus-within:ring-blue-500/50 transition-all duration-300">
+                <Search className="w-6 h-6 text-slate-400 ml-4 flex-shrink-0" />
                 <input
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Ask Anything..."
-                  className="w-full bg-transparent border-none outline-none pl-3 pr-12 py-2 text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400"
+                  className="w-full bg-transparent border-none outline-none pl-4 pr-14 py-3 text-base text-slate-800 dark:text-slate-100 placeholder-slate-400 font-medium"
                 />
                 <button
                   type="submit"
                   disabled={!query.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-xl bg-blue-500 hover:bg-blue-600 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 text-white flex items-center justify-center transition-all shadow-md shadow-blue-500/20 active:scale-95"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-xl bg-blue-500 hover:bg-blue-600 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-500 text-white flex items-center justify-center transition-all shadow-lg shadow-blue-500/30 active:scale-95"
                 >
-                  <ArrowRight className="w-4 h-4" />
+                  <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
             </form>
           </motion.div>
         </div>
 
-        {/* ===================== RIGHT: ANIMATED VECTOR CARD ===================== */}
-        <div className="lg:col-span-3 flex justify-center">
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="w-full max-w-[280px] aspect-square bg-black text-slate-100 rounded-3xl border border-white/10 shadow-2xl relative overflow-hidden flex items-center justify-center group"
-          >
-            <Image
-              src="/ai.jpg"
-              alt="AI Graphic"
-              fill
-              className="object-cover opacity-60"
-              sizes="(max-width: 768px) 100vw, 280px"
-              priority
-            />
-            {/* Glossy overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-black/40 pointer-events-none" />
-            
-            {/* Main Vector Logo */}
-            <div className="relative z-10 w-32 h-32 border border-white/20 rounded-full flex items-center justify-center p-3 backdrop-blur-sm bg-black/20">
-              <div className="w-full h-full border border-white/30 rounded-full flex items-center justify-center p-3 relative">
-                <img src="/apple-touch-icon.png" alt="Logo" className="w-12 h-12 object-contain rounded-xl" />
-              </div>
+        {/* ===================== RIGHT: BIG IMAGE ===================== */}
+        <motion.div
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square rounded-[2.5rem] overflow-hidden group shadow-2xl shadow-slate-200/50 dark:shadow-black/50 flex items-center justify-center"
+        >
+          {/* Ambient overlay */}
+          <div className="absolute inset-0 bg-black/10 z-10 opacity-60 group-hover:opacity-40 transition-opacity duration-700" />
+
+          <Image
+            src="/the.png"
+            alt="AI Platform"
+            fill
+            className="object-cover transition-transform duration-1000 group-hover:scale-105"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            priority
+          />
+
+          {/* Inner border */}
+          <div className="absolute inset-0 border-[2px] border-white/40 dark:border-white/10 rounded-[2.5rem] pointer-events-none z-20" />
+
+          {/* Center Logo */}
+          <div className="relative z-30 w-32 h-32 border border-white/30 dark:border-white/20 rounded-full flex items-center justify-center p-3 backdrop-blur-md bg-white/10 dark:bg-black/30 shadow-2xl transition-transform duration-500 group-hover:scale-110">
+            <div className="w-full h-full border border-white/40 dark:border-white/30 rounded-full flex items-center justify-center p-3 relative bg-white/20 dark:bg-black/20">
+              <img src="/apple-touch-icon.png" alt="Tomato AI Logo" className="w-14 h-14 object-contain drop-shadow-xl" />
             </div>
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
 
       </div>
     </section>

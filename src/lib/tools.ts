@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import { getToolContent as getToolContentEntry, type ToolContentEntry } from '@/data/tool-content'
 
 export interface DirectoryTool {
   id: number
@@ -27,4 +28,16 @@ export function getAllTools(): DirectoryTool[] {
 
 export function getToolBySlug(slug: string): DirectoryTool | undefined {
   return getAllTools().find((tool) => tool.slug === slug)
+}
+
+export function getToolContent(slug: string): ToolContentEntry | undefined {
+  return getToolContentEntry(slug)
+}
+
+export function getToolLogoUrl(website: string): string {
+  try {
+    return `https://www.google.com/s2/favicons?domain=${new URL(website).hostname}&sz=128`
+  } catch {
+    return `https://www.google.com/s2/favicons?domain=example.com&sz=128`
+  }
 }

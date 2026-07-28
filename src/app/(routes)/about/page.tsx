@@ -306,7 +306,7 @@ export default function About() {
             <div className="lg:col-span-6 w-full flex justify-center lg:justify-end">
               <div className="relative w-full max-w-[440px] aspect-[4/5] rounded-[32px] overflow-hidden shadow-lg border border-slate-200/50 dark:border-white/5 bg-slate-950">
                 <Image
-                  src="https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=800&q=80"
+                  src="/a (1).jpg"
                   alt="Premium abstract digital code visualization"
                   fill
                   className="object-cover opacity-75"
@@ -401,7 +401,7 @@ export default function About() {
               {/* Horizontal Robot Image Card (Center - 4 cols) */}
               <div className="lg:col-span-4 relative rounded-[24px] overflow-hidden min-h-[240px] border border-slate-200/60 dark:border-white/5 shadow-md bg-slate-900">
                 <Image
-                  src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80"
+                  src="/a (2).jpg"
                   alt="Robot Assistant working on technology systems"
                   fill
                   className="object-cover opacity-85"
@@ -487,7 +487,7 @@ export default function About() {
             <div className="lg:col-span-6 w-full flex justify-center lg:justify-end">
               <div className="relative w-full max-w-[500px] aspect-[4/3] rounded-[24px] overflow-hidden shadow-lg border border-slate-200/50 dark:border-white/5 bg-slate-900">
                 <Image
-                  src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80"
+                  src="/a.jpg"
                   alt="Code IDE visualization"
                   fill
                   className="object-cover opacity-80"
@@ -508,7 +508,7 @@ export default function About() {
               <div className="md:col-span-4 flex justify-center">
                 <div className="relative w-full max-w-[220px] aspect-square rounded-[24px] overflow-hidden shadow-inner border border-white/20">
                   <Image
-                    src="https://images.unsplash.com/photo-1546776310-eef45dd6d63c?auto=format&fit=crop&w=500&q=80"
+                    src="/a (3).jpg"
                     alt="Sleek white humanoid robot portrait representation"
                     fill
                     className="object-cover animate-[float_6s_ease-in-out_infinite]"
