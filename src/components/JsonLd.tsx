@@ -1,4 +1,5 @@
 // Server component: renders JSON-LD directly into the SSR'd HTML <head>/<body>
+import { SITE_URL } from '@/metadata-utils'
 // so crawlers that don't execute JS still see structured data (unlike the old
 // client-side useEffect + DOM-injection approach).
 export default function JsonLd({ data }: { data: Record<string, any> | Record<string, any>[] }) {
@@ -16,19 +17,19 @@ export const WebSiteStructuredData = {
   '@type': 'WebSite',
   name: 'TomatoAi India',
   alternateName: 'TomatoAi - AI Tools Directory',
-  url: 'https://tomatoai.in',
+  url: SITE_URL,
   description: 'Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant for productivity, creativity, and automation.',
   inLanguage: 'en-US',
   isAccessibleForFree: true,
   potentialAction: {
     '@type': 'SearchAction',
-    target: 'https://tomatoai.in/search?q={search_term_string}',
+    target: `${SITE_URL}/search?q={search_term_string}`,
     'query-input': 'required name=search_term_string',
   },
   publisher: {
     '@type': 'Organization',
     name: 'TomatoAi India',
-    url: 'https://tomatoai.in',
+    url: SITE_URL,
   },
 }
 
@@ -37,8 +38,8 @@ export const OrganizationStructuredData = {
   '@type': 'Organization',
   name: 'TomatoAi India',
   alternateName: 'TomatoAi AI Tools Directory',
-  url: 'https://tomatoai.in',
-  logo: 'https://tomatoai.in/logo.png',
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.png`,
   description: 'Leading AI tools directory helping users discover and compare the best artificial intelligence software and tools.',
   contactPoint: {
     '@type': 'ContactPoint',
@@ -108,23 +109,70 @@ export const howToStructuredData = (guide: {
   })),
 })
 
+// Structured data for a tool detail page.
+//
+// The previous version emitted a top-level SoftwareApplication whose Offer had
+// `price: undefined` next to `priceCurrency: 'USD'` — JSON.stringify drops the
+// undefined key, leaving an Offer with a currency but no price, which is an
+// invalid Offer and flagged every tool page as a rich-results error.
+//
+// It is also modelled as a review page rather than as the application itself.
+// We review third-party tools, we don't publish them, and we have no genuine
+// ratings or reviews to cite — so claiming a top-level SoftwareApplication
+// (whose rich result requires `aggregateRating` and `review`) can only ever
+// fail validation, and inventing those values would breach Google's
+// structured-data policy. Describing the page as an ItemPage *about* the
+// application states the same facts truthfully and validates cleanly.
 export const softwareApplicationStructuredData = (tool: {
   name: string
   description: string
   category: string
   url: string
+  pageUrl?: string
   pricing?: string
-}) => ({
-  '@context': 'https://schema.org',
-  '@type': 'SoftwareApplication',
-  name: tool.name,
-  description: tool.description,
-  applicationCategory: tool.category,
-  url: tool.url,
-  offers: {
-    '@type': 'Offer',
-    price: tool.pricing === 'Free' ? '0' : undefined,
-    priceCurrency: 'USD',
-    category: tool.pricing || 'Freemium',
-  },
-})
+}) => {
+  // Only assert a price we can actually stand behind: "Free" and "Freemium"
+  // both have a genuine $0 entry point. "Paid" tools have a price we don't
+  // track, so no Offer is emitted rather than a made-up one.
+  const hasFreeTier = tool.pricing === 'Free' || tool.pricing === 'Freemium'
+
+  const application: Record<string, any> = {
+    '@type': 'SoftwareApplication',
+    name: tool.name,
+    description: tool.description,
+    // schema.org expects a known application category here; the site's own
+    // finer-grained label ("AI Chat", "Video Editing", …) belongs in the
+    // subcategory field.
+    applicationCategory: 'WebApplication',
+    applicationSubCategory: tool.category,
+    operatingSystem: 'Web',
+    url: tool.url,
+    ...(hasFreeTier
+      ? {
+          offers: {
+            '@type': 'Offer',
+            price: '0',
+            priceCurrency: 'USD',
+            availability: 'https://schema.org/InStock',
+            ...(tool.pricing === 'Freemium'
+              ? { description: 'Free tier available, with paid plans for additional usage' }
+              : {}),
+          },
+        }
+      : {}),
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'ItemPage',
+    name: `${tool.name} review, pricing and features`,
+    description: tool.description,
+    ...(tool.pageUrl ? { url: tool.pageUrl } : {}),
+    about: application,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'TomatoAi India',
+      url: SITE_URL,
+    },
+  }
+}

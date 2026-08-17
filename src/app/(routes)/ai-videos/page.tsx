@@ -74,6 +74,22 @@ export default function AITutorialsPage() {
           <div className="bg-[#E84E1B] text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-sm tracking-wide">
             AI Tutorials Hub
           </div>
+        </div>
+
+        {/* The page previously had no <h1> at all, so neither crawlers nor
+            screen readers had a topic for it. */}
+        <div className="max-w-4xl mx-auto text-center mb-8">
+          <h1 className="text-3xl md:text-5xl font-bold text-slate-900 tracking-tight mb-4">
+            AI Video Tutorials
+          </h1>
+          <p className="text-lg text-slate-600 leading-relaxed">
+            A curated library of video tutorials for the AI tools people actually use &mdash; ChatGPT, Midjourney,
+            Claude, Stable Diffusion, Runway and more. Filter by tool to jump straight to walkthroughs for the one
+            you are learning, from first prompt to advanced production workflows.
+          </p>
+        </div>
+
+        <div className="flex flex-col md:flex-row justify-end items-center gap-4 mb-6">
           <div className="flex items-center gap-4">
             <div className="flex gap-3 text-gray-400">
               <Twitter size={20} className="hover:text-black cursor-pointer transition-colors" />

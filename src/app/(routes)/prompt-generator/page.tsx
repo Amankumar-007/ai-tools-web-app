@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import {
   Copy,
@@ -103,8 +102,6 @@ const ModelPicker = ({ selectedModel, onSelect }: { selectedModel: string, onSel
 
 export default function PromptGeneratorPage() {
   const router = useRouter();
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [topic, setTopic] = useState("");
   const [loading, setLoading] = useState(false);
@@ -115,7 +112,6 @@ export default function PromptGeneratorPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    setMounted(true);
     const fetchUser = async () => {
       const userObj = await getCurrentUser();
       setUser(userObj);
@@ -253,8 +249,6 @@ export default function PromptGeneratorPage() {
       }
     });
   };
-
-  if (!mounted) return null;
 
   return (
     <div className="min-h-screen dark:bg-[#050505] bg-neutral-50 dark:text-white text-neutral-900 selection:bg-orange-500/30 font-sans transition-colors duration-300 py-15">

@@ -242,7 +242,17 @@ function SearchContent() {
 
 export default function SearchPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        // Rendered on the server (SearchContent reads the query string, so it
+        // can only render on the client). Carries the page's <h1> so the
+        // document is never heading-less.
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <h1 className="text-3xl font-bold text-gray-900">Search</h1>
+          <p className="mt-2 text-gray-600">Loading results…</p>
+        </div>
+      }
+    >
       <SearchContent />
     </Suspense>
   )

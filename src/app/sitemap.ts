@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next'
 import { getAllTools } from '@/lib/tools'
 import { agentWorkflows } from '@/app/data/agent-workflows'
+import { SITE_URL } from '@/metadata-utils'
 
-const baseUrl = 'https://tomatoai.in'
+const baseUrl = SITE_URL
 
 // Fixed build-time date for evergreen static pages - only bumped when the
 // underlying page content meaningfully changes, unlike the old `new Date()`
@@ -21,7 +22,6 @@ const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: Me
   { path: '/summarization', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/resume-analyzer', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/search-thumbnail', priority: 0.6, changeFrequency: 'weekly' },
-  { path: '/search', priority: 0.5, changeFrequency: 'weekly' },
   { path: '/roadmap', priority: 0.6, changeFrequency: 'weekly' },
   { path: '/outlier', priority: 0.6, changeFrequency: 'weekly' },
   { path: '/optimize-with-ai', priority: 0.6, changeFrequency: 'weekly' },
@@ -31,7 +31,8 @@ const STATIC_ROUTES: Array<{ path: string; priority: number; changeFrequency: Me
   { path: '/tomato-ai', priority: 0.6, changeFrequency: 'weekly' },
   { path: '/docs', priority: 0.5, changeFrequency: 'monthly' },
   { path: '/trending/repos', priority: 0.7, changeFrequency: 'hourly' },
-  { path: '/ai-tools/analyze', priority: 0.4, changeFrequency: 'monthly' },
+  { path: '/privacy', priority: 0.3, changeFrequency: 'yearly' },
+  { path: '/terms', priority: 0.3, changeFrequency: 'yearly' },
 ]
 
 export default function sitemap(): MetadataRoute.Sitemap {

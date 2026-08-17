@@ -126,14 +126,10 @@ export default function N8nTemplatesPage() {
     alert('Template downloaded!');
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
+  // The hero and the "how to use" guide are static, so they render straight
+  // away instead of sitting behind the templates fetch. Previously the whole
+  // page was replaced by a spinner until the client finished loading, which
+  // meant crawlers only ever saw the spinner — no <h1> and almost no text.
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -245,6 +241,11 @@ export default function N8nTemplatesPage() {
           </div>
 
           {/* Templates Grid */}
+          {loading && (
+            <div className="flex items-center justify-center py-24">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary" />
+            </div>
+          )}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredTemplates.map((template, index) => (
               <motion.div

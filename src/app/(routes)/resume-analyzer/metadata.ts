@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SITE_URL } from '@/metadata-utils'
 
 export const metadata: Metadata = {
   title: 'AI Resume Analyzer - Best Resume Builder & ATS Checker Tools | TomatoAi',
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'AI Resume Analyzer - Best Resume Builder & ATS Checker Tools | TomatoAi',
     description: 'Discover the best AI resume analyzer and builder tools. Optimize your resume for ATS, get instant feedback, and improve interview chances.',
-    url: 'https://tomatoai.in/resume-analyzer',
+    url: `${SITE_URL}/resume-analyzer`,
     images: [
       {
         url: '/og-resume-analyzer.jpg',

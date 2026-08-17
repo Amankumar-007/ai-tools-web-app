@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { createPageMetadata } from '@/metadata-utils'
+import ToolPageAbout from '@/components/ToolPageAbout'
+import { TOOL_PAGE_ABOUT } from '@/data/tool-page-about'
 
 export const metadata: Metadata = createPageMetadata({
   title: 'Outlier AI - Transform Content with Gemini Flash',
@@ -9,5 +11,10 @@ export const metadata: Metadata = createPageMetadata({
 })
 
 export default function OutlierLayout({ children }: { children: React.ReactNode }) {
-  return children
+  return (
+    <>
+      {children}
+      <ToolPageAbout content={TOOL_PAGE_ABOUT['/outlier']} />
+    </>
+  )
 }

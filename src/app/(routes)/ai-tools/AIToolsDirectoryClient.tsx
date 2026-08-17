@@ -127,6 +127,37 @@ const ToolCard = ({ tool, isSelected, onToggle, isMaxReached }: any) => (
 );
 
 // --- 3. MAIN CONTENT COMPONENT ---
+// The only part of this page that depends on the query string. Isolating it
+// here means the Suspense boundary it needs wraps just this block — the hero,
+// the category bar and the full tools grid all still render on the server.
+// (When `useSearchParams` is read by the top-level component instead, Next.js
+// opts the entire route into client-side rendering and crawlers receive an
+// empty shell: no <h1>, no tool listings, ~13 words of text.)
+function CategoryRecommendations() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const categoryParam = searchParams.get('category');
+
+  if (!categoryParam) return null;
+
+  return (
+    <div className="mb-16">
+      <div className="flex justify-end mb-4">
+        <button
+          onClick={() => router.push('/ai-tools')}
+          className="text-xs font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1"
+        >
+          <X size={12} /> Clear Filter
+        </button>
+      </div>
+      <CategoryToolsResults category={categoryParam} />
+      <div className="mt-12 pt-12 border-t border-slate-100 dark:border-slate-800">
+        <h2 className="text-lg font-medium text-slate-900 dark:text-white mb-6">Directory</h2>
+      </div>
+    </div>
+  );
+}
+
 function AIToolsContent({ initialTools }: { initialTools: Tool[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCat, setActiveCat] = useState('All');
@@ -134,8 +165,6 @@ function AIToolsContent({ initialTools }: { initialTools: Tool[] }) {
   const [tools] = useState<Tool[]>(initialTools);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const categoryParam = searchParams.get('category');
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -230,7 +259,11 @@ function AIToolsContent({ initialTools }: { initialTools: Tool[] }) {
               key={cat.id}
               onClick={() => {
                 setActiveCat(cat.id);
-                if (categoryParam) router.push('/ai-tools');
+                // Read at click time rather than via useSearchParams, so this
+                // component keeps no render-time dependency on the query string.
+                if (new URLSearchParams(window.location.search).has('category')) {
+                  router.push('/ai-tools');
+                }
               }}
               className={`px-4 py-2 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${activeCat === cat.id
                 ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
@@ -243,22 +276,9 @@ function AIToolsContent({ initialTools }: { initialTools: Tool[] }) {
         </div>
 
         {/* AI Recommendations Section */}
-        {categoryParam && (
-          <div className="mb-16">
-            <div className="flex justify-end mb-4">
-              <button
-                onClick={() => router.push('/ai-tools')}
-                className="text-xs font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1"
-              >
-                <X size={12} /> Clear Filter
-              </button>
-            </div>
-            <CategoryToolsResults category={categoryParam} />
-            <div className="mt-12 pt-12 border-t border-slate-100 dark:border-slate-800">
-              <h2 className="text-lg font-medium text-slate-900 dark:text-white mb-6">Directory</h2>
-            </div>
-          </div>
-        )}
+        <React.Suspense fallback={null}>
+          <CategoryRecommendations />
+        </React.Suspense>
 
         {/* Tools Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -317,15 +337,10 @@ function AIToolsContent({ initialTools }: { initialTools: Tool[] }) {
   );
 }
 
-// --- 4. MAIN CLIENT COMPONENT (wraps the searchParams-dependent content in Suspense) ---
+// --- 4. MAIN CLIENT COMPONENT ---
+// No Suspense boundary here: the query-string dependency now lives in
+// <CategoryRecommendations>, which carries its own narrow boundary. Wrapping
+// the whole page as before meant the server rendered only the fallback spinner.
 export default function AIToolsDirectoryClient({ initialTools }: { initialTools: Tool[] }) {
-  return (
-    <React.Suspense fallback={
-      <div className="min-h-screen bg-white dark:bg-[#0B0F1A] flex items-center justify-center">
-        <div className="w-6 h-6 border-2 border-slate-900 dark:border-white border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    }>
-      <AIToolsContent initialTools={initialTools} />
-    </React.Suspense>
-  );
+  return <AIToolsContent initialTools={initialTools} />;
 }

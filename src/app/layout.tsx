@@ -7,6 +7,7 @@ import { Toaster } from "sonner";
 import Script from "next/script";
 import JsonLd, { WebSiteStructuredData, OrganizationStructuredData } from "@/components/JsonLd";
 import ExpiringModelsModal from "@/components/ExpiringModelsModal";
+import { SITE_URL } from '@/metadata-utils'
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
     default: "TomatoAi India - Best AI Tools Directory & Reviews 2026",
     template: "%s | TomatoAi"
   },
-  description: "Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant for productivity, creativity, and automation. Updated daily with latest AI innovations.",
+  description: "Discover and compare the best AI tools for every need. Reviews, features and pricing for productivity, creativity and automation. Updated daily.",
   keywords: [
     "AI tools",
     "artificial intelligence",
@@ -54,14 +55,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://tomatoai.in'),
+  metadataBase: new URL(SITE_URL),
   alternates: {
     canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://tomatoai.in',
+    url: SITE_URL,
     title: 'TomatoAi India - Best AI Tools Directory & Reviews 2026',
     description: 'Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant for productivity, creativity, and automation.',
     siteName: 'TomatoAi India',

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SITE_URL } from '@/metadata-utils'
 
 export const metadata: Metadata = {
   title: 'About tomatoTool - AI Tools Directory Mission & Team | tomatoTool',
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'About tomatoTool - AI Tools Directory Mission & Team | tomatoTool',
     description: 'Learn about tomatoTool, your trusted AI tools directory. Discover our mission to help users find the best artificial intelligence software.',
-    url: 'https://tomatoai.in/about',
+    url: `${SITE_URL}/about`,
     images: [
       {
         url: '/og-about.jpg',

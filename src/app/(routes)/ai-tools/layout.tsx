@@ -1,11 +1,11 @@
 import type { Metadata } from 'next'
-import { createPageMetadata } from '@/metadata-utils'
+import { createPageMetadata, SITE_URL } from '@/metadata-utils'
 import JsonLd, { itemListStructuredData } from '@/components/JsonLd'
 import { getAllTools } from '@/lib/tools'
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'Find Best AI Tool for Your Work - Just Search Here',
-  description: 'Find the best AI tool for your work. Just search here to explore our comprehensive directory of AI tools categorized by their ecosystems, pricing, and capabilities.',
+  title: 'Find the Best AI Tool for Your Work',
+  description: 'Search a curated directory of the best AI tools, organised by category, pricing and capability. Compare features and find the right one fast.',
   keywords: [
     'find best ai tool',
     'AI tools directory',
@@ -37,7 +37,7 @@ export default function AiToolsLayout({ children }: { children: React.ReactNode 
         data={itemListStructuredData(
           tools.map((tool) => ({
             name: tool.name,
-            url: `https://tomatoai.in/ai-tools/${tool.slug}`,
+            url: `${SITE_URL}/ai-tools/${tool.slug}`,
             description: tool.description,
           }))
         )}

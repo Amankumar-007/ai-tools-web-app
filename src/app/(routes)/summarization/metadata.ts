@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SITE_URL } from '@/metadata-utils'
 
 export const metadata: Metadata = {
   title: 'AI Summarization Tools - Best Text & Content Summarizers | TomatoAi',
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'AI Summarization Tools - Best Text & Content Summarizers | TomatoAi',
     description: 'Find the best AI summarization tools for articles, documents, videos, and audio. Extract key insights quickly with advanced AI.',
-    url: 'https://tomatoai.in/summarization',
+    url: `${SITE_URL}/summarization`,
     images: [
       {
         url: '/og-summarization.jpg',

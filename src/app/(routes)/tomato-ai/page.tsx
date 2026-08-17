@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -391,8 +391,6 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isInputHovered, setIsInputHovered] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const query = searchParams.get("q");
   const hasTriggeredRef = useRef(false);
 
   useEffect(() => {
@@ -401,7 +399,10 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     if (hasTriggeredRef.current) return;
 
     const pendingPrompt = localStorage.getItem('pending_prompt');
-    const urlQuery = query;
+    // Read the query string inside the effect rather than with
+    // useSearchParams(): reading it during render opts this entire route out
+    // of server rendering, leaving crawlers an empty shell with no heading.
+    const urlQuery = new URLSearchParams(window.location.search).get('q');
     const promptToUse = pendingPrompt || urlQuery;
 
     if (promptToUse) {
@@ -420,7 +421,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
       // Submit immediately without timeout which can be lost if React drops it
       submitMessage(promptToUse, isFromUrl);
     }
-  }, [isAuthChecking, isLoaded, query]);
+  }, [isAuthChecking, isLoaded]);
 
   // Copy code to clipboard function
   const copyToClipboard = async (code: string, codeId: string) => {
@@ -979,8 +980,30 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
           transition: 'background-image 1s ease-in-out'
         }}
       >
-        <div className="flex flex-col items-center gap-4">
+        {/* `isAuthChecking` starts true, so this is what the server renders
+            and what a crawler sees. It therefore carries the page's heading
+            and a real description of the product rather than just a spinner. */}
+        <div className="flex flex-col items-center gap-4 max-w-xl px-6 text-center">
           <Image src="/logo.png" alt="TomatoAI" width={64} height={64} className="animate-pulse" />
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+            TomatoAI Chat
+          </h1>
+          <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+            A free AI assistant for questions, brainstorming, writing and code. Switch between leading
+            open-source and commercial language models, upload a PDF or image to ask about it, and keep your
+            conversation history in one place.
+          </p>
+          <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+            Because different models are good at different things, TomatoAI Chat lets you change model mid-conversation
+            rather than committing up front: a fast model for quick questions, a stronger reasoning model when a problem
+            needs working through, and a code-focused model for debugging. Custom instructions carry your context across
+            every conversation, so you are not restating who you are and what you are working on each time.
+          </p>
+          <p className="text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+            Attach a PDF, document or screenshot and ask questions about it directly. Responses stream as they are
+            generated, code blocks are syntax-highlighted and one click from being copied, and your history stays
+            available so earlier answers remain easy to find.
+          </p>
           <div className="text-lg font-medium text-gray-600 dark:text-gray-400">Loading...</div>
         </div>
       </div>
@@ -1233,7 +1256,9 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                       <Image src="/logo.png" alt="TomatoAI" width={40} height={40} className="rounded-xl shadow-lg" />
                     </MotionDiv>
                     <div>
-                      <h1 className="text-3xl font-extrabold">TomatoAI</h1>
+                      {/* Sidebar brand label, not the page heading — the page's
+                          single <h1> lives in the chat's empty state below. */}
+                      <span className="block text-3xl font-extrabold">TomatoAI</span>
                       <p className="text-xs text-gray-500 dark:text-gray-400 font-['Inter','system-ui','-apple-system','sans-serif']">Professional AI Assistant</p>
                     </div>
                   </Link>

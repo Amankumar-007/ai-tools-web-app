@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Clock, ShieldCheck, Database, CheckCircle2 } from 'lucide-react';
 import { agentWorkflows } from '@/app/data/agent-workflows';
-import { createPageMetadata } from '@/metadata-utils';
+import { createPageMetadata, SITE_URL } from '@/metadata-utils';
 import JsonLd, { breadcrumbListStructuredData, howToStructuredData } from '@/components/JsonLd';
 import WorkflowSteps from './WorkflowSteps';
 
@@ -36,9 +36,9 @@ export default async function AgentWorkflowDetail({ params }: { params: Promise<
         <div className="min-h-screen bg-slate-50 dark:bg-[#0A0A0A] text-slate-900 dark:text-slate-100 font-sans selection:bg-blue-500/20 transition-colors duration-500">
             <JsonLd
                 data={breadcrumbListStructuredData([
-                    { name: 'Home', url: 'https://tomatoai.in' },
-                    { name: 'AI Workflows', url: 'https://tomatoai.in/ai-workflows' },
-                    { name: agent.title, url: `https://tomatoai.in/ai-workflows/${agent.slug}` },
+                    { name: 'Home', url: SITE_URL },
+                    { name: 'AI Workflows', url: `${SITE_URL}/ai-workflows` },
+                    { name: agent.title, url: `${SITE_URL}/ai-workflows/${agent.slug}` },
                 ])}
             />
             <JsonLd

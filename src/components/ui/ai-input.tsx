@@ -217,8 +217,18 @@ export default function AiInput({
     }
   }, [imagePreview])
   return (
-    <div className="w-full py-4">
+    <div className="w-full py-2">
       <div className="relative bg-white dark:bg-neutral-900 max-w-3xl border border-black/10 dark:border-white/10 rounded-[22px] p-1 w-full mx-auto shadow-[0_18px_35px_rgba(0,0,0,0.07),_0_3px_10px_rgba(0,0,0,0.035)] dark:shadow-[0_18px_35px_rgba(0,0,0,0.35),_0_3px_10px_rgba(0,0,0,0.15)]">
+        {/* Hand-drawn Generate annotation */}
+        <div className="flex items-start gap-1 absolute -top-7 left-1 sm:left-3 pointer-events-none select-none z-30">
+          <span className="text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm tracking-wide italic font-mono drop-shadow-xs transform -rotate-12 mt-0.5">
+            Generate
+          </span>
+          <svg width="34" height="28" viewBox="0 0 34 28" fill="none" className="text-blue-600 dark:text-blue-400 stroke-current transform rotate-3">
+            <path d="M3 4C11 5 21 11 26 24" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
+            <path d="M18 20L26 24L27 15" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+          </svg>
+        </div>
         <div className="relative rounded-2xl border border-black/5 bg-neutral-800/5 flex flex-col">
           <div
             className="overflow-y-auto"

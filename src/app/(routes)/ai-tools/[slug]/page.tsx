@@ -18,7 +18,7 @@ import ToolPageNavbar from '@/components/ToolPageNavbar'
 import Footer from '@/components/footer'
 import ToolFaqAccordion from '@/components/ToolFaqAccordion'
 import JsonLd, { breadcrumbListStructuredData, softwareApplicationStructuredData, faqPageStructuredData } from '@/components/JsonLd'
-import { createToolMetadata } from '@/metadata-utils'
+import { createToolMetadata, SITE_URL } from '@/metadata-utils'
 import { getAllTools, getToolBySlug, getToolContent, getToolLogoUrl } from '@/lib/tools'
 
 export const revalidate = 86400
@@ -80,14 +80,15 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
           description: tool.description,
           category: tool.category,
           url: tool.website,
+          pageUrl: `${SITE_URL}/ai-tools/${tool.slug}`,
           pricing: tool.pricing,
         })}
       />
       <JsonLd
         data={breadcrumbListStructuredData([
-          { name: 'Home', url: 'https://tomatoai.in' },
-          { name: 'AI Tools', url: 'https://tomatoai.in/ai-tools' },
-          { name: tool.name, url: `https://tomatoai.in/ai-tools/${tool.slug}` },
+          { name: 'Home', url: SITE_URL },
+          { name: 'AI Tools', url: `${SITE_URL}/ai-tools` },
+          { name: tool.name, url: `${SITE_URL}/ai-tools/${tool.slug}` },
         ])}
       />
       {content?.faqs && content.faqs.length > 0 && (

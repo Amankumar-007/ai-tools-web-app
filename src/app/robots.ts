@@ -1,8 +1,9 @@
 import { MetadataRoute } from 'next'
+import { SITE_URL } from '@/metadata-utils'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://tomatoai.in'
-  
+  const baseUrl = SITE_URL
+
   return {
     rules: [
       {

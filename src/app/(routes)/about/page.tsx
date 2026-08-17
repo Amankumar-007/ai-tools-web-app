@@ -28,6 +28,7 @@ import JsonLd, {
   breadcrumbListStructuredData,
   faqPageStructuredData
 } from "@/components/JsonLd";
+import { SITE_URL } from '@/metadata-utils'
 
 interface User {
   id: string;
@@ -98,8 +99,8 @@ export default function About() {
   ];
 
   const breadcrumbs = breadcrumbListStructuredData([
-    { name: "Home", url: "https://tomatoai.in" },
-    { name: "About Us", url: "https://tomatoai.in/about" }
+    { name: "Home", url: SITE_URL },
+    { name: "About Us", url: `${SITE_URL}/about` }
   ]);
 
   const faqSchema = faqPageStructuredData(aboutFaqs);
@@ -616,11 +617,13 @@ export default function About() {
           {/* ===================== MINIMAL FOOTER & GIANT LOGO ===================== */}
           <section className="pt-8 pb-8 flex flex-col gap-12">
 
-            {/* Giant Logo Watermark */}
-            <div className="w-full overflow-hidden select-none pointer-events-none">
-              <h1 className="text-[5rem] sm:text-[9rem] md:text-[14rem] font-bold text-slate-900/5 dark:text-white/5 uppercase tracking-tighter text-center leading-none">
+            {/* Giant Logo Watermark — decorative only, so it must not be an
+                <h1>: the page already has its real heading up top, and two
+                <h1>s leave crawlers guessing which one is the topic. */}
+            <div className="w-full overflow-hidden select-none pointer-events-none" aria-hidden="true">
+              <div className="text-[5rem] sm:text-[9rem] md:text-[14rem] font-bold text-slate-900/5 dark:text-white/5 uppercase tracking-tighter text-center leading-none">
                 tomatoTool
-              </h1>
+              </div>
             </div>
 
             {/* Copyright block */}

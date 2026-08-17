@@ -15,8 +15,10 @@ export default function Footer() {
 
   const socials = [
     { icon: Github, href: "https://github.com/Amankumar-007" },
-    { icon: Linkedin, href: "https://linkedin.com/in/aman-kumar-web" },
-    { icon: Twitter, href: "https://twitter.com/AmanCodex" },
+    { icon: Linkedin, href: "https://www.linkedin.com/in/aman-kumar-web" },
+    // Point at the final URLs: twitter.com and the bare linkedin.com host both
+    // 301 elsewhere, and these run in the footer of every page on the site.
+    { icon: Twitter, href: "https://x.com/AmanCodex" },
   ]
 
   return (

@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import { createPageMetadata } from '@/metadata-utils'
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'About TomatoAi - Premium AI Tools Directory, n8n Templates & Workflows',
-  description: 'Learn about TomatoAi, the ultimate artificial intelligence directory helping developers, creators, and professionals discover, compare, and integrate top AI tools, custom prompts, and n8n workflows into their daily stacks.',
+  title: 'About TomatoAi - Our AI Tools Directory Mission',
+  description: 'How TomatoAi helps developers, creators and professionals discover, compare and integrate the best AI tools, prompts and n8n workflows.',
   keywords: [
     'about TomatoAi',
     'AI tools directory',
