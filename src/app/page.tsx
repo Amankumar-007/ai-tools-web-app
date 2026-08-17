@@ -191,16 +191,19 @@ export default function Home() {
       />
 
       {/* Hero Section */}
-      <section className="relative min-h-[82vh] md:min-h-[86vh] flex flex-col items-center justify-start pt-24 pb-10 sm:pt-28 md:pt-32 md:pb-14 px-4 overflow-hidden">
-        <div className="relative z-10 text-center px-4 w-full max-w-4xl mx-auto flex flex-col items-center">
+      <section className="relative flex flex-col items-center justify-start pt-30 pb-10 sm:pt-25 md:pt-32 md:pb-14 px-3 sm:px-4 overflow-hidden">
+        <div className="relative z-10 text-center px-2 sm:px-4 w-full max-w-4xl mx-auto flex flex-col items-center">
           {/* Main Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-[3.8rem] font-bold tracking-tight mb-4 max-w-4xl mx-auto leading-[1.15] text-neutral-950 dark:text-white animate-hero opacity-0">
-            Everything AI. With<span className="inline-flex items-center justify-center align-middle mx-[0.03em] -translate-y-[0.05em]"><img src="/logo.png" alt="o" className="w-[0.76em] h-[0.76em] object-contain inline-block" /></span>ut the{" "}
+          <h1 className="text-[2.15rem] xs:text-3xl sm:text-4xl md:text-5xl lg:text-[3.8rem] font-bold tracking-tight mb-3 sm:mb-4 max-w-4xl mx-auto leading-[1.16] sm:leading-[1.15] text-neutral-950 dark:text-white animate-hero opacity-0">
+            <span className="block sm:inline">Everything AI. </span>
+            <span className="inline-block">
+              With<span className="inline-flex items-center justify-center align-middle mx-[0.02em] -translate-y-[0.05em]"><img src="/logo.png" alt="o" className="w-[0.72em] h-[0.72em] object-contain inline-block" /></span>ut the{" "}
+            </span>{" "}
             <span className="relative inline-block whitespace-nowrap font-serif italic font-normal text-blue-600 dark:text-blue-400 px-1 sm:px-2">
-              47 <span className="inline-flex items-center justify-center align-middle mx-[0.02em] -translate-y-[0.06em]"><img src="/logo.png" alt="O" className="w-[0.84em] h-[0.84em] object-contain inline-block" /></span>pen Tabs.
+              47 <span className="inline-flex items-center justify-center align-middle mx-[0.02em] -translate-y-[0.06em]"><img src="/logo.png" alt="O" className="w-[0.8em] h-[0.8em] object-contain inline-block" /></span>pen Tabs.
               {/* Decorative hand-drawn accent stroke */}
               <svg
-                className="absolute -bottom-1.5 left-0 w-full h-3 text-blue-500/50 dark:text-blue-400/50 pointer-events-none"
+                className="absolute -bottom-1 left-0 w-full h-2.5 text-blue-500/60 dark:text-blue-400/60 pointer-events-none"
                 viewBox="0 0 100 12"
                 preserveAspectRatio="none"
                 fill="none"
@@ -208,7 +211,7 @@ export default function Home() {
                 <path
                   d="M2,9 C25,2 50,11 98,4"
                   stroke="currentColor"
-                  strokeWidth="3.5"
+                  strokeWidth="3.2"
                   strokeLinecap="round"
                 />
               </svg>
@@ -216,14 +219,14 @@ export default function Home() {
           </h1>
 
           {/* Subtitle */}
-          <p className="text-sm sm:text-base md:text-lg text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto leading-relaxed mb-1.5 font-normal">
+          <p className="text-xs sm:text-base md:text-lg text-neutral-600 dark:text-neutral-300 max-w-xl mx-auto leading-relaxed mb-1.5 font-normal px-2">
             Chat, create, discover tools, build roadmaps, fix your resume, and get things done → all in one place.
           </p>
-          <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 max-w-xl mx-auto font-medium mb-6">
+          <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 max-w-lg mx-auto font-medium mb-5 sm:mb-6">
             Basically, AI without the headache.
           </p>
 
-          <WrapButton href="/ai-tools" onClick={(e) => handleProtectedLink(e, "/tomato-ai")}>
+          <WrapButton href="/ai-tools">
             <Globe className="animate-spin" />
             Explore Tools
           </WrapButton>
@@ -233,21 +236,18 @@ export default function Home() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="relative w-full max-w-3xl mx-auto mt-6 z-10"
+            className="relative w-full max-w-3xl mx-auto mt-4 sm:mt-6 z-10"
           >
-            <div className="w-full max-w-2xl mx-auto my-3 md:hidden">
-              <AiInput />
-            </div>
-            <div className="w-full hidden md:flex justify-center py-2">
+            <div className="w-full flex justify-center py-2">
               <AnimatedAiInput />
             </div>
 
             {/* AI Model Logos Row */}
-            <div className="flex flex-col items-center gap-2 mt-3">
-              <span className="text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
+            <div className="flex flex-col items-center gap-1.5 sm:gap-2 mt-2 sm:mt-3">
+              <span className="text-[10px] sm:text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
                 Explore & Chat with Top AI Models
               </span>
-              <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-wrap">
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 flex-wrap px-1">
                 {[
                   {
                     name: "ChatGPT",
@@ -307,7 +307,7 @@ export default function Home() {
                   <Link
                     key={model.name}
                     href={`/tomato-ai/chat?q=${encodeURIComponent(model.query)}`}
-                    className={`group relative w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center p-2
+                    className={`group relative w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center p-1.5 sm:p-2
                       bg-white/80 dark:bg-neutral-900/80
                       backdrop-blur-md
                       border border-black/[0.08] dark:border-white/[0.12]

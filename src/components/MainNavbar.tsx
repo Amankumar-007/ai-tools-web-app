@@ -99,8 +99,8 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
       {/* ===================== MOBILE TOP BAR ===================== */}
       <header className={`md:hidden fixed left-0 right-0 z-50 transition-all duration-300 
         ${isScrolled
-          ? 'top-0 bg-transparent py-4'
-          : 'top-2 bg-white/90 dark:bg-[#0A0A0A]/90 backdrop-blur-md py-4'
+          ? 'top-0 bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-md py-3 shadow-xs border-b border-black/5 dark:border-white/5'
+          : 'top-0 bg-transparent py-4'
         }`}
       >
         <div className="flex items-center justify-between px-6">
