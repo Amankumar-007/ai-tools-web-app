@@ -11,6 +11,8 @@ export interface DirectoryTool {
   pricing: string
   description: string
   features: string[]
+  source?: string
+  sourceDate?: string
 }
 
 let cache: DirectoryTool[] | null = null

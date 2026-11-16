@@ -8,27 +8,23 @@ import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
+import LightningToggle from "@/components/ui/lightning-toggle"
 
 // Helper function to get readable model name
 const getModelName = (modelId: string): string => {
   const modelNames: Record<string, string> = {
-    "tencent/hy3:free": "Tencent Hunyuan 3",
-    "nvidia/nemotron-3-ultra-550b-a55b:free": "Nemotron 3 Ultra 550B",
-    "poolside/laguna-m.1:free": "Laguna M.1",
-    "nvidia/nemotron-3-super-120b-a12b:free": "Nemotron 3 Super 120B",
-    "cohere/north-mini-code:free": "Cohere North Mini Code",
-    "poolside/laguna-xs-2.1:free": "Laguna XS 2.1",
-    "nvidia/nemotron-3-nano-30b-a3b:free": "Nemotron 3 Nano 30B",
-    "openai/gpt-oss-120b:free": "GPT OSS 120B",
+    "openrouter/free": "Auto Free Router",
     "google/gemma-4-31b-it:free": "Gemma 4 31B IT",
+    "google/gemma-4-26b-a4b-it:free": "Gemma 4 26B IT",
+    "nvidia/nemotron-3-nano-30b-a3b:free": "Nemotron 3 Nano 30B",
+    "nvidia/nemotron-3-super-120b-a12b:free": "Nemotron 3 Super 120B",
+    "nvidia/nemotron-3-ultra-550b-a55b:free": "Nemotron 3 Ultra 550B",
+    "nvidia/nemotron-3.5-lightning:free": "Nemotron 3.5 Lightning",
     "openai/gpt-oss-20b:free": "GPT OSS 20B",
-    "qwen/qwen3-coder:free": "Qwen 3 Coder",
-    "meta-llama/llama-3.2-3b-instruct:free": "Llama 3.2 3B Instruct",
-    "nousresearch/hermes-3-llama-3.1-405b:free": "Hermes 3 Llama 3.1 405B",
-    "cognitivecomputations/dolphin-mistral-24b-venice-edition:free": "Dolphin Mistral 24B Venice",
-    "meta-llama/llama-3.3-70b-instruct:free": "Llama 3.3 70B Instruct",
-    "liquid/lfm-2.5-1.2b-thinking:free": "LFM 2.5 1.2B Thinking",
-    "liquid/lfm-2.5-1.2b-instruct:free": "LFM 2.5 1.2B Instruct",
+    "poolside/laguna-xs-2.1:free": "Laguna XS 2.1",
+    "poolside/laguna-s-2.1:free": "Laguna S 2.1",
+    "cohere/north-mini-code:free": "Cohere North Mini Code",
+    "z-ai/glm-5.2:free": "GLM 5.2",
   }
   return modelNames[modelId] || modelId.split("/")[1]?.replace(":free", "") || modelId.replace(":free", "")
 }
@@ -105,6 +101,8 @@ type AiInputProps = {
   onFileSelect?: (file: File | null) => void
   onModelSelect?: () => void
   onStop?: () => void
+  onLightningSelect?: () => void
+  lightningActive?: boolean
   placeholder?: string
   submitting?: boolean
   disabled?: boolean
@@ -120,6 +118,8 @@ export default function AiInput({
   onFileSelect,
   onModelSelect,
   onStop,
+  onLightningSelect,
+  lightningActive,
   placeholder,
   submitting,
   disabled,
@@ -138,6 +138,13 @@ export default function AiInput({
   })
 
   const textareaRef = externalTextareaRef || internalTextareaRef
+
+  useEffect(() => {
+    const textarea = textareaRef.current as HTMLTextAreaElement | null
+    if (!textarea) return
+    textarea.style.height = `${MIN_HEIGHT}px`
+    textarea.style.height = `${Math.max(MIN_HEIGHT, Math.min(textarea.scrollHeight, MAX_HEIGHT))}px`
+  }, [value, textareaRef])
 
   const [showSearch, setShowSearch] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -176,19 +183,17 @@ export default function AiInput({
     const queryValue = value.trim();
     const q = encodeURIComponent(queryValue);
 
-    // Save to localStorage so it can be restored if user is redirected to login
-    localStorage.setItem('pending_prompt', queryValue);
-
     if (onSubmitWithMode) {
       onSubmitWithMode(queryValue, showSearch)
     } else if (onSubmit) {
       onSubmit(queryValue)
     } else {
       // Default behavior: route based on toggle
+      localStorage.setItem('pending_prompt', queryValue)
       if (showSearch) {
         router.push(`/search?q=${q}`)
       } else {
-        router.push(`/tomato-ai/chat?q=${q}`)
+        router.push(`/tomato-ai?q=${q}`)
       }
     }
     // Clear the input and reset height
@@ -219,16 +224,6 @@ export default function AiInput({
   return (
     <div className="w-full py-2">
       <div className="relative bg-white dark:bg-neutral-900 max-w-3xl border border-black/10 dark:border-white/10 rounded-[22px] p-1 w-full mx-auto shadow-[0_18px_35px_rgba(0,0,0,0.07),_0_3px_10px_rgba(0,0,0,0.035)] dark:shadow-[0_18px_35px_rgba(0,0,0,0.35),_0_3px_10px_rgba(0,0,0,0.15)]">
-        {/* Hand-drawn Generate annotation */}
-        <div className="flex items-start gap-1 absolute -top-7 left-1 sm:left-3 pointer-events-none select-none z-30">
-          <span className="text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm tracking-wide italic font-mono drop-shadow-xs transform -rotate-12 mt-0.5">
-            Generate
-          </span>
-          <svg width="34" height="28" viewBox="0 0 34 28" fill="none" className="text-blue-600 dark:text-blue-400 stroke-current transform rotate-3">
-            <path d="M3 4C11 5 21 11 26 24" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
-            <path d="M18 20L26 24L27 15" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-          </svg>
-        </div>
         <div className="relative rounded-2xl border border-black/5 bg-neutral-800/5 flex flex-col">
           <div
             className="overflow-y-auto"
@@ -242,7 +237,7 @@ export default function AiInput({
                 className=" w-full rounded-2xl rounded-b-none px-4 py-3 bg-black/5 dark:bg-white/5 border-none dark:text-white resize-none focus-visible:ring-0 leading-[1.2]"
                 ref={textareaRef}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
+                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
                     e.preventDefault()
                     handleSubmit()
                   }
@@ -267,6 +262,9 @@ export default function AiInput({
 
           <div className="h-12 bg-black/5 dark:bg-white/5 rounded-b-xl">
             <div className="absolute left-3 bottom-3 flex items-center gap-2">
+              {onLightningSelect && (
+                <LightningToggle active={Boolean(lightningActive)} onToggle={onLightningSelect} />
+              )}
               {onModelSelect && (
                 <button
                   type="button"
@@ -292,6 +290,7 @@ export default function AiInput({
               >
                 <input
                   type="file"
+                  accept="image/*,.pdf,.txt,.md,.csv,.json"
                   ref={fileInputRef}
                   onChange={handelChange}
                   className="hidden"

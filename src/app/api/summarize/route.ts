@@ -56,7 +56,7 @@ export async function POST(req: Request) {
         "X-Title": "AI Content Summarizer"
       },
       body: JSON.stringify({
-        model: "arcee-ai/trinity-large-preview:free",
+        model: "openrouter/free",
         temperature: 0.7,
         messages: [
           {

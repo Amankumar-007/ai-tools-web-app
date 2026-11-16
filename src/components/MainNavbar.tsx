@@ -30,6 +30,7 @@ const NAV_LINKS = [
 
 const EXPLORE_LINKS = [
   { path: '/tomato-ai', label: 'AI Assistant' },
+  { path: '/admin', label: 'Admin Dashboard' },
   { path: '/prompts', label: 'Prompts Library' },
   { path: '/n8n-templates', label: 'n8n Templates' },
   { path: '/ai-workflows', label: 'AI Workflows' },
@@ -38,9 +39,9 @@ const EXPLORE_LINKS = [
   { path: '/prompt-generator', label: 'Prompt Generator' },
   { path: '/resume-analyzer', label: 'Resume Analyzer' },
   { path: '/summarization', label: 'Summarization' },
-  { path: '/portfolio', label: 'Portfolio' },
   { path: '/roadmap', label: 'App Roadmap' },
 ];
+
 
 export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNavbarProps) {
   const [drawerOpen, setDrawerOpen] = useState(false);

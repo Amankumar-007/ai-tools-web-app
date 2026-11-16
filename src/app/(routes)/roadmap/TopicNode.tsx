@@ -1,83 +1,30 @@
 import { Handle, Position } from '@xyflow/react';
-import { BookOpen, CheckCircle, ExternalLink, Star } from 'lucide-react';
+import { BookOpen, Check, Flag, Sparkles } from 'lucide-react';
 
-export default function TopicNode({ data }: any) {
+export default function TopicNode({ data, selected }: any) {
   const isCheckpoint = data.type === 'checkpoint';
+  const horizontal = data.direction === 'LR';
+  const level = typeof data.level === 'string' ? data.level : 'Step';
 
   return (
-    <div className={`relative px-5 py-5 bg-white border-2 rounded-xl min-w-[280px] max-w-[320px] shadow-md hover:shadow-lg transition-all duration-300
-      ${isCheckpoint ? 'border-yellow-400 bg-yellow-50' : 'border-slate-200 hover:border-blue-300'}
-    `}>
-      {/* Star Badge for Checkpoints */}
-      {isCheckpoint && (
-        <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center shadow-md">
-          <Star className="w-4 h-4 text-white" strokeWidth={2} />
-        </div>
-      )}
-      
-      {/* Target Handle (Top) */}
-      <Handle
-        type="target"
-        position={Position.Top}
-        className="w-3 h-3 border-2 border-white bg-slate-400 hover:bg-blue-500 transition-colors"
-      />
-
-      {/* Header Section */}
-      <div className="flex items-start gap-3 mb-3">
-        <div className={`p-2 rounded-lg shrink-0 mt-0.5 shadow-sm
-          ${isCheckpoint ? 'bg-yellow-400 text-white' : 'bg-blue-500 text-white'}
-        `}>
-          {isCheckpoint ? (
-            <Star className="w-5 h-5" strokeWidth={2} />
-          ) : (
-            <BookOpen className="w-5 h-5" strokeWidth={2} />
-          )}
-        </div>
-        <div className="flex-1">
-          <h3 className="font-bold text-slate-900 text-sm leading-tight mb-1.5 pr-2">
-            {data.label}
-          </h3>
-          {data.description && (
-            <p className="text-xs text-slate-600 leading-relaxed">
-              {data.description}
-            </p>
-          )}
+    <div className={`w-[292px] rounded-2xl border bg-white p-4 text-left shadow-[0_10px_30px_rgba(15,23,42,0.06)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:shadow-lg dark:bg-slate-900 ${selected ? 'border-blue-500 ring-4 ring-blue-500/10 dark:border-blue-400' : 'border-slate-200 dark:border-slate-700'}`}>
+      <Handle type="target" position={horizontal ? Position.Left : Position.Top} className="!h-2.5 !w-2.5 !border-2 !border-white !bg-blue-500" />
+      <div className="flex items-start gap-3">
+        <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${isCheckpoint ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300' : 'bg-blue-50 text-blue-600 dark:bg-blue-500/20 dark:text-blue-300'}`}>
+          {isCheckpoint ? <Flag size={18} /> : <BookOpen size={18} />}
+        </span>
+        <div className="min-w-0 flex-1">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">{level} · {isCheckpoint ? 'Milestone' : `Step ${data.stepNumber}`}</span>
+          <h3 className="mt-1 line-clamp-2 text-sm font-semibold leading-5 text-slate-900 dark:text-white">{data.label}</h3>
         </div>
       </div>
-
-      {/* Resources Section */}
-      {data.resources && data.resources.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-slate-100">
-          <div className="relative mb-2">
-            <span className="text-[10px] font-semibold tracking-wider uppercase text-slate-500 mb-2 block">
-              Resources
-            </span>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            {data.resources.map((res: any, idx: number) => (
-              <a
-                key={idx}
-                href={res.url}
-                target="_blank"
-                rel="noreferrer"
-                className="group/link flex items-center gap-1.5 text-xs text-slate-600 hover:text-blue-600 transition-colors"
-                title={res.title}
-              >
-                <div className="w-1.5 h-1.5 rounded-full bg-slate-400 group-hover/link:bg-blue-500 shrink-0" />
-                <span className="truncate">{res.title}</span>
-                <ExternalLink className="w-3 h-3 opacity-0 group-hover/link:opacity-100 transition-opacity shrink-0" />
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Source Handle (Bottom) */}
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        className="w-3 h-3 border-2 border-white bg-slate-400 hover:bg-blue-500 transition-colors"
-      />
+      {data.description && <p className="mt-3 line-clamp-2 text-xs leading-5 text-slate-500 dark:text-slate-400">{data.description}</p>}
+      <div className="mt-4 flex items-center gap-3 border-t border-slate-100 pt-3 text-[11px] text-slate-500 dark:border-slate-800 dark:text-slate-400">
+        {data.skills?.length > 0 && <span className="flex items-center gap-1"><Sparkles size={12} /> {data.skills.length} skills</span>}
+        {data.projects?.length > 0 && <span className="flex items-center gap-1"><Check size={12} /> {data.projects.length} projects</span>}
+        <span className="ml-auto font-medium text-blue-600 dark:text-blue-400">View step →</span>
+      </div>
+      <Handle type="source" position={horizontal ? Position.Right : Position.Bottom} className="!h-2.5 !w-2.5 !border-2 !border-white !bg-blue-500" />
     </div>
   );
 }

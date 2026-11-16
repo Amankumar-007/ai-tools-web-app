@@ -200,7 +200,7 @@ export default function Home() {
               With<span className="inline-flex items-center justify-center align-middle mx-[0.02em] -translate-y-[0.05em]"><img src="/logo.png" alt="o" className="w-[0.72em] h-[0.72em] object-contain inline-block" /></span>ut the{" "}
             </span>{" "}
             <span className="relative inline-block whitespace-nowrap font-serif italic font-normal text-blue-600 dark:text-blue-400 px-1 sm:px-2">
-              47 <span className="inline-flex items-center justify-center align-middle mx-[0.02em] -translate-y-[0.06em]"><img src="/logo.png" alt="O" className="w-[0.8em] h-[0.8em] object-contain inline-block" /></span>pen Tabs.
+              47 Open Tabs.
               {/* Decorative hand-drawn accent stroke */}
               <svg
                 className="absolute -bottom-1 left-0 w-full h-2.5 text-blue-500/60 dark:text-blue-400/60 pointer-events-none"
@@ -306,7 +306,7 @@ export default function Home() {
                 ].map((model) => (
                   <Link
                     key={model.name}
-                    href={`/tomato-ai/chat?q=${encodeURIComponent(model.query)}`}
+                    href={`/tomato-ai?q=${encodeURIComponent(model.query)}`}
                     className={`group relative w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center p-1.5 sm:p-2
                       bg-white/80 dark:bg-neutral-900/80
                       backdrop-blur-md
@@ -376,7 +376,7 @@ export default function Home() {
       </main>
 
 
-      <main className="container mx-auto px-0 md:px-4 py-2">
+      <main className="w-full">
 
         <AgentManager />
         <section className="w-full bg-neutral-50/50 dark:bg-neutral-900/10 py-10 border-y border-neutral-100 dark:border-neutral-800/50">

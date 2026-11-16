@@ -1,27 +1,11 @@
 import type { Metadata } from "next";
-import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import Script from "next/script";
 import JsonLd, { WebSiteStructuredData, OrganizationStructuredData } from "@/components/JsonLd";
-import ExpiringModelsModal from "@/components/ExpiringModelsModal";
 import { SITE_URL } from '@/metadata-utils'
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["600", "700", "800"],
-  display: "swap",
-});
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -134,6 +118,8 @@ export const metadata: Metadata = {
   },
 };
 
+import LiveTracker from "@/components/LiveTracker";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -142,8 +128,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <JsonLd data={WebSiteStructuredData} />
         <JsonLd data={OrganizationStructuredData} />
       </head>
@@ -158,7 +142,7 @@ export default function RootLayout({
         `}
       </Script>
       <body
-        className={`${poppins.variable} ${inter.variable} antialiased font-inter`}
+        className="antialiased font-inter"
       >
         <ThemeProvider
           attribute="class"
@@ -167,8 +151,8 @@ export default function RootLayout({
         >
           <TooltipProvider delayDuration={0}>
             {children}
-            <ExpiringModelsModal />
             <Toaster position="top-center" richColors />
+            <LiveTracker />
           </TooltipProvider>
 
         </ThemeProvider>

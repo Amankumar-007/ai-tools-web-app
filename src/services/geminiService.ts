@@ -136,7 +136,7 @@ export const optimizeResume = async (
       "X-Title": "Resume Intelligence"
     },
     body: JSON.stringify({
-      model: "tngtech/deepseek-r1t2-chimera:free",
+      model: "openrouter/free",
       temperature: 0.5,
       messages: [
         {

@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
+    "refresh:ai-videos": "node scripts/fetch-ai-videos.cjs",
     "start": "next start",
     "lint": "next lint"
   },

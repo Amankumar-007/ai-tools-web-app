@@ -1,139 +1,107 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Clock, ShieldCheck, Database, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Clock3 } from 'lucide-react';
 import { agentWorkflows } from '@/app/data/agent-workflows';
 import { createPageMetadata, SITE_URL } from '@/metadata-utils';
 import JsonLd, { breadcrumbListStructuredData, howToStructuredData } from '@/components/JsonLd';
 import WorkflowSteps from './WorkflowSteps';
 
 export async function generateStaticParams() {
-    return agentWorkflows.map((workflow) => ({ slug: workflow.slug }));
+  return agentWorkflows.map((workflow) => ({ slug: workflow.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
-    const { slug } = await params;
-    const agent = agentWorkflows.find((w) => w.slug === slug);
-    if (!agent) return {};
-
-    return createPageMetadata({
-        title: `${agent.title} - Step-by-Step AI Agent Workflow`,
-        description: agent.description,
-        path: `/ai-workflows/${agent.slug}`,
-        keywords: [agent.title, 'AI agent workflow', 'AI automation blueprint', agent.difficulty, 'n8n workflow', 'AI agent tutorial'],
-    });
+  const { slug } = await params;
+  const workflow = agentWorkflows.find((item) => item.slug === slug);
+  if (!workflow) return {};
+  return createPageMetadata({
+    title: `${workflow.title} - Step-by-Step AI Workflow`,
+    description: workflow.description,
+    path: `/ai-workflows/${workflow.slug}`,
+    keywords: [workflow.title, 'AI workflow guide', workflow.category, 'AI automation', 'step-by-step tutorial'],
+  });
 }
 
-export default async function AgentWorkflowDetail({ params }: { params: Promise<{ slug: string }> }) {
-    const { slug } = await params;
-    const agent = agentWorkflows.find((w) => w.slug === slug);
+export default async function WorkflowDetail({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const workflow = agentWorkflows.find((item) => item.slug === slug);
+  if (!workflow) notFound();
+  const Icon = workflow.icon;
 
-    if (!agent) {
-        notFound();
-    }
+  return (
+    <div className="min-h-screen bg-[#f8f9fb] text-slate-900">
+      <JsonLd data={breadcrumbListStructuredData([
+        { name: 'Home', url: SITE_URL },
+        { name: 'AI Workflows', url: `${SITE_URL}/ai-workflows` },
+        { name: workflow.title, url: `${SITE_URL}/ai-workflows/${workflow.slug}` },
+      ])} />
+      <JsonLd data={howToStructuredData({
+        name: workflow.title,
+        description: workflow.description,
+        steps: workflow.steps.map((step) => ({ name: step.title, text: `${step.description} ${step.content}` })),
+      })} />
 
-    return (
-        <div className="min-h-screen bg-slate-50 dark:bg-[#0A0A0A] text-slate-900 dark:text-slate-100 font-sans selection:bg-blue-500/20 transition-colors duration-500">
-            <JsonLd
-                data={breadcrumbListStructuredData([
-                    { name: 'Home', url: SITE_URL },
-                    { name: 'AI Workflows', url: `${SITE_URL}/ai-workflows` },
-                    { name: agent.title, url: `${SITE_URL}/ai-workflows/${agent.slug}` },
-                ])}
-            />
-            <JsonLd
-                data={howToStructuredData({
-                    name: agent.title,
-                    description: agent.description,
-                    steps: agent.steps.map((step) => ({ name: step.title, text: step.description })),
-                })}
-            />
-
-            {/* Header Section */}
-            <header className="relative pt-32 pb-16 px-6 overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent dark:from-blue-500/5" />
-                <div className="max-w-4xl mx-auto relative z-10">
-                    <Link href="/ai-workflows" className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white mb-8 transition-colors">
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to Agent Blueprints
-                    </Link>
-
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${agent.color} p-[1px] shadow-lg`}>
-                            <div className="w-full h-full bg-white dark:bg-slate-950 rounded-[15px] flex items-center justify-center">
-                                <agent.icon className="w-8 h-8 text-slate-800 dark:text-white" />
-                            </div>
-                        </div>
-                        <div>
-                            <div className="flex gap-2 mb-2">
-                                <span className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300">
-                                    {agent.difficulty}
-                                </span>
-                                <span className="flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-md bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300">
-                                    <Clock className="w-3 h-3" />
-                                    {agent.estimatedTime}
-                                </span>
-                            </div>
-                            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
-                                {agent.title}
-                            </h1>
-                        </div>
-                    </div>
-
-                    <p className="text-lg text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed mb-10">
-                        {agent.description}
-                    </p>
-
-                    {/* Architecture & Prerequisites Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="bg-white dark:bg-[#111111] border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
-                                <ShieldCheck className="w-4 h-4" /> Prerequisites
-                            </h3>
-                            <ul className="space-y-3">
-                                {agent.prerequisites.map((req, i) => (
-                                    <li key={i} className="flex items-start gap-3 text-sm text-slate-700 dark:text-slate-300">
-                                        <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
-                                        {req}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-
-                        <div className="bg-white dark:bg-[#111111] border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm">
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
-                                <Database className="w-4 h-4" /> Agent Architecture
-                            </h3>
-                            <div className="space-y-4">
-                                <div>
-                                    <span className="text-xs text-slate-500 block mb-1">Trigger</span>
-                                    <div className="text-sm font-medium text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-white/5 px-3 py-2 rounded-lg border border-slate-100 dark:border-white/5">
-                                        {agent.architecture.trigger}
-                                    </div>
-                                </div>
-                                <div>
-                                    <span className="text-xs text-slate-500 block mb-1">Brain / Model</span>
-                                    <div className="text-sm font-medium text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-white/5 px-3 py-2 rounded-lg border border-slate-100 dark:border-white/5">
-                                        {agent.architecture.brain}
-                                    </div>
-                                </div>
-                                <div>
-                                    <span className="text-xs text-slate-500 block mb-1">Action / Output</span>
-                                    <div className="text-sm font-medium text-slate-800 dark:text-slate-200 bg-slate-50 dark:bg-white/5 px-3 py-2 rounded-lg border border-slate-100 dark:border-white/5">
-                                        {agent.architecture.action}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            {/* Steps Timeline */}
-            <main className="max-w-4xl mx-auto px-6 pb-32">
-                <h2 className="text-2xl font-bold mb-10 text-slate-900 dark:text-white">Step-by-Step Implementation</h2>
-                <WorkflowSteps steps={agent.steps} />
-            </main>
+      <header className="border-b border-slate-200 bg-white">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
+          <Link href="/" className="flex items-center gap-2 text-lg font-semibold tracking-tight" aria-label="TomatoTool home">
+            <img src="/logo.png" alt="" className="h-8 w-8 object-contain" />
+            <span>tomato<span className="font-normal">Tool</span></span>
+          </Link>
+          <nav aria-label="Site navigation" className="flex items-center gap-5 text-sm text-slate-600 sm:gap-7">
+            <Link href="/ai-workflows" className="hover:text-slate-950">All workflows</Link>
+            <Link href="/prompts" className="hover:text-slate-950">Prompts</Link>
+          </nav>
         </div>
-    );
+      </header>
+
+      <main className="mx-auto max-w-5xl px-5 pb-24 pt-10 sm:px-8 sm:pt-14">
+        <Link href="/ai-workflows" className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900"><ArrowLeft size={16} /> All workflows</Link>
+        <div className="mt-9 flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><Icon size={23} /></span>
+          <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600">{workflow.category}</span>
+        </div>
+        <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">{workflow.title}</h1>
+        <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">{workflow.description}</p>
+        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
+          <span className="flex items-center gap-2"><Clock3 size={16} /> {workflow.estimatedTime}</span>
+          <span>{workflow.difficulty}</span>
+          <span>{workflow.steps.length} steps</span>
+        </div>
+
+        <div className="mt-10 grid gap-4 md:grid-cols-2">
+          <section className="rounded-xl border border-slate-200 bg-white p-6">
+            <h2 className="text-base font-semibold">Before you start</h2>
+            <ul className="mt-4 space-y-3">
+              {workflow.prerequisites.map((item) => <li key={item} className="flex items-start gap-2.5 text-sm leading-6 text-slate-600"><CheckCircle2 size={16} className="mt-1 shrink-0 text-blue-600" />{item}</li>)}
+            </ul>
+          </section>
+          <section className="rounded-xl border border-slate-200 bg-white p-6">
+            <h2 className="text-base font-semibold">What you will make</h2>
+            <p className="mt-3 text-sm leading-6 text-slate-600">{workflow.outcome}</p>
+            <div className="mt-5 flex flex-wrap items-center gap-2 text-xs font-medium text-slate-600">
+              <span className="rounded-md bg-slate-100 px-2.5 py-1.5">{workflow.architecture.trigger}</span>
+              <span aria-hidden="true">→</span>
+              <span className="rounded-md bg-slate-100 px-2.5 py-1.5">{workflow.architecture.brain}</span>
+              <span aria-hidden="true">→</span>
+              <span className="rounded-md bg-slate-100 px-2.5 py-1.5">{workflow.architecture.action}</span>
+            </div>
+          </section>
+        </div>
+
+        <section aria-labelledby="steps-heading" className="mt-16">
+          <div className="mb-7 border-b border-slate-200 pb-4">
+            <span className="text-xs font-semibold uppercase tracking-[0.18em] text-blue-600">Build guide</span>
+            <h2 id="steps-heading" className="mt-2 text-2xl font-semibold tracking-tight">Follow the steps</h2>
+            <p className="mt-2 text-sm text-slate-600">Work through each step in order. Review the final output before you share or publish it.</p>
+          </div>
+          <WorkflowSteps steps={workflow.steps} workflowId={workflow.slug} />
+        </section>
+
+        <div className="mt-14 border-t border-slate-200 pt-7">
+          <Link href="/ai-workflows" className="inline-flex items-center gap-2 text-sm font-semibold text-blue-700 hover:underline"><ArrowLeft size={16} /> Explore more workflows</Link>
+        </div>
+      </main>
+    </div>
+  );
 }

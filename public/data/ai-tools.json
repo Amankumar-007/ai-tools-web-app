@@ -4,9 +4,9 @@
     "slug": "chatgpt",
     "name": "ChatGPT",
     "category": "AI Chat",
-    "website": "https://chat.openai.com",
+    "website": "https://chatgpt.com",
     "pricing": "Freemium",
-    "description": "Advanced AI chatbot for conversations, writing, coding, and problem-solving with GPT-4 technology.",
+    "description": "AI assistant for writing, research, coding, analysis, and image creation.",
     "features": [
       "Chat",
       "Code",
@@ -77,22 +77,6 @@
       "High Quality",
       "Creative Design",
       "Professional Output"
-    ]
-  },
-  {
-    "id": 6,
-    "slug": "dall-e-3",
-    "name": "DALL-E 3",
-    "category": "Image Generation",
-    "website": "https://openai.com/dall-e-3",
-    "pricing": "Freemium",
-    "description": "OpenAI's image generator integrated with ChatGPT for creating detailed visuals.",
-    "features": [
-      "Text to Image",
-      "ChatGPT Integration",
-      "Detailed Prompts",
-      "Style Variety",
-      "Text in Images"
     ]
   },
   {
@@ -244,7 +228,7 @@
     "slug": "cursor",
     "name": "Cursor",
     "category": "Coding",
-    "website": "https://cursor.sh",
+    "website": "https://cursor.com",
     "pricing": "Freemium",
     "description": "AI-powered code editor with intelligent completion and debugging features.",
     "features": [
@@ -416,22 +400,6 @@
     ]
   },
   {
-    "id": 27,
-    "slug": "anthropic-claude",
-    "name": "Anthropic Claude",
-    "category": "AI Assistant",
-    "website": "https://claude.ai",
-    "pricing": "Freemium",
-    "description": "Constitutional AI assistant focused on being helpful, harmless, and honest.",
-    "features": [
-      "Ethical AI",
-      "Long Conversations",
-      "Code Analysis",
-      "Document Processing",
-      "Research"
-    ]
-  },
-  {
     "id": 28,
     "slug": "character-ai",
     "name": "Character.AI",
@@ -466,9 +434,9 @@
   {
     "id": 30,
     "slug": "bing-ai",
-    "name": "Bing AI",
+    "name": "Microsoft Copilot",
     "category": "AI Search",
-    "website": "https://bing.com/chat",
+    "website": "https://copilot.microsoft.com",
     "pricing": "Free",
     "description": "Microsoft's AI-powered search engine with conversational capabilities.",
     "features": [
@@ -770,11 +738,11 @@
   {
     "id": 49,
     "slug": "amazon-codewhisperer",
-    "name": "Amazon CodeWhisperer",
+    "name": "Amazon Q Developer",
     "category": "Coding",
-    "website": "https://aws.amazon.com/codewhisperer/",
+    "website": "https://aws.amazon.com/q/developer/",
     "pricing": "Freemium",
-    "description": "AI coding companion providing code suggestions and security scanning.",
+    "description": "AWS coding assistant for code suggestions, chat, security scans, and cloud development.",
     "features": [
       "Code Suggestions",
       "Security Scanning",
@@ -988,22 +956,6 @@
       "Templates",
       "Team Collaboration",
       "Brand Consistency",
-      "Analytics"
-    ]
-  },
-  {
-    "id": 63,
-    "slug": "tome",
-    "name": "Tome",
-    "category": "Presentation",
-    "website": "https://tome.app",
-    "pricing": "Freemium",
-    "description": "AI-powered presentation and storytelling tool with interactive features.",
-    "features": [
-      "AI Storytelling",
-      "Interactive Content",
-      "Multimedia",
-      "Collaboration",
       "Analytics"
     ]
   },
@@ -2992,22 +2944,6 @@
     ]
   },
   {
-    "id": 188,
-    "slug": "constant-contact-ai",
-    "name": "Constant Contact AI",
-    "category": "Email Marketing",
-    "website": "https://constantcontact.com",
-    "pricing": "Paid",
-    "description": "Email and digital marketing platform with AI-powered features for automation and recommendations.",
-    "features": [
-      "Email Marketing",
-      "Social Media",
-      "Event Management",
-      "AI Recommendations",
-      "Automation"
-    ]
-  },
-  {
     "id": 189,
     "slug": "xero-ai",
     "name": "Xero AI",
@@ -3150,5 +3086,318 @@
       "Video Intelligence",
       "Free Usage Limits"
     ]
+  },
+  {
+    "id": 198,
+    "slug": "openai-codex",
+    "name": "OpenAI Codex",
+    "category": "Coding",
+    "website": "https://chatgpt.com/codex",
+    "pricing": "Freemium",
+    "description": "Coding agent for planning, editing, reviewing, and running software projects.",
+    "features": [
+      "Coding Agent",
+      "Code Review",
+      "CLI",
+      "IDE",
+      "Desktop App"
+    ],
+    "source": "https://openai.com/index/introducing-the-codex-app/",
+    "sourceDate": "2026-02-02"
+  },
+  {
+    "id": 199,
+    "slug": "gemini-notebook",
+    "name": "Gemini Notebook",
+    "category": "Research",
+    "website": "https://notebooklm.google.com",
+    "pricing": "Freemium",
+    "description": "Source-grounded research notebook for learning, analysis, audio overviews, and slide decks.",
+    "features": [
+      "Source-Grounded Answers",
+      "Audio Overviews",
+      "Research",
+      "Slide Decks"
+    ],
+    "source": "https://blog.google/innovation-and-ai/products/gemini-notebook/notebooklm-gemini-notebook/",
+    "sourceDate": "2026-07-16"
+  },
+  {
+    "id": 200,
+    "slug": "google-flow",
+    "name": "Google Flow",
+    "category": "Video Generation",
+    "website": "https://labs.google/fx/en/tools/flow",
+    "pricing": "Freemium",
+    "description": "Creative studio for generating and editing video and images with Google's AI models.",
+    "features": [
+      "Video Generation",
+      "Video Editing",
+      "Image Generation",
+      "Creative Tools"
+    ],
+    "source": "https://blog.google/innovation-and-ai/models-and-research/google-labs/flow-updates/",
+    "sourceDate": "2026-05-19"
+  },
+  {
+    "id": 201,
+    "slug": "figma-make",
+    "name": "Figma Make",
+    "category": "Design",
+    "website": "https://www.figma.com/make/",
+    "pricing": "Freemium",
+    "description": "Turn prompts and design ideas into interactive prototypes and working apps.",
+    "features": [
+      "Prompt to App",
+      "Prototyping",
+      "Design",
+      "Collaboration"
+    ],
+    "source": "https://www.figma.com/blog/figma-make-general-availability/",
+    "sourceDate": "2025-07-24"
+  },
+  {
+    "id": 202,
+    "slug": "claude-design",
+    "name": "Claude Design",
+    "category": "Design",
+    "website": "https://claude.ai",
+    "pricing": "Paid",
+    "description": "Collaborative AI workspace for visual designs, prototypes, slides, and one-pagers.",
+    "features": [
+      "Design",
+      "Prototypes",
+      "Presentations",
+      "Visual Work"
+    ],
+    "source": "https://www.anthropic.com/news/claude-design-anthropic-labs",
+    "sourceDate": "2026-04-17"
+  },
+  {
+    "id": 203,
+    "slug": "claude-science",
+    "name": "Claude Science",
+    "category": "Research",
+    "website": "https://claude.ai",
+    "pricing": "Paid",
+    "description": "Research workbench for scientific analysis, code, figures, and auditable artifacts.",
+    "features": [
+      "Scientific Research",
+      "Data Analysis",
+      "Code",
+      "Figures"
+    ],
+    "source": "https://www.anthropic.com/news/claude-science-ai-workbench",
+    "sourceDate": "2026-06-30"
+  },
+  {
+    "id": 204,
+    "slug": "chatgpt-images",
+    "name": "ChatGPT Images",
+    "category": "Image Generation",
+    "website": "https://chatgpt.com/images",
+    "pricing": "Freemium",
+    "description": "Create and edit images in ChatGPT, including GIFs and reusable visual references.",
+    "features": [
+      "Image Generation",
+      "Image Editing",
+      "GIFs",
+      "Reference Images"
+    ],
+    "source": "https://openai.com/index/introducing-images-2-6/",
+    "sourceDate": "2026-11-04"
+  },
+  {
+    "id": 205,
+    "slug": "nvidia-isaac-sim",
+    "name": "NVIDIA Isaac Sim",
+    "category": "Robotics Simulation",
+    "website": "https://developer.nvidia.com/isaac/sim",
+    "pricing": "Free",
+    "description": "Open-source platform for robotics simulation, testing, and synthetic data generation.",
+    "features": [
+      "Robot Simulation",
+      "Synthetic Data",
+      "ROS Integration"
+    ],
+    "source": "https://developer.nvidia.com/isaac/sim"
+  },
+  {
+    "id": 206,
+    "slug": "the-new-black-ai",
+    "name": "The New Black AI",
+    "category": "Fashion",
+    "website": "https://thenewblack.ai",
+    "pricing": "Paid",
+    "description": "Fashion design workspace for clothing concepts, product images, tech packs, and virtual try-ons.",
+    "features": [
+      "Fashion Design",
+      "Product Images",
+      "Virtual Try-On"
+    ],
+    "source": "https://thenewblack.ai/ai-design-features/ai-clothes-maker-design-clothes-online"
+  },
+  {
+    "id": 207,
+    "slug": "scenario-ai",
+    "name": "Scenario",
+    "category": "Game Assets",
+    "website": "https://www.scenario.com",
+    "pricing": "Freemium",
+    "description": "Generate style-consistent game images, video, audio, and 3D assets.",
+    "features": [
+      "Game Assets",
+      "Custom Models",
+      "3D Generation"
+    ],
+    "source": "https://www.scenario.com/pricing"
+  },
+  {
+    "id": 208,
+    "slug": "harvey-ai",
+    "name": "Harvey",
+    "category": "Legal",
+    "website": "https://www.harvey.ai",
+    "pricing": "Paid",
+    "description": "Legal AI platform for research, drafting, contract review, and document analysis.",
+    "features": [
+      "Legal Research",
+      "Drafting",
+      "Contract Review"
+    ],
+    "source": "https://help.harvey.ai/articles/getting-started-with-harvey"
+  },
+  {
+    "id": 209,
+    "slug": "planner-5d-ai",
+    "name": "Planner 5D AI Studio",
+    "category": "Architecture",
+    "website": "https://ai.planner5d.com",
+    "pricing": "Paid",
+    "description": "AI workspace for room concepts, floor plans, visual edits, and architectural renders.",
+    "features": [
+      "Floor Plans",
+      "Interior Design",
+      "Renders"
+    ],
+    "source": "https://support.planner5d.com/en/articles/15458561-about-ai-studio"
+  },
+  {
+    "id": 210,
+    "slug": "mindtrip",
+    "name": "Mindtrip",
+    "category": "Travel",
+    "website": "https://mindtrip.ai",
+    "pricing": "Freemium",
+    "description": "AI travel assistant for discovering places and planning trips and itineraries.",
+    "features": [
+      "Trip Planning",
+      "Itineraries",
+      "Destination Discovery"
+    ],
+    "source": "https://mindtrip.ai/"
+  },
+  {
+    "id": 211,
+    "slug": "this-x-does-not-exist",
+    "name": "This X Does Not Exist",
+    "category": "Generative Demos",
+    "website": "https://thisxdoesnotexist.com",
+    "pricing": "Free",
+    "description": "Collection of synthetic image and text demos showing things generated by AI.",
+    "features": [
+      "Generative Demos",
+      "Synthetic Images",
+      "Creative Exploration"
+    ],
+    "source": "https://thisxdoesnotexist.com/"
+  },
+  {
+    "id": 212,
+    "slug": "kling-ai",
+    "name": "Kling AI",
+    "category": "Video Generation",
+    "website": "https://kling.ai",
+    "pricing": "Freemium",
+    "description": "Create videos and images from prompts or reference images.",
+    "features": ["Text to Video", "Image to Video", "Image Generation"],
+    "source": "https://kling.ai/app"
+  },
+  {
+    "id": 213,
+    "slug": "ideogram",
+    "name": "Ideogram",
+    "category": "Image Generation",
+    "website": "https://ideogram.ai",
+    "pricing": "Freemium",
+    "description": "Generate and edit images with prompts, reference photos, and text in designs.",
+    "features": ["Text to Image", "Image Editing", "Reference Images"],
+    "source": "https://docs.ideogram.ai/create/create"
+  },
+  {
+    "id": 214,
+    "slug": "krea",
+    "name": "Krea",
+    "category": "Image Generation",
+    "website": "https://www.krea.ai",
+    "pricing": "Freemium",
+    "description": "Generate and edit images and videos using multiple AI models in one workspace.",
+    "features": ["Image Generation", "Image Editing", "Video Generation"],
+    "source": "https://www.krea.ai/app"
+  },
+  {
+    "id": 215,
+    "slug": "manus",
+    "name": "Manus",
+    "category": "AI Assistant",
+    "website": "https://manus.im",
+    "pricing": "Freemium",
+    "description": "AI agent for carrying out research, building websites, and completing multi-step tasks.",
+    "features": ["AI Agent", "Research", "Website Building"],
+    "source": "https://manus.im/"
+  },
+  {
+    "id": 216,
+    "slug": "grok",
+    "name": "Grok",
+    "category": "AI Chat",
+    "website": "https://grok.com",
+    "pricing": "Freemium",
+    "description": "Conversational AI assistant for writing, research, file analysis, and image creation.",
+    "features": ["Chat", "Research", "File Analysis", "Image Generation"],
+    "source": "https://docs.x.ai/grok/overview"
+  },
+  {
+    "id": 217,
+    "slug": "openrouter",
+    "name": "OpenRouter",
+    "category": "AI Platform",
+    "website": "https://openrouter.ai",
+    "pricing": "Freemium",
+    "description": "Explore and access AI models from multiple providers through a unified API.",
+    "features": ["Model Discovery", "Unified API", "Model Comparison"],
+    "source": "https://openrouter.ai/for-ai"
+  },
+  {
+    "id": 218,
+    "slug": "recraft",
+    "name": "Recraft",
+    "category": "Image Generation",
+    "website": "https://www.recraft.ai",
+    "pricing": "Freemium",
+    "description": "Create and edit AI images, vectors, and design assets.",
+    "features": ["Image Generation", "Vectorization", "Image Editing"],
+    "source": "https://www.recraft.ai/legal/developer-terms"
+  },
+  {
+    "id": 219,
+    "slug": "napkin-ai",
+    "name": "Napkin AI",
+    "category": "Design",
+    "website": "https://www.napkin.ai",
+    "pricing": "Freemium",
+    "description": "Turn written ideas into diagrams, infographics, and other visuals.",
+    "features": ["Text to Visual", "Diagrams", "Infographics"],
+    "source": "https://help.napkin.ai/en/articles/15923699-visuals-generation"
   }
 ]

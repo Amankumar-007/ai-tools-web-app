@@ -43,7 +43,7 @@ export default async function TrendingPage() {
       <TrendingClient
         initialTools={initialTools}
         initialNews={initialNews}
-        initialRepos={allRepos.slice(0, 6)}
+        initialRepos={allRepos.slice(0, 12)}
         totalRepoCount={allRepos.length}
         lastUpdated={lastUpdated}
       />

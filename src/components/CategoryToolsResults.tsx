@@ -56,13 +56,13 @@ const ToolCard = ({ tool }: { tool: CategoryTool; index: number }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-[11px] font-medium bg-slate-50 dark:bg-slate-900 px-2 py-1 rounded-md border border-slate-100 dark:border-slate-800">
+            {tool.rating > 0 && <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400 text-[11px] font-medium bg-slate-50 dark:bg-slate-900 px-2 py-1 rounded-md border border-slate-100 dark:border-slate-800">
               <Star size={12} className="text-amber-500" fill="currentColor" />
               {tool.rating.toFixed(1)}
-            </span>
+            </span>}
             <span className={`text-[10px] font-semibold px-2 py-1 rounded-md uppercase tracking-wider ${tool.pricing === 'Free' ? 'bg-green-50 text-green-600 dark:bg-green-900/10 dark:text-green-400' :
-                tool.pricing === 'Paid' ? 'bg-slate-50 text-slate-600 dark:bg-slate-800/50 dark:text-slate-400' :
-                  'bg-blue-50 text-blue-600 dark:bg-blue-900/10 dark:text-blue-400'
+              tool.pricing === 'Paid' ? 'bg-slate-50 text-slate-600 dark:bg-slate-800/50 dark:text-slate-400' :
+                'bg-blue-50 text-blue-600 dark:bg-blue-900/10 dark:text-blue-400'
               }`}>
               {tool.pricing}
             </span>
@@ -185,6 +185,9 @@ export default function CategoryToolsResults({ category }: CategoryToolsResultsP
       </div>
 
       {/* Grid */}
+      {!isLoading && tools.length === 0 && (
+        <p className="text-sm text-slate-500">No catalog tools match this category yet.</p>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {isLoading
           ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)

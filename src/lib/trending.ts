@@ -114,6 +114,12 @@ const CURATED_TOOLS: Array<{ id: string; name: string; category: string; website
   { id: 'midjourney', name: 'Midjourney', category: 'Creative', website: 'midjourney.com', description: 'Photorealistic AI art generator.' },
   { id: 'bolt', name: 'Bolt.new', category: 'Dev', website: 'bolt.new', description: 'Browser-based AI full-stack editor.' },
   { id: 'v0', name: 'v0 by Vercel', category: 'Dev', website: 'v0.dev', description: 'Generative UI components framework.' },
+  { id: 'grok', name: 'Grok', category: 'Productivity', website: 'grok.com', description: 'AI assistant for research, writing, and analysis.' },
+  { id: 'kling', name: 'Kling AI', category: 'Creative', website: 'kling.ai', description: 'AI video and image generation.' },
+  { id: 'ideogram', name: 'Ideogram', category: 'Creative', website: 'ideogram.ai', description: 'AI image creation and editing.' },
+  { id: 'manus', name: 'Manus', category: 'Productivity', website: 'manus.im', description: 'AI agent for research and multi-step tasks.' },
+  { id: 'openrouter', name: 'OpenRouter', category: 'Dev', website: 'openrouter.ai', description: 'Discover and access AI models through one API.' },
+  { id: 'replit', name: 'Replit', category: 'IDE', website: 'replit.com', description: 'Build apps with an AI coding agent.' },
 ]
 
 async function getHnMentionScores(tools: typeof CURATED_TOOLS): Promise<Map<string, { mentions: number; points: number }>> {

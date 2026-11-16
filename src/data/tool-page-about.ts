@@ -8,8 +8,8 @@ export const TOOL_PAGE_ABOUT: Record<string, ToolAboutContent> = {
   '/prompts': {
     heading: 'About the TomatoAi prompt library',
     intro: [
-      'The prompt library is a curated collection of prompts that have been tested against the models people actually use day to day — ChatGPT, Claude, Gemini and Midjourney among them. Each entry is written to be pasted in as-is, with the placeholders clearly marked so you can swap in your own topic, tone or audience.',
-      'Prompts are grouped by the job they do rather than by model: writing and editing, research and summarising, coding and debugging, image generation, and marketing. Most transfer cleanly between models, because the structure that makes a prompt work — clear role, explicit constraints, an example of the output you want — is the same everywhere.',
+      'The prompt library brings together ready-to-use templates for everyday work and creative projects. Many prompts include bracketed placeholders so you can add your audience, topic, constraints, or source material before using them.',
+      'Browse prompts for writing, coding, research, marketing, productivity, business, learning, career, data, design, images, and video. Text prompts are designed to work with general chat assistants; visual prompts can be adapted to your preferred image or video generator.',
     ],
     steps: [
       { title: 'Browse or search', text: 'Filter by category, or search for the task you have in mind. Every prompt shows the kind of output it produces before you commit to it.' },
@@ -18,7 +18,7 @@ export const TOOL_PAGE_ABOUT: Record<string, ToolAboutContent> = {
     ],
     faqs: [
       { question: 'Are these prompts free to use?', answer: 'Yes. Every prompt in the library is free to copy, edit and use commercially. No account is needed to browse or copy them.' },
-      { question: 'Which AI models do these prompts work with?', answer: 'They are written to be model-agnostic and work with ChatGPT, Claude, Gemini, Llama and most other chat models. Image prompts are tuned for Midjourney and Stable Diffusion but usually transfer to other image generators with minor edits.' },
+      { question: 'Which AI models do these prompts work with?', answer: 'Most text prompts can be used with general chat assistants such as ChatGPT, Claude, and Gemini. Image and video prompts may need small adjustments for the controls available in your chosen generator.' },
       { question: 'Why does the same prompt give me different results?', answer: 'Language models are probabilistic, so the same prompt produces different wording each time. If you need consistency, add explicit constraints — a word count, a format, a worked example of the output you want.' },
       { question: 'How do I write a good prompt myself?', answer: 'Give the model a role, state the task plainly, list your constraints, and show one example of a good answer. Most weak prompts fail because they leave the format and the audience implicit.' },
     ],
@@ -160,19 +160,19 @@ export const TOOL_PAGE_ABOUT: Record<string, ToolAboutContent> = {
   '/ai-workflows': {
     heading: 'About AI workflows',
     intro: [
-      'An AI workflow chains several tools together so that the output of one becomes the input of the next. Instead of moving text by hand between a research tool, a writing tool and an image generator, the workflow runs the sequence for you and returns the finished result.',
-      'The workflows here are pre-built for jobs that genuinely take several steps: turning a topic into a researched article, converting a long video into a set of social posts, or taking a product description through copy, images and ad variants. Each one shows the steps it runs and which tools it uses before you start it.',
+      'A workflow is a repeatable sequence for getting a job done. These guides show how to combine AI tools with source material, human review, and a clear final output. Some steps can be automated; others work best as a manual check.',
+      'Each guide includes prerequisites, a simple input-to-output plan, specific actions, prompts where useful, and a final review step. Topics range from support and research to coding, marketing, education, and commerce.',
     ],
     steps: [
-      { title: 'Pick a workflow', text: 'Browse the available workflows and open the one matching your task. Each shows its steps and expected output up front.' },
-      { title: 'Provide the input', text: 'Give the workflow its starting material — a topic, a URL, a document or a brief.' },
-      { title: 'Review each stage', text: 'The workflow surfaces intermediate output as well as the final result, so you can see where a run went wrong and re-run just that stage.' },
+      { title: 'Find a guide', text: 'Search by task or browse by topic. Check the time estimate, prerequisites, and expected result before starting.' },
+      { title: 'Follow the steps', text: 'Open the suggested tools, adapt the instructions to your own material, and mark steps complete as you go.' },
+      { title: 'Check the result', text: 'Verify facts, permissions, formatting, and any AI-generated claims before sharing or publishing the output.' },
     ],
     faqs: [
-      { question: 'How is a workflow different from a single prompt?', answer: 'A prompt is one call to one model. A workflow is a sequence of calls where each step is specialised and receives the previous step\'s output, which produces better results on multi-stage tasks than asking one model to do everything at once.' },
-      { question: 'Can I edit a workflow\'s steps?', answer: 'The pre-built workflows run a fixed sequence. If you need a different chain, the n8n templates library is designed for building custom automations.' },
-      { question: 'How long does a workflow take to run?', answer: 'Most complete in under a minute. Workflows that involve image generation or long documents take longer, because each stage waits for the previous one to finish.' },
-      { question: 'Do I need an account?', answer: 'Browsing workflows is open to everyone. Running one requires an account so that usage can be attributed and rate-limited fairly.' },
+      { question: 'How is a workflow different from a single prompt?', answer: 'A prompt is one instruction to an AI tool. A workflow connects several actions, including preparation, prompting, verification, and sharing the result.' },
+      { question: 'Can I change the steps?', answer: 'Yes. These are guides, so you can adapt the tools, order, and prompts to your own process. Test the revised workflow before relying on it.' },
+      { question: 'Are these workflows automated?', answer: 'The guides describe processes you can follow manually or automate with your own tools. They do not run automatically from this page.' },
+      { question: 'Do I need an account?', answer: 'No account is needed to browse the guides or copy their instructions. Some linked tools may require their own account.' },
     ],
   },
 

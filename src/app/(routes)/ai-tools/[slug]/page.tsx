@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import {
   ArrowLeft,
   ArrowUpRight,
@@ -22,6 +22,13 @@ import { createToolMetadata, SITE_URL } from '@/metadata-utils'
 import { getAllTools, getToolBySlug, getToolContent, getToolLogoUrl } from '@/lib/tools'
 
 export const revalidate = 86400
+
+const LEGACY_TOOL_REDIRECTS: Record<string, string> = {
+  'dall-e-3': 'chatgpt-images',
+  'anthropic-claude': 'claude',
+  'constant-contact-ai': 'constant-contact',
+  tome: 'gamma',
+}
 
 // Rotating accent palette shared by feature/use-case tiles, matching the
 // colored-icon-square language used elsewhere on the site (e.g. /about).
@@ -54,6 +61,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function ToolDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const tool = getToolBySlug(slug)
+  if (!tool && LEGACY_TOOL_REDIRECTS[slug]) redirect(`/ai-tools/${LEGACY_TOOL_REDIRECTS[slug]}`)
   if (!tool) notFound()
 
   const content = getToolContent(slug)
@@ -147,6 +155,11 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ slu
             <span className="inline-flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400">
               <Globe size={14} /> {hostname}
             </span>
+            {tool.source && (
+              <a href={tool.source} target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-slate-600 dark:text-slate-300 underline underline-offset-4 hover:text-slate-900 dark:hover:text-white">
+                Official source <ArrowUpRight size={13} className="inline" />
+              </a>
+            )}
           </div>
         </section>
 

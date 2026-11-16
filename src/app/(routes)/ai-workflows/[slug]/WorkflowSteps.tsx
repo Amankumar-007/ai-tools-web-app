@@ -1,90 +1,71 @@
 'use client';
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { CheckCircle2, Copy, ExternalLink, Terminal, Settings, PenTool, Zap } from 'lucide-react';
-import { toast } from 'sonner';
+import { useEffect, useState } from 'react';
+import { Check, Copy, ExternalLink } from 'lucide-react';
 import type { AgentStep } from '@/app/data/agent-workflows';
 
-const getActionIcon = (type: string) => {
-    switch (type) {
-        case 'setup': return Settings;
-        case 'code': return Terminal;
-        case 'prompt': return PenTool;
-        case 'deploy': return Zap;
-        default: return CheckCircle2;
+export default function WorkflowSteps({ steps, workflowId }: { steps: AgentStep[]; workflowId: string }) {
+  const [completed, setCompleted] = useState<string[]>([]);
+  const [copied, setCopied] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(`workflow-progress:${workflowId}`) || '[]');
+      if (Array.isArray(saved)) setCompleted(saved.filter((id): id is string => typeof id === 'string' && steps.some((step) => step.id === id)));
+    } catch { /* Storage is optional. */ }
+  }, [workflowId, steps]);
+
+  const toggleCompleted = (id: string) => {
+    const next = completed.includes(id) ? completed.filter((item) => item !== id) : [...completed, id];
+    setCompleted(next);
+    try { window.localStorage.setItem(`workflow-progress:${workflowId}`, JSON.stringify(next)); } catch { /* Storage is optional. */ }
+  };
+  const copy = async (step: AgentStep) => {
+    try {
+      await navigator.clipboard.writeText(step.content);
+      setCopied(step.id);
+      window.setTimeout(() => setCopied(null), 2000);
+    } catch {
+      setCopied(null);
     }
-};
+  };
 
-export default function WorkflowSteps({ steps }: { steps: AgentStep[] }) {
-    const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text);
-        toast.success('Copied to clipboard!');
-    };
-
-    return (
-        <div className="space-y-12 relative before:absolute before:inset-0 before:ml-[1.4rem] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-slate-200 dark:before:via-slate-800 before:to-transparent">
-            {steps.map((step, idx) => {
-                const Icon = getActionIcon(step.actionType);
-
-                return (
-                    <motion.div
-                        key={step.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active"
-                    >
-                        {/* Icon Marker */}
-                        <div className="flex items-center justify-center w-12 h-12 rounded-full border-4 border-slate-50 dark:border-[#0A0A0A] bg-white dark:bg-slate-900 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10 text-blue-500 dark:text-blue-400">
-                            <Icon className="w-5 h-5" />
-                        </div>
-
-                        {/* Content Card */}
-                        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] p-6 rounded-2xl bg-white dark:bg-[#111111] border border-slate-200 dark:border-white/10 shadow-sm hover:shadow-md transition-shadow">
-                            <div className="flex items-center justify-between mb-3">
-                                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                                    {step.title}
-                                </h3>
-                                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 bg-slate-100 dark:bg-white/5 rounded text-slate-500">
-                                    Step {idx + 1}
-                                </span>
-                            </div>
-                            <p className="text-sm text-slate-600 dark:text-slate-400 mb-4 leading-relaxed">
-                                {step.description}
-                            </p>
-
-                            {/* Tool Link */}
-                            <a href={step.toolUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline mb-4">
-                                Open {step.toolName} <ExternalLink className="w-3 h-3" />
-                            </a>
-
-                            {/* Code/Prompt Snippet block */}
-                            {step.content && (
-                                <div className="relative mt-2 rounded-xl overflow-hidden bg-slate-950 border border-slate-800 group/code">
-                                    <div className="flex items-center justify-between px-4 py-2 bg-slate-900 border-b border-slate-800">
-                                        <span className="text-[10px] uppercase font-mono text-slate-400">
-                                            {step.actionType === 'prompt' ? 'System Prompt' : step.actionType === 'code' ? 'Code Snippet' : 'Instructions'}
-                                        </span>
-                                        <button
-                                            onClick={() => copyToClipboard(step.content!)}
-                                            className="text-slate-500 hover:text-white transition-colors"
-                                            title="Copy to clipboard"
-                                        >
-                                            <Copy className="w-3.5 h-3.5" />
-                                        </button>
-                                    </div>
-                                    <div className="p-4 overflow-x-auto">
-                                        <pre className="text-xs text-slate-300 font-mono leading-relaxed whitespace-pre-wrap">
-                                            <code>{step.content}</code>
-                                        </pre>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </motion.div>
-                );
-            })}
-        </div>
-    );
+  return (
+    <div>
+      <p className="mb-5 text-sm text-slate-500" role="status">{completed.length} of {steps.length} steps marked complete</p>
+      <ol className="space-y-4">
+        {steps.map((step, index) => (
+          <li key={step.id} className="rounded-xl border border-slate-200 bg-white p-5 sm:p-7">
+            <div className="flex items-start gap-4">
+              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${completed.includes(step.id) ? 'bg-emerald-100 text-emerald-700' : 'bg-blue-50 text-blue-700'}`}>
+                {completed.includes(step.id) ? <Check size={17} /> : index + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h3 className="text-lg font-semibold tracking-tight text-slate-950">{step.title}</h3>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">{step.description}</p>
+                  </div>
+                  <a href={step.toolUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-medium text-blue-700 hover:underline">Open {step.toolName} <ExternalLink size={14} /></a>
+                </div>
+                <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50">
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-200 px-4 py-2.5">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-500">{step.actionType === 'prompt' ? 'Prompt to adapt' : 'How to do it'}</span>
+                    <button type="button" onClick={() => copy(step)} aria-label={`Copy instructions for ${step.title}`} className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-950">
+                      {copied === step.id ? <Check size={14} /> : <Copy size={14} />} {copied === step.id ? 'Copied' : 'Copy'}
+                    </button>
+                  </div>
+                  <p className="whitespace-pre-wrap px-4 py-4 text-sm leading-7 text-slate-700">{step.content}</p>
+                </div>
+                <button type="button" onClick={() => toggleCompleted(step.id)} aria-pressed={completed.includes(step.id)} className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-950">
+                  <span className={`flex h-4 w-4 items-center justify-center rounded border ${completed.includes(step.id) ? 'border-emerald-600 bg-emerald-600 text-white' : 'border-slate-400'}`}>{completed.includes(step.id) && <Check size={12} />}</span>
+                  {completed.includes(step.id) ? 'Completed' : 'Mark complete'}
+                </button>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
 }

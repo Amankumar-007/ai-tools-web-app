@@ -7,15 +7,11 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import { supabase } from "@/lib/supabase-browser";
 import { authFetch } from "@/lib/auth-fetch";
-import { highlight } from 'sugar-high';
 import Modal from 'react-modal';
 import AiInput from "@/components/ui/ai-input";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import Prism from 'prismjs';
+import LightningToggle from "@/components/ui/lightning-toggle";
 import {
   Sparkles,
-  Zap,
   Code,
   Brain,
   Scan,
@@ -40,24 +36,7 @@ import {
   Square,
   Plus
 } from 'lucide-react';
-import { extractTextFromPdf } from "@/services/pdfService";
 import { toast } from "sonner";
-import 'prismjs/themes/prism-tomorrow.css';
-import 'prismjs/components/prism-typescript';
-import 'prismjs/components/prism-javascript';
-import 'prismjs/components/prism-python';
-import 'prismjs/components/prism-json';
-import 'prismjs/components/prism-bash';
-import 'prismjs/components/prism-markdown';
-import 'prismjs/components/prism-scss';
-import 'prismjs/components/prism-sql';
-import 'prismjs/components/prism-java';
-import 'prismjs/components/prism-c';
-import 'prismjs/components/prism-markup';
-import 'prismjs/components/prism-css';
-import 'prismjs/components/prism-yaml';
-import 'prismjs/components/prism-go';
-import 'prismjs/components/prism-jsx';
 // Set modal app element for accessibility
 if (typeof window !== 'undefined') {
   Modal.setAppElement('body');
@@ -68,14 +47,21 @@ const MotionDiv = dynamic(() => import('framer-motion').then((mod) => ({ default
   ssr: false,
   loading: () => <div />
 });
+const MarkdownRenderer = dynamic(() => import('@/components/TomatoMarkdown'), {
+  loading: () => <div className="whitespace-pre-wrap text-sm leading-7">Loading message…</div>,
+});
 
 type Role = "user" | "assistant" | "system";
+const DEFAULT_MODEL = "openrouter/free";
+const LIGHTNING_MODEL = "nvidia/nemotron-3.5-lightning:free";
 
 type Message = {
   id: string;
   role: Role;
   content: string;
   createdAt: number;
+  status?: 'stopped' | 'interrupted';
+  image?: { url: string; name: string };
 };
 
 type Conversation = {
@@ -94,58 +80,6 @@ function formatTitleFromPrompt(text: string) {
   return (text || "New chat").split("\n").slice(0, 40).join(" ") || "New chat";
 }
 
-// Code Block Component with Copy Functionality
-const CodeBlock = ({ language, value, copiedCode, onCopy }: { language: string, value: string, copiedCode: string, onCopy: (code: string, id: string) => void }) => {
-  const codeId = useMemo(() => Math.random().toString(36).substring(7), []);
-  const codeRef = useRef<HTMLElement>(null);
-
-  useEffect(() => {
-    if (codeRef.current) {
-      Prism.highlightElement(codeRef.current);
-    }
-  }, [value, language]);
-
-  return (
-    <div className="my-4 group relative max-w-full rounded-lg overflow-hidden bg-[#1d1f21] border border-gray-700/60 shadow-lg" style={{ fontFamily: 'var(--font-mono)' }}>
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#2d2d2d] border-b border-gray-700/60">
-        <div className="flex items-center gap-2">
-          <div className="flex space-x-1.5">
-            <div className="w-3 h-3 rounded-full bg-[#ff5f56]" />
-            <div className="w-3 h-3 rounded-full bg-[#ffbd2e]" />
-            <div className="w-3 h-3 rounded-full bg-[#27c93f]" />
-          </div>
-          <span className="text-xs font-mono text-gray-300 px-2 py-0.5 rounded bg-[#3e3e3e] border border-gray-600/50">
-            {language}
-          </span>
-        </div>
-        <button
-          onClick={() => onCopy(value, codeId)}
-          className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-gray-300 hover:text-white hover:bg-gray-600/50 rounded transition-colors"
-        >
-          {copiedCode === codeId ? (
-            <>
-              <svg className="w-3.5 h-3.5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-              <span>Copied</span>
-            </>
-          ) : (
-            <>
-              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
-              <span>Copy</span>
-            </>
-          )}
-        </button>
-      </div>
-      <pre className={`language-${language}`} style={{ margin: 0, padding: '1.5rem', fontSize: '0.875rem', lineHeight: '1.5', background: 'transparent' }}>
-        <code ref={codeRef} className={`language-${language}`}>{value}</code>
-      </pre>
-    </div>
-  );
-};
-
 // Model Selection Modal Component
 function ModelSelectionModal({ isOpen, onClose, selectedModel, onSelectModel }: {
   isOpen: boolean;
@@ -154,23 +88,18 @@ function ModelSelectionModal({ isOpen, onClose, selectedModel, onSelectModel }: 
   onSelectModel: (model: string) => void;
 }) {
   const models = [
-    { id: "tencent/hy3:free", name: "Tencent Hunyuan 3", type: "large", logo: "https://www.google.com/s2/favicons?domain=tencent.com&sz=128" },
-    { id: "nvidia/nemotron-3-ultra-550b-a55b:free", name: "Nemotron 3 Ultra 550B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
-    { id: "poolside/laguna-m.1:free", name: "Laguna M.1", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=poolside.ai&sz=128" },
-    { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 3 Super 120B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
-    { id: "cohere/north-mini-code:free", name: "Cohere North Mini Code", type: "code", logo: "https://www.google.com/s2/favicons?domain=cohere.com&sz=128" },
-    { id: "poolside/laguna-xs-2.1:free", name: "Laguna XS 2.1", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=poolside.ai&sz=128" },
-    { id: "nvidia/nemotron-3-nano-30b-a3b:free", name: "Nemotron 3 Nano 30B", type: "compact", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
-    { id: "openai/gpt-oss-120b:free", name: "GPT OSS 120B", type: "large", logo: "https://www.google.com/s2/favicons?domain=openai.com&sz=128" },
+    { id: "openrouter/free", name: "Auto Free Router", type: "smart", logo: "https://www.google.com/s2/favicons?domain=openrouter.ai&sz=128" },
     { id: "google/gemma-4-31b-it:free", name: "Gemma 4 31B IT", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=google.com&sz=128" },
+    { id: "google/gemma-4-26b-a4b-it:free", name: "Gemma 4 26B IT", type: "fast", logo: "https://www.google.com/s2/favicons?domain=google.com&sz=128" },
+    { id: "nvidia/nemotron-3-nano-30b-a3b:free", name: "Nemotron 3 Nano 30B", type: "compact", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
+    { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 3 Super 120B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
+    { id: "nvidia/nemotron-3-ultra-550b-a55b:free", name: "Nemotron 3 Ultra 550B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
+    { id: "nvidia/nemotron-3.5-lightning:free", name: "Nemotron 3.5 Lightning", type: "fast", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
     { id: "openai/gpt-oss-20b:free", name: "GPT OSS 20B", type: "compact", logo: "https://www.google.com/s2/favicons?domain=openai.com&sz=128" },
-    { id: "qwen/qwen3-coder:free", name: "Qwen 3 Coder", type: "code", logo: "https://www.google.com/s2/favicons?domain=qwenlm.ai&sz=128" },
-    { id: "meta-llama/llama-3.2-3b-instruct:free", name: "Llama 3.2 3B Instruct", type: "compact", logo: "https://www.google.com/s2/favicons?domain=meta.com&sz=128" },
-    { id: "nousresearch/hermes-3-llama-3.1-405b:free", name: "Hermes 3 Llama 3.1 405B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nousresearch.com&sz=128" },
-    { id: "cognitivecomputations/dolphin-mistral-24b-venice-edition:free", name: "Dolphin Mistral 24B Venice", type: "uncensored", logo: "https://avatars.githubusercontent.com/u/148782075?s=128&v=4" },
-    { id: "meta-llama/llama-3.3-70b-instruct:free", name: "Llama 3.3 70B Instruct", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=meta.com&sz=128" },
-    { id: "liquid/lfm-2.5-1.2b-thinking:free", name: "LFM 2.5 1.2B Thinking", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=liquid.ai&sz=128" },
-    { id: "liquid/lfm-2.5-1.2b-instruct:free", name: "LFM 2.5 1.2B Instruct", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=liquid.ai&sz=128" },
+    { id: "poolside/laguna-xs-2.1:free", name: "Laguna XS 2.1", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=poolside.ai&sz=128" },
+    { id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=poolside.ai&sz=128" },
+    { id: "cohere/north-mini-code:free", name: "Cohere North Mini Code", type: "code", logo: "https://www.google.com/s2/favicons?domain=cohere.com&sz=128" },
+    { id: "z-ai/glm-5.2:free", name: "GLM 5.2", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=zhipuai.cn&sz=128" },
   ];
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -361,78 +290,112 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [streamingText, setStreamingText] = useState('');
+  const [streamingConversationId, setStreamingConversationId] = useState<string | null>(null);
+  const [chatError, setChatError] = useState('');
+  const [loadedUid, setLoadedUid] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [conversationSearch, setConversationSearch] = useState('');
   const [hasStartedChat, setHasStartedChat] = useState(false);
-  const [inputFocused, setInputFocused] = useState(false);
-  const [messageAnimations, setMessageAnimations] = useState<Set<string>>(new Set());
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
-  const [copiedCode, setCopiedCode] = useState<string>("");
   const [showLoginPopup, setShowLoginPopup] = useState(false);
   const [attachment, setAttachment] = useState<{ type: 'image' | 'text', content?: string, url?: string, name: string } | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectedModel, setSelectedModel] = useState("meta-llama/llama-3.3-70b-instruct:free");
+  const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
+  const previousModelRef = useRef(DEFAULT_MODEL);
   const [showModelModal, setShowModelModal] = useState(false);
   const [customMemory, setCustomMemory] = useState("");
   const [showMemoryModal, setShowMemoryModal] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const sidebarCloseRef = useRef<HTMLButtonElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const stickToBottomRef = useRef(true);
+  const requestActiveRef = useRef(false);
+  const lastFailedRequestRef = useRef<{ convoId: string; payload: { messages: any[]; model: string; temperature: number }; partialId?: string } | null>(null);
+
+  const selectModel = (model: string) => {
+    if (model === LIGHTNING_MODEL) {
+      if (selectedModel !== LIGHTNING_MODEL) previousModelRef.current = selectedModel;
+    } else {
+      previousModelRef.current = model;
+    }
+    setSelectedModel(model);
+  };
+
+  const toggleLightning = () => {
+    if (selectedModel === LIGHTNING_MODEL) {
+      setSelectedModel(previousModelRef.current === LIGHTNING_MODEL ? DEFAULT_MODEL : previousModelRef.current);
+    } else {
+      previousModelRef.current = selectedModel;
+      setSelectedModel(LIGHTNING_MODEL);
+    }
+  };
 
   const stopGenerating = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
-      abortControllerRef.current = null;
     }
   };
 
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isInputHovered, setIsInputHovered] = useState(false);
+  useEffect(() => () => abortControllerRef.current?.abort(), []);
+
+  useEffect(() => {
+    if (!sidebarOpen) return;
+    sidebarCloseRef.current?.focus();
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSidebarOpen(false);
+        return;
+      }
+      if (event.key !== 'Tab') return;
+      const drawer = sidebarCloseRef.current?.closest('aside');
+      const focusable = drawer?.querySelectorAll<HTMLElement>('a, button, input');
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      menuButtonRef.current?.focus();
+    };
+  }, [sidebarOpen]);
+
   const router = useRouter();
   const hasTriggeredRef = useRef(false);
 
   useEffect(() => {
     if (isAuthChecking) return;
-    if (!isLoaded) return;
+    if (!isLoaded || loadedUid !== (user?.id || 'anon')) return;
     if (hasTriggeredRef.current) return;
 
     const pendingPrompt = localStorage.getItem('pending_prompt');
-    // Read the query string inside the effect rather than with
-    // useSearchParams(): reading it during render opts this entire route out
-    // of server rendering, leaving crawlers an empty shell with no heading.
     const urlQuery = new URLSearchParams(window.location.search).get('q');
     const promptToUse = pendingPrompt || urlQuery;
 
     if (promptToUse) {
       hasTriggeredRef.current = true;
-
       const isFromUrl = !!urlQuery;
 
       // Cleanup localStorage and URL
       if (pendingPrompt) localStorage.removeItem('pending_prompt');
-      if (urlQuery) {
+      if (urlQuery && typeof window !== 'undefined') {
         const newUrl = new URL(window.location.href);
         newUrl.searchParams.delete('q');
-        window.history.replaceState({}, '', newUrl.toString());
+        window.history.replaceState({}, '', newUrl.pathname);
       }
 
-      // Submit immediately without timeout which can be lost if React drops it
+      // Submit immediately
       submitMessage(promptToUse, isFromUrl);
     }
-  }, [isAuthChecking, isLoaded]);
-
-  // Copy code to clipboard function
-  const copyToClipboard = async (code: string, codeId: string) => {
-    try {
-      await navigator.clipboard.writeText(code);
-      setCopiedCode(codeId);
-      setTimeout(() => setCopiedCode(""), 2000);
-    } catch (err) {
-      console.error('Failed to copy code:', err);
-    }
-  };
+  }, [isAuthChecking, isLoaded, loadedUid, user?.id]);
 
   // Authentication check
   useEffect(() => {
@@ -477,7 +440,9 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   // Load conversations from localStorage
   useEffect(() => {
     if (isAuthChecking) return;
+    abortControllerRef.current?.abort();
     const uid = user?.id || 'anon';
+    setLoadedUid(null);
 
     try {
       // Migrate anonymous chats on login
@@ -509,14 +474,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
       const raw = localStorage.getItem(`chatgpt_convos_v1_${uid}`);
       if (raw) {
         const parsed = JSON.parse(raw) as Conversation[];
-        setConvos(prev => {
-          if (prev.length > 0) {
-            const existingIds = new Set(prev.map(c => c.id));
-            const newParsed = parsed.filter(c => !existingIds.has(c.id));
-            return [...prev, ...newParsed];
-          }
-          return parsed;
-        });
+        setConvos(parsed);
 
         // Load activeId from sessionStorage (reset on tab close)
         const sessionActiveId = sessionStorage.getItem(`tomato_ai_active_id_${uid}`);
@@ -528,6 +486,10 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
           setActiveId(null);
           setHasStartedChat(false);
         }
+      } else {
+        setConvos([]);
+        setActiveId(null);
+        setHasStartedChat(false);
       }
 
       // Load custom memory
@@ -537,15 +499,21 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
       } else {
         setCustomMemory("");
       }
-    } catch { } finally {
+    } catch {
+      setConvos([]);
+      setActiveId(null);
+      setHasStartedChat(false);
+    } finally {
+      setLoadedUid(uid);
       setIsLoaded(true);
     }
-  }, [user, isAuthChecking]);
+  }, [user?.id, isAuthChecking]);
 
   // Persist conversations to localStorage
   useEffect(() => {
     if (isAuthChecking) return;
     const uid = user?.id || 'anon';
+    if (loadedUid !== uid) return;
 
     try {
       localStorage.setItem(`chatgpt_convos_v1_${uid}`, JSON.stringify(convos));
@@ -555,29 +523,33 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
         sessionStorage.removeItem(`tomato_ai_active_id_${uid}`);
       }
     } catch { }
-  }, [convos, user, activeId]);
+  }, [convos, user?.id, activeId, loadedUid, isAuthChecking]);
 
   const active = useMemo(
     () => convos.find((c) => c.id === activeId) || null,
     [convos, activeId]
   );
+  const filteredConvos = useMemo(() => convos.filter((conversation) =>
+    conversation.title.toLowerCase().includes(conversationSearch.trim().toLowerCase())
+  ), [convos, conversationSearch]);
 
   // Scroll to bottom of messages
   useEffect(() => {
     if (listRef.current) {
-      listRef.current.scrollTo({
-        top: listRef.current.scrollHeight,
-        behavior: "smooth"
-      });
+      listRef.current.scrollTop = listRef.current.scrollHeight;
     }
-  }, [active?.messages.length]);
+  }, [activeId, active?.messages.length]);
+
+  useEffect(() => {
+    if (stickToBottomRef.current && listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
+  }, [streamingText]);
 
   // Track scroll position to collapse input
   useEffect(() => {
     const el = listRef.current;
     if (!el) return;
     const handleScroll = () => {
-      setIsScrolled(el.scrollTop > 60);
+      stickToBottomRef.current = el.scrollHeight - el.scrollTop - el.clientHeight < 120;
     };
     el.addEventListener('scroll', handleScroll, { passive: true });
     return () => el.removeEventListener('scroll', handleScroll);
@@ -592,11 +564,19 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   };
 
   function startNewConversation() {
+    stopGenerating();
+    setChatError('');
     setActiveId(null);
     setHasStartedChat(false);
     setSidebarOpen(false);
-    setMessageAnimations(new Set());
-    router.push('/tomato-ai');
+    setInput("");
+    if (typeof window !== 'undefined') {
+      const newUrl = new URL(window.location.href);
+      if (newUrl.searchParams.has('q')) {
+        newUrl.searchParams.delete('q');
+        window.history.replaceState({}, '', newUrl.pathname);
+      }
+    }
   }
 
   function createNewChat(seed?: string) {
@@ -625,51 +605,102 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     return convo;
   }
 
-  // Helper to create or update the streaming assistant message
-  function upsertAssistantStreaming(convoId: string, assistantId: string, patch: string, isStart = false) {
-    setConvos(prev => prev.map(c => {
-      if (c.id !== convoId) return c;
-      const msgs = [...c.messages];
-      const idx = msgs.findIndex(m => m.id === assistantId);
-      if (idx === -1 && isStart) {
-        msgs.push({ id: assistantId, role: "assistant", content: patch, createdAt: Date.now() });
-      } else if (idx !== -1) {
-        msgs[idx] = { ...msgs[idx], content: msgs[idx].content + patch };
+  async function runCompletion(convoId: string, payload: { messages: any[]; model: string; temperature: number }) {
+    if (requestActiveRef.current) return;
+    requestActiveRef.current = true;
+    setLoading(true);
+    setChatError('');
+    setStreamingConversationId(convoId);
+    setStreamingText('');
+    lastFailedRequestRef.current = null;
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    const assistantId = uid();
+    let fullText = '';
+    let lastPaint = 0;
+    let status: Message['status'];
+
+    try {
+      const response = await authFetch('/api/chatgpt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.error || 'The AI service is unavailable. Please try again.');
       }
-      return { ...c, messages: msgs, updatedAt: Date.now() };
-    }));
+      if (!response.body) throw new Error('The response could not be streamed. Please try again.');
+      const fallbackModel = response.headers.get('X-Fallback-Model');
+      if (fallbackModel) toast.info(`Switched to ${fallbackModel}`);
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        fullText += decoder.decode(value, { stream: true });
+        if (Date.now() - lastPaint > 60) {
+          setStreamingText(fullText);
+          lastPaint = Date.now();
+        }
+      }
+      fullText += decoder.decode();
+      if (!fullText.trim()) throw new Error('The AI returned an empty response. Please try again.');
+    } catch (error) {
+      if (controller.signal.aborted) {
+        status = 'stopped';
+      } else {
+        status = 'interrupted';
+        setChatError(error instanceof Error ? error.message : 'The response was interrupted. Please try again.');
+        lastFailedRequestRef.current = { convoId, payload, partialId: fullText.trim() ? assistantId : undefined };
+      }
+    } finally {
+      if (fullText.trim()) {
+        const assistant: Message = { id: assistantId, role: 'assistant', content: fullText, createdAt: Date.now(), status };
+        setConvos((previous) => previous.map((conversation) => conversation.id === convoId
+          ? { ...conversation, messages: [...conversation.messages, assistant], updatedAt: Date.now() }
+          : conversation));
+      }
+      setStreamingText('');
+      setStreamingConversationId(null);
+      setLoading(false);
+      abortControllerRef.current = null;
+      requestActiveRef.current = false;
+    }
   }
 
   const processFile = async (file: File) => {
     setIsUploading(true);
     try {
+      if (file.size > 10 * 1024 * 1024) throw new Error('Choose a file smaller than 10 MB.');
       if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async () => {
-          const base64Image = reader.result as string;
-          const res = await authFetch('/api/upload-image', {
-            method: 'POST',
-            body: JSON.stringify({ image: base64Image }),
-          });
-          const data = await res.json();
-          if (data.url) {
-            setAttachment({ type: 'image', url: data.url, name: file.name });
-          }
-          setIsUploading(false);
-        };
+        const base64Image = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result));
+          reader.onerror = () => reject(new Error('Could not read the image.'));
+          reader.readAsDataURL(file);
+        });
+        const res = await authFetch('/api/upload-image', { method: 'POST', body: JSON.stringify({ image: base64Image }) });
+        if (!res.ok) throw new Error('Could not upload the image.');
+        const data = await res.json();
+        if (!data.url) throw new Error('The image upload did not return a URL.');
+        setAttachment({ type: 'image', url: data.url, name: file.name });
       } else if (file.type === 'application/pdf') {
+        const { extractTextFromPdf } = await import('@/services/pdfService');
         const text = await extractTextFromPdf(file);
-        setAttachment({ type: 'text', content: text, name: file.name });
-        setIsUploading(false);
+        if (!text.trim()) throw new Error('No readable text was found in the PDF.');
+        setAttachment({ type: 'text', content: text.slice(0, 40_000), name: file.name });
       } else {
-        // Plain text
         const text = await file.text();
-        setAttachment({ type: 'text', content: text, name: file.name });
-        setIsUploading(false);
+        if (!text.trim()) throw new Error('The file is empty.');
+        setAttachment({ type: 'text', content: text.slice(0, 40_000), name: file.name });
       }
     } catch (err) {
-      console.error("File upload error", err);
+      toast.error(err instanceof Error ? err.message : 'Could not attach the file.');
+      setAttachment(null);
+    } finally {
       setIsUploading(false);
     }
   };
@@ -695,7 +726,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   };
 
   async function submitMessage(text: string, forceNewChat = false) {
-    if (!text) return;
+    if (!text.trim() || requestActiveRef.current || isUploading) return;
 
     if (!user) {
       const totalAnonMessages = convos.reduce((acc, c) => acc + c.messages.filter(m => m.role === 'user').length, 0);
@@ -706,35 +737,24 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
       }
     }
 
-    setLoading(true);
+    requestActiveRef.current = true;
+    setChatError('');
     setInput("");
     if (fileInputRef.current) fileInputRef.current.value = "";
-
     if (!hasStartedChat) setHasStartedChat(true);
 
     let convo = forceNewChat ? null : active;
-    if (!convo) {
-      convo = createNewChat();
-    }
+    if (!convo) convo = createNewChat();
 
     const messageContent = attachment?.type === 'image' && attachment.url
       ? `![${attachment.name}](${attachment.url})\n\n${text}`
       : attachment?.type === 'text' && attachment.content
-        ? `${text}\n\n[Attached File: ${attachment.name}]\n${attachment.content}`
+        ? `${text}\n\n[Attached File: ${attachment.name}]\n${attachment.content.slice(0, 40_000)}`
         : text;
 
-    const userMsg: Message = { id: uid(), role: "user", content: messageContent, createdAt: Date.now() };
-    setMessageAnimations(prev => new Set([...prev, userMsg.id]));
-
+    const userMsg: Message = { id: uid(), role: "user", content: messageContent, createdAt: Date.now(),
+      image: attachment?.type === 'image' && attachment.url ? { url: attachment.url, name: attachment.name } : undefined };
     setConvos(prev => {
-      if (!prev.some(c => c.id === convo?.id) && convo) {
-        return [{
-          ...convo,
-          title: formatTitleFromPrompt(text),
-          messages: [...convo.messages, userMsg],
-          updatedAt: Date.now(),
-        }, ...prev];
-      }
       return prev.map(c =>
         c.id === convo?.id
           ? {
@@ -746,102 +766,34 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
           : c
       );
     });
-
-    // Clear attachment state (optimistic)
     setAttachment(null);
 
-    const assistantId = uid();
-    setMessageAnimations(prev => new Set([...prev, assistantId]));
-    upsertAssistantStreaming(convo!.id, assistantId, "", true);
-
-    let apiMessages = [
-      {
-        role: "system",
-        content: `You are TomatoAI, a helpful and professional AI assistant.` + (customMemory.trim() ? `\n\nUser's Custom Context Memory:\n${customMemory.trim()}` : "")
-      },
-      ...convo!.messages.map((m) => ({ role: m.role, content: m.content })),
-    ];
+    const apiMessages: any[] = [{
+      role: 'system',
+      content: `You are TomatoAI, a helpful AI assistant. Answer the user's request directly. If you are unsure, say so.` +
+        (customMemory.trim() ? `\n\nUser context: ${customMemory.trim().slice(0, 2_000)}` : ''),
+    }, ...convo.messages.slice(-20).map((message) => ({
+      role: message.role,
+      content: message.image
+        ? [{ type: 'text', text: message.content.replace(/^!\[[^\]]*\]\([^)]*\)\s*/, '').slice(0, 12_000) }, { type: 'image_url', image_url: { url: message.image.url } }]
+        : message.content.slice(0, 12_000),
+    }))];
 
     let lastMessageContent: any = text;
     let modelToUse = selectedModel;
-
     if (attachment?.type === 'image' && attachment.url) {
       lastMessageContent = [
-        { type: 'text', text: text },
+        { type: 'text', text },
         { type: 'image_url', image_url: { url: attachment.url } }
       ];
-      modelToUse = "google/gemini-2.0-flash-exp:free";
+      modelToUse = 'google/gemma-4-31b-it:free';
     } else if (attachment?.type === 'text' && attachment.content) {
-      lastMessageContent = `${text}\n\n[Attached File Content]:\n${attachment.content}`;
+      lastMessageContent = `${text}\n\n[Attached File Content]:\n${attachment.content.slice(0, 40_000)}`;
     }
-
-    apiMessages.push({ role: "user", content: lastMessageContent });
-
-    try {
-      const controller = new AbortController();
-      abortControllerRef.current = controller;
-
-      const payload = {
-        messages: apiMessages,
-        model: modelToUse,
-        temperature: 0.6,
-      };
-
-      const res = await authFetch("/api/chatgpt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        signal: controller.signal,
-      });
-
-      if (!res.ok) {
-        const errText = await res.text();
-        throw new Error(errText);
-      }
-
-      const fallbackModel = res.headers.get("X-Fallback-Model");
-      if (fallbackModel) {
-        toast.info(`Switched to ${fallbackModel}`, {
-          description: "The primary model was unavailable, so we switched to a backup provider.",
-          duration: 5000,
-        });
-      }
-
-      if (!res.body) {
-        throw new Error("Readable stream not supported by browser/route.");
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        if (value) {
-          const chunk = decoder.decode(value, { stream: true });
-          upsertAssistantStreaming(convo!.id, assistantId, chunk);
-        }
-      }
-    } catch (err: any) {
-      if (err.name === 'AbortError') return;
-      setConvos(prev =>
-        prev.map(c =>
-          c.id === convo!.id
-            ? {
-              ...c,
-              messages: c.messages.map(m =>
-                m.id === assistantId
-                  ? { ...m, content: `Error: ${err?.message || "Something went wrong"}` }
-                  : m
-              ),
-              updatedAt: Date.now(),
-            }
-            : c
-        )
-      );
-    } finally {
-      setLoading(false);
-    }
+    if (convo.messages.slice(-20).some((message) => message.image)) modelToUse = 'google/gemma-4-31b-it:free';
+    apiMessages.push({ role: 'user', content: lastMessageContent });
+    requestActiveRef.current = false;
+    await runCompletion(convo.id, { messages: apiMessages, model: modelToUse, temperature: 0.6 });
   }
 
   async function sendMessage(e?: React.FormEvent) {
@@ -853,10 +805,19 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     submitMessage(text.trim());
   }
 
-  // Helper to submit arbitrary text (used by AiInput and quick prompts)
+  function retryLastResponse() {
+    const request = lastFailedRequestRef.current;
+    if (request && request.convoId === activeId && !requestActiveRef.current) {
+      if (request.partialId) setConvos((previous) => previous.map((conversation) => conversation.id === request.convoId
+        ? { ...conversation, messages: conversation.messages.filter((message) => message.id !== request.partialId) }
+        : conversation));
+      void runCompletion(request.convoId, request.payload);
+    }
+  }
 
 
   function deleteConvo(id: string) {
+    if (activeId === id) stopGenerating();
     setConvos((prevConvos) => {
       const updatedConvos = prevConvos.filter((c) => c.id !== id);
 
@@ -878,6 +839,9 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   }
 
   function clearAll() {
+    stopGenerating();
+    setChatError('');
+    setSidebarOpen(false);
     setConvos([]);
     setActiveId(null);
     setHasStartedChat(false);
@@ -888,97 +852,11 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     router.push('/tomato-ai');
   }
 
-  const MarkdownRenderer = ({ content }: { content: string }) => {
-    const [copiedCode, setCopiedCode] = useState<string>("");
-
-    const onCopy = (code: string, id: string) => {
-      navigator.clipboard.writeText(code);
-      setCopiedCode(id);
-      setTimeout(() => setCopiedCode(""), 2000);
-    };
-
-    return (
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          code({ node, className, children, ...props }: any) {
-            const match = /language-(\w+)/.exec(className || "");
-            const inline = props.inline;
-
-            if (!inline && match) {
-              return (
-                <CodeBlock
-                  language={match[1]}
-                  value={String(children).replace(/\n$/, "")}
-                  copiedCode={copiedCode}
-                  onCopy={onCopy}
-                />
-              );
-            }
-
-            return (
-              <code className="inline-code" {...props}>
-                {children}
-              </code>
-            );
-          },
-          p: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>,
-          a: ({ href, children }) => (
-            <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-              {children}
-            </a>
-          ),
-          ul: ({ children }) => <ul className="list-disc list-inside mb-4 pl-4">{children}</ul>,
-          ol: ({ children }) => <ol className="list-decimal list-inside mb-4 pl-4">{children}</ol>,
-          li: ({ children }) => <li className="mb-1">{children}</li>,
-          h1: ({ children }) => <h1 className="text-3xl font-bold mb-4 mt-6">{children}</h1>,
-          h2: ({ children }) => <h2 className="text-2xl font-bold mb-3 mt-5">{children}</h2>,
-          h3: ({ children }) => <h3 className="text-xl font-bold mb-2 mt-4">{children}</h3>,
-          blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-gray-300 pl-4 py-2 italic text-gray-600 dark:text-gray-400 my-4">
-              {children}
-            </blockquote>
-          ),
-          table: ({ children }) => (
-            <div className="overflow-x-auto my-4">
-              <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700 border border-gray-200 dark:border-gray-700 rounded-lg">
-                {children}
-              </table>
-            </div>
-          ),
-          thead: ({ children }) => <thead className="bg-gray-50 dark:bg-gray-800">{children}</thead>,
-          tbody: ({ children }) => <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">{children}</tbody>,
-          tr: ({ children }) => <tr className="hover:bg-gray-50 dark:hover:bg-gray-800">{children}</tr>,
-          th: ({ children }) => (
-            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              {children}
-            </th>
-          ),
-          td: ({ children }) => (
-            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
-              {children}
-            </td>
-          ),
-        }}
-      >
-        {content}
-      </ReactMarkdown>
-    );
-  };
-
-
-
-
   if (isAuthChecking) {
     return (
       <div
-        className="flex items-center justify-center min-h-screen bg-no-repeat bg-center bg-cover transition-all duration-1000 ease-in-out"
-        style={{
-          backgroundImage: isDarkMode
-            ? "url('/chatbot2.png')"
-            : "url('/chatbot1.png')",
-          transition: 'background-image 1s ease-in-out'
-        }}
+        className="flex min-h-dvh items-center justify-center bg-slate-50 bg-center bg-no-repeat dark:bg-slate-950"
+        style={{ backgroundImage: `url('/${isDarkMode ? 'chatbot2.png' : 'chatbot1.png'}')`, backgroundSize: '100% 100%' }}
       >
         {/* `isAuthChecking` starts true, so this is what the server renders
             and what a crawler sees. It therefore carries the page's heading
@@ -1012,19 +890,8 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
 
   return (
     <div
-      className="flex h-screen font-['Inter','system-ui','-apple-system','BlinkMacSystemFont','Segoe_UI','Roboto','sans-serif'] relative overflow-hidden antialiased transition-all duration-1000 ease-in-out"
-      style={{
-        backgroundColor: hasStartedChat ? (isDarkMode ? '#111827' : '#FFFFFF') : 'transparent',
-        backgroundImage: !hasStartedChat
-          ? isDarkMode
-            ? 'url(/chatbot2.png)'
-            : 'url(/chatbot1.png)'
-          : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        transition: 'background-color 1s ease-in-out, background-image 1s ease-in-out'
-      }}
+      className="relative flex h-dvh overflow-hidden bg-slate-50 bg-center bg-no-repeat font-inter antialiased dark:bg-slate-950"
+      style={{ backgroundImage: !hasStartedChat ? `url('/${isDarkMode ? 'chatbot2.png' : 'chatbot1.png'}')` : 'none', backgroundSize: '100% 100%' }}
     >
       {/* Enhanced Custom Styles */}
       <style jsx global>{`
@@ -1102,20 +969,6 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
         
         .bounce-in {
           animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        /* Hide page side scrollbars */
-        html, body {
-          overflow: hidden;
-        }
-        /* Hide scrollbars but keep scroll functionality inside containers */
-        *::-webkit-scrollbar {
-          width: 0px;
-          height: 0px;
-        }
-        * {
-          scrollbar-width: none;
-          -ms-overflow-style: none;
         }
 
         @keyframes marquee {
@@ -1221,50 +1074,36 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
         isOpen={showModelModal}
         onClose={() => setShowModelModal(false)}
         selectedModel={selectedModel}
-        onSelectModel={setSelectedModel}
+        onSelectModel={selectModel}
       />
 
 
-      {/* Transparent Sidebar Toggle Button */}
-      <button
-        onClick={() => setSidebarOpen(true)}
-        className={`hidden md:block fixed top-20 left-5 z-40 p-3 rounded-xl bg-white/30 dark:bg-gray-800/30 shadow-lg border border-gray-200/30 dark:border-gray-700/30 hover:border-gray-300/50 dark:hover:border-gray-600/50 hover:shadow-xl transition-all duration-300 transform hover:scale-105 group backdrop-blur-sm ${sidebarOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'
-          }`}
-      >
-        <svg className="w-5 h-5 text-gray-600 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-gray-100 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-
-      {/* Transparent Sidebar */}
+      {/* Conversation drawer */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50">
           <div
-            className="absolute inset-0 bg-black/10 dark:bg-black/20 backdrop-blur-sm transition-all duration-300"
+            className="absolute inset-0 bg-black/35"
             onClick={() => setSidebarOpen(false)}
           />
-          <div className="absolute left-0 top-0 bottom-0 w-80 bg-white/20 dark:bg-gray-800/20 backdrop-blur-lg border-r border-gray-200/30 dark:border-gray-600/30 shadow-2xl transform transition-all duration-300 ease-out">
-            <div className="flex-1 flex flex-col h-full overflow-hidden pb-16 md:pb-0">
-              <div className="p-6 border-b border-gray-100/30 dark:border-gray-700/30 bg-white/10 dark:bg-gray-700/10 backdrop-blur-sm">
-                <div className="flex items-center justify-between mb-6">
-                  <Link href="/" className="flex items-center gap-3">
-                    <MotionDiv
-                      whileHover={{ scale: 1.07, rotate: 5 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ type: "spring", stiffness: 320, damping: 18 }}
-                    >
-                      <Image src="/logo.png" alt="TomatoAI" width={40} height={40} className="rounded-xl shadow-lg" />
-                    </MotionDiv>
+          <aside role="dialog" aria-modal="true" aria-label="Conversations" className="absolute bottom-0 left-0 top-0 w-[min(88vw,340px)] border-r border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950">
+            <div className="flex h-full flex-col overflow-hidden">
+              <div className="border-b border-slate-200 p-4 dark:border-slate-800">
+                <div className="mb-5 flex items-center justify-between">
+                  <Link href="/" onClick={() => setSidebarOpen(false)} className="flex min-w-0 items-center gap-3">
+                    <Image src="/logo.png" alt="" width={32} height={32} className="rounded-lg" />
                     <div>
                       {/* Sidebar brand label, not the page heading — the page's
                           single <h1> lives in the chat's empty state below. */}
-                      <span className="block text-3xl font-extrabold">TomatoAI</span>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 font-['Inter','system-ui','-apple-system','sans-serif']">Professional AI Assistant</p>
+                      <span className="block text-sm font-semibold text-slate-900 dark:text-white">TomatoAI</span>
+                      <span className="block text-xs text-slate-500 dark:text-slate-400">Your workspace</span>
                     </div>
                   </Link>
                   <button
+                    type="button"
+                    ref={sidebarCloseRef}
                     onClick={() => setSidebarOpen(false)}
-                    className="p-2 rounded-lg hover:bg-gray-200/50 dark:hover:bg-gray-600/50 transition-all duration-300 transform hover:scale-110 backdrop-blur-sm"
+                    aria-label="Close conversations"
+                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
                   >
                     <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1273,59 +1112,58 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                 </div>
                 <button
                   onClick={startNewConversation}
-                  className="w-full px-4 py-3 bg-gray-900/90 dark:bg-gray-600/90 text-white rounded-xl hover:bg-gray-800/90 dark:hover:bg-gray-500/90 transition-all duration-300 text-sm font-semibold transform hover:scale-105 shadow-lg hover:shadow-xl font-['Inter','system-ui','-apple-system','sans-serif'] backdrop-blur-sm"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
                 >
-                  <div className="flex items-center justify-center gap-2">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                    New Conversation
-                  </div>
+                  <Plus className="h-4 w-4" /> New chat
                 </button>
 
                 <button
-                  onClick={() => setShowMemoryModal(true)}
-                  className="w-full px-4 py-3 mt-3 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-xl transition-all font-medium border border-indigo-500/20 shadow-sm shadow-indigo-500/10"
+                  onClick={() => { setSidebarOpen(false); setShowMemoryModal(true); }}
+                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
                 >
                   <div className="flex items-center justify-center gap-2">
-                    <img src="/brain-svgrepo-com.svg" className="w-4 h-4 object-contain" alt="Brain" />
-                    Context Memory
+                    <Brain className="h-4 w-4" /> Personal instructions
                   </div>
                 </button>
+                <div className="relative mt-4">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <input value={conversationSearch} onChange={(event) => setConversationSearch(event.target.value)} placeholder="Search chats" aria-label="Search conversations" className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-9 text-sm outline-none focus:border-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white" />
+                  {conversationSearch && <button type="button" onClick={() => setConversationSearch('')} aria-label="Clear chat search" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white"><X className="h-4 w-4" /></button>}
+                </div>
               </div>
-              <div className="flex-1 overflow-y-auto p-4 space-y-6 pb-20 md:pb-4" ref={listRef}>
-                {convos.length === 0 ? (
-                  <div className="text-center text-gray-500 dark:text-gray-400 py-12 fade-in">
-                    <div className="w-16 h-16 bg-gray-100/30 dark:bg-gray-700/30 rounded-2xl mx-auto mb-6 flex items-center justify-center bounce-in backdrop-blur-sm">
+              <div className="min-h-0 flex-1 overflow-y-auto p-3">
+                {filteredConvos.length === 0 ? (
+                  <div className="text-center text-gray-500 dark:text-gray-400 py-12">
+                    <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl mx-auto mb-4 flex items-center justify-center">
                       <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
                       </svg>
                     </div>
-                    <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">No conversations yet</h3>
-                    <p className="text-sm font-['Inter','system-ui','-apple-system','sans-serif']">Start your first conversation with TomatoAI</p>
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{convos.length ? 'No matching chats' : 'No conversations yet'}</h3>
+                    <p className="text-sm">{convos.length ? 'No chats match your search.' : 'Start your first conversation with TomatoAI.'}</p>
                   </div>
                 ) : (
-                  <div className="space-y-2">
-                    <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-4 font-['Inter','system-ui','-apple-system','sans-serif']">
-                      Recent Conversations
+                  <div className="space-y-1">
+                    <h3 className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                      Recent chats
                     </h3>
-                    {convos.map((c, index) => (
-                      <div key={c.id} className="group sidebar-enter relative" style={{ animationDelay: `${index * 50}ms` }}>
+                    {filteredConvos.map((c) => (
+                      <div key={c.id} className="group relative">
                         <button
                           onClick={() => {
                             setActiveId(c.id);
                             setHasStartedChat(true);
                             setSidebarOpen(false);
+                            setChatError('');
                           }}
-                          className={`w-full text-left p-4 rounded-xl transition-all duration-300 transform hover:scale-102 hover:shadow-sm border backdrop-blur-sm ${activeId === c.id
-                            ? "bg-gray-50/50 dark:bg-gray-600/50 text-gray-900 dark:text-gray-100 shadow-md border-gray-200/50 dark:border-gray-500/50"
-                            : "text-gray-600 dark:text-gray-300 hover:bg-gray-50/50 dark:hover:bg-gray-700/50 hover:text-gray-900 dark:hover:text-gray-100 border-transparent hover:border-gray-200/50 dark:hover:border-gray-600/50"
+                          className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors ${activeId === c.id
+                            ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
+                            : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900"
                             }`}
                         >
                           <div className="flex items-start gap-3">
-                            <div className="w-2 h-2 rounded-full bg-gray-400/80 dark:bg-gray-500/80 mt-2 flex-shrink-0"></div>
                             <div className="flex-1 min-w-0">
-                              <div className="truncate pr-8 text-sm font-semibold font-['Inter','system-ui','-apple-system','sans-serif'] mb-1">
+                              <div className="truncate pr-8 text-sm font-medium mb-1">
                                 {c.title}
                               </div>
                               <div className="flex items-center gap-2 text-xs text-gray-400 dark:text-gray-500 font-['Inter','system-ui','-apple-system','sans-serif']">
@@ -1337,11 +1175,12 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                           </div>
                         </button>
                         <button
+                          aria-label={`Delete ${c.title}`}
                           onClick={(e) => {
                             e.stopPropagation();
                             deleteConvo(c.id);
                           }}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-2 rounded-lg hover:bg-red-50/50 dark:hover:bg-red-900/20 transition-all duration-300 transform hover:scale-110 backdrop-blur-sm"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:opacity-100 dark:hover:bg-red-900/20 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100"
                         >
                           <svg className="w-4 h-4 text-red-400 hover:text-red-600 dark:hover:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1353,65 +1192,56 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                 )}
               </div>
 
-              {convos.length > 0 && (
-                <div className="p-4 border-t border-gray-100/30 dark:border-gray-700/30 bg-white/10 dark:bg-gray-700/10 backdrop-blur-sm">
-                  <button
+              <div className="border-t border-slate-200 p-3 dark:border-slate-800">
+                  <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Explore</p>
+                  <nav aria-label="Explore TomatoAI" className="grid grid-cols-2 gap-1 text-sm text-slate-600 dark:text-slate-300">
+                    <Link href="/ai-tools" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900">AI tools</Link>
+                    <Link href="/prompts" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900">Prompts</Link>
+                    <Link href="/ai-workflows" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900">Workflows</Link>
+                    <Link href="/ai-videos" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900">Videos</Link>
+                  </nav>
+                  {convos.length > 0 && <button
                     onClick={clearAll}
-                    className="w-full text-sm text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400 py-3 px-4 rounded-xl hover:bg-red-50/20 dark:hover:bg-red-900/20 transition-all duration-300 transform hover:scale-105 font-semibold font-['Inter','system-ui','-apple-system','sans-serif'] flex items-center justify-center gap-2 backdrop-blur-sm"
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/20"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    Clear All Conversations
-                  </button>
+                    Clear all chats
+                  </button>}
                 </div>
-              )}
             </div>
-          </div>
+          </aside>
         </div>
       )}
 
       {/* Main Content */}
       <main className="flex-1 flex flex-col relative overflow-hidden">
-        {/* Uncensored Model Quick Select FAB */}
-        <button
-          onClick={() => setSelectedModel("cognitivecomputations/dolphin-mistral-24b-venice-edition:free")}
-          className="fixed right-4 md:right-8 top-1/2 -translate-y-1/2 z-40 group flex flex-col items-center justify-center p-3 md:p-4 rounded-[28px] bg-white/40 dark:bg-black/40 hover:bg-white/60 dark:hover:bg-black/60 border border-white/50 dark:border-white/10 backdrop-blur-xl shadow-2xl transition-all duration-500 transform hover:scale-105 hover:-translate-x-1"
-        >
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-white dark:bg-slate-900 flex items-center justify-center mb-3 shadow-[0_0_15px_rgba(168,85,247,0.4)] group-hover:shadow-[0_0_25px_rgba(168,85,247,0.6)] transition-all duration-300 border border-white/20">
-            <img src="https://avatars.githubusercontent.com/u/148782075?s=128&v=4" alt="Dolphin Model" className="w-full h-full object-cover p-1.5" />
-          </div>
-          <span className="text-[11px] font-black tracking-[0.25em] text-slate-700 dark:text-slate-300 uppercase rotate-180 transition-colors group-hover:text-purple-600 dark:group-hover:text-purple-400" style={{ writingMode: 'vertical-rl' }}>
-            Uncensored
-          </span>
-        </button>
-
         {/* Transparent Navbar — inline, scrolls with content, takes no fixed space */}
-        <div className="flex-shrink-0 flex items-center justify-between px-4 py-3">
+        <header className="flex shrink-0 items-center justify-between gap-3 bg-transparent px-4 py-3 sm:px-5">
+          <div className="flex min-w-0 items-center gap-3">
           <button
+            ref={menuButtonRef}
             onClick={() => setSidebarOpen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100/20 dark:hover:bg-gray-800/20 transition-colors md:hidden"
+            type="button"
+            aria-label="Open conversations"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
           >
             <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
 
-          <Link href="/" className="flex items-center gap-2">
-            <MotionDiv
-              whileHover={{ scale: 1.07, rotate: 5 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 320, damping: 18 }}
-            >
-              <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-lg shadow-sm" />
-            </MotionDiv>
-            <span className="font-bold text-gray-900 dark:text-gray-100">TomatoAI</span>
+          <Link href="/" className="flex min-w-0 items-center gap-2">
+            <Image src="/logo.png" alt="" width={30} height={30} className="h-7 w-7 shrink-0 object-contain" />
+            <span className="truncate text-sm font-semibold text-slate-900 dark:text-white sm:text-base">TomatoAI</span>
           </Link>
+          </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowModelModal(true)}
-              className="p-2 rounded-lg hover:bg-gray-100/20 dark:hover:bg-gray-800/20 transition-colors"
+              className="hidden rounded-lg p-2 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800 sm:block"
               title="Select AI Model"
             >
               <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1450,7 +1280,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
               </button>
             )}
           </div>
-        </div>
+        </header>
 
         <div ref={listRef} className="flex-1 overflow-y-auto w-full">
           {(!forceChatView && (!hasStartedChat || (!active && !loading))) ? (
@@ -1472,13 +1302,13 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                       className="rounded-2xl shadow-xl"
                     />
                   </MotionDiv>
-                  {selectedModel === "cognitivecomputations/dolphin-mistral-24b-venice-edition:free" ? (
+                  {selectedModel === LIGHTNING_MODEL ? (
                     <>
-                      <h1 className="text-6xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-400 dark:to-blue-400 fade-in font-['Inter','system-ui','-apple-system','sans-serif'] tracking-tighter drop-shadow-sm uppercase">
-                        Uncensored
+                      <h1 className="lightning-title-enter mb-4 bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-6xl font-black uppercase tracking-tighter text-transparent dark:from-yellow-400 dark:to-amber-400">
+                        Lightning
                       </h1>
                       <p className="text-xl text-gray-600 dark:text-gray-400 font-medium fade-in font-['Inter','system-ui','-apple-system','sans-serif']" style={{ animationDelay: '200ms' }}>
-                        No limits. Pure intelligence.
+                        Ultra-fast responses. Powered by Nemotron 3.5 Lightning.
                       </p>
                     </>
                   ) : (
@@ -1499,12 +1329,14 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                       if (isSearch) {
                         router.push(`/search?q=${encodeURIComponent(text)}`);
                       } else {
-                        router.push(`/tomato-ai/chat?q=${encodeURIComponent(text)}`);
+                        sendText(text);
                       }
                     }}
                     onStop={stopGenerating}
                     submitting={loading}
-                    disabled={loading}
+                    disabled={isUploading}
+                    onLightningSelect={toggleLightning}
+                    lightningActive={selectedModel === LIGHTNING_MODEL}
                     onModelSelect={() => setShowModelModal(true)}
                     selectedModel={selectedModel}
                     value={input}
@@ -1526,13 +1358,14 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
               {active?.messages.map((m) => (
                 <div
                   key={m.id}
-                  className={`space-y-4 ${messageAnimations.has(m.id) ? 'message-enter' : ''}`}
+                  className="space-y-4"
                 >
                   {m.role === "user" ? (
                     <div className="flex justify-end">
-                      <div className="bg-gray-900/90 dark:bg-gray-600/90 text-white px-4 md:px-6 py-3 md:py-4 rounded-2xl max-w-[90%] md:max-w-[85%] shadow-lg transform hover:scale-102 transition-transform duration-300 backdrop-blur-sm">
+                      <div className="bg-gray-900 dark:bg-gray-700 text-white px-4 md:px-6 py-3 md:py-4 rounded-2xl max-w-[90%] md:max-w-[85%] shadow-sm">
+                        {m.image && <img src={m.image.url} alt={m.image.name} loading="lazy" className="mb-3 max-h-72 max-w-full rounded-lg object-contain" />}
                         <div className="text-sm leading-relaxed whitespace-pre-wrap break-words font-['Inter','system-ui','-apple-system','sans-serif'] font-normal">
-                          {m.content}
+                          {m.image ? m.content.replace(/^!\[[^\]]*\]\([^)]*\)\s*/, '') : m.content}
                         </div>
                       </div>
                     </div>
@@ -1541,6 +1374,8 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                       <div className="ml-0 md:ml-11 overflow-x-auto">
                         <div className="max-w-full">
                           <MarkdownRenderer content={m.content} />
+                          {m.status === 'stopped' && <span className="mt-2 block text-xs text-slate-500">Stopped</span>}
+                          {m.status === 'interrupted' && <span className="mt-2 block text-xs text-amber-600">Response interrupted</span>}
                         </div>
                       </div>
                     </div>
@@ -1548,20 +1383,26 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                 </div>
               ))}
 
-              {loading && (
-                <div className="space-y-3 message-enter">
+              {loading && streamingConversationId === activeId && (
+                <div className="space-y-3" aria-live="polite">
                   <div className="flex items-center gap-3">
                     <Image src="/logo.png" alt="TomatoAI" width={32} height={32} className="rounded-full" />
                     <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 font-['Inter','system-ui','-apple-system','sans-serif']">TomatoAI</span>
                   </div>
-                  <div className="ml-11 flex items-center gap-2">
+                  {streamingText ? <div className="ml-0 whitespace-pre-wrap break-words text-sm leading-7 text-slate-800 dark:text-slate-100 md:ml-11">{streamingText}</div> : <div className="ml-11 flex items-center gap-2">
                     <div className="flex space-x-1">
                       <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
                       <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
                       <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
                     </div>
                     <span className="text-sm text-gray-500 dark:text-gray-400 ml-2 font-['Inter','system-ui','-apple-system','sans-serif']">Thinking...</span>
-                  </div>
+                  </div>}
+                </div>
+              )}
+              {chatError && lastFailedRequestRef.current?.convoId === activeId && (
+                <div role="alert" className="ml-0 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100 md:ml-11">
+                  <p>{chatError}</p>
+                  <button type="button" onClick={retryLastResponse} className="mt-2 font-semibold underline underline-offset-2">Retry response</button>
                 </div>
               )}
             </div>
@@ -1582,7 +1423,9 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                   }}
                   onStop={stopGenerating}
                   submitting={loading}
-                  disabled={loading}
+                  disabled={isUploading}
+                  onLightningSelect={toggleLightning}
+                  lightningActive={selectedModel === LIGHTNING_MODEL}
                   onFileSelect={handleAiInputFileSelect}
                   onModelSelect={() => setShowModelModal(true)}
                   selectedModel={selectedModel}
@@ -1622,6 +1465,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
+              aria-label="Attach file"
               className="p-3 text-gray-500 hover:text-green-500 dark:text-gray-400 dark:hover:text-green-400 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1631,6 +1475,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
             <button
               type="button"
               onClick={() => setShowModelModal(true)}
+              aria-label="Choose AI model"
               className="p-3 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors relative group"
               title="Select AI Model"
             >
@@ -1638,6 +1483,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </button>
+            <LightningToggle active={selectedModel === LIGHTNING_MODEL} onToggle={toggleLightning} size="md" />
             <textarea
               value={input}
               onChange={(e) => {
@@ -1648,9 +1494,8 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
               }}
               placeholder="Message TomatoAI..."
               className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none resize-none py-3 pl-4 pr-12 text-base text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-              onFocus={() => setInputFocused(true)}
-              onBlur={() => setInputFocused(false)}
-              disabled={loading}
+              disabled={loading || isUploading}
+              onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); if (!loading) void sendMessage(); } }}
               rows={1}
               style={{
                 minHeight: '24px',
@@ -1682,8 +1527,9 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
 
               <button
                 type={loading ? "button" : "submit"}
-                disabled={!loading && !input.trim()}
+                disabled={!loading && (!input.trim() || isUploading)}
                 onClick={loading ? stopGenerating : undefined}
+                aria-label={loading ? 'Stop generating' : 'Send message'}
                 className={`p-2 rounded-full transition-all duration-200 ${loading
                   ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30 shadow-lg hover:shadow-xl transform hover:scale-105'
                   : input.trim()

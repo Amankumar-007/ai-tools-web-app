@@ -125,7 +125,7 @@ export default function TrendingClient({ initialTools, initialNews, initialRepos
             Trending AI Tools <span className="text-slate-400">&</span> News.
           </h1>
           <p className="text-lg text-slate-500 dark:text-slate-400 max-w-xl leading-relaxed">
-            Real-time tracking of developer activity, social signals, and breaking news to surface the fastest-growing AI products.
+            Recent developer activity, community discussions, and AI news in one place.
           </p>
         </div>
 
@@ -139,6 +139,7 @@ export default function TrendingClient({ initialTools, initialNews, initialRepos
           </div>
 
           {initialNews && initialNews.length > 0 ? (
+            <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12">
               {/* Featured News */}
               <a href={initialNews[0].link} target="_blank" rel="noopener noreferrer" className="group lg:col-span-2 flex flex-col sm:flex-row gap-6">
@@ -187,6 +188,20 @@ export default function TrendingClient({ initialTools, initialNews, initialRepos
                 ))}
               </div>
             </div>
+            {initialNews.length > 4 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
+                {initialNews.slice(4).map((news) => (
+                  <a href={news.link} target="_blank" rel="noopener noreferrer" key={news.id} className="group rounded-lg border border-slate-200 dark:border-slate-800 p-5 hover:bg-slate-50 dark:hover:bg-slate-900/50 transition-colors">
+                    <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500 mb-3">
+                      <span>{news.source}</span><span>&middot;</span><span>{formatTimeAgo(news.pubDate)}</span>
+                    </div>
+                    <h3 className="font-medium leading-snug group-hover:text-red-500 transition-colors line-clamp-2">{news.title}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-3 line-clamp-2">{news.snippet}</p>
+                  </a>
+                ))}
+              </div>
+            )}
+            </>
           ) : (
             <div className="py-12 text-slate-500 font-mono text-sm">No recent news available.</div>
           )}
@@ -298,7 +313,7 @@ export default function TrendingClient({ initialTools, initialNews, initialRepos
                 {/* Stats */}
                 <div className="flex items-center justify-end gap-6 w-full sm:w-[20%] text-sm">
                   <div className="flex flex-col items-end">
-                    <span className="text-[10px] font-mono text-slate-400 uppercase">Growth</span>
+                    <span className="text-[10px] font-mono text-slate-400 uppercase">Signal</span>
                     <span className="font-mono flex items-center gap-1 text-slate-700 dark:text-slate-300">
                       <TrendingUp size={12} className="text-emerald-500" /> {tool.growth}
                     </span>

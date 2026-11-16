@@ -3,7 +3,6 @@ const path = require('path');
 
 function getEnvVar(key) {
   const envPaths = [path.join(__dirname, '.env.local'), path.join(__dirname, '.env')];
-  
   for (const envPath of envPaths) {
     if (fs.existsSync(envPath)) {
       const fileContent = fs.readFileSync(envPath, 'utf8');
@@ -27,7 +26,7 @@ if (!API_KEY) {
 }
 
 async function testModel() {
-  const modelId = "cognitivecomputations/dolphin-mistral-24b-venice-edition:free";
+  const modelId = "openrouter/free";
   console.log(`\n🤖 Testing OpenRouter Model: ${modelId}...\n`);
 
   try {
@@ -36,6 +35,8 @@ async function testModel() {
       headers: {
         "Authorization": `Bearer ${API_KEY}`,
         "Content-Type": "application/json",
+        "HTTP-Referer": "http://localhost:3000",
+        "X-Title": "tomatoChat"
       },
       body: JSON.stringify({
         model: modelId,
@@ -52,7 +53,7 @@ async function testModel() {
       console.error(JSON.stringify(data, null, 2));
     } else {
       console.log(`✅ Success! Response from Model:\n`);
-      console.log(data.choices[0].message.content);
+      console.log(data.choices[0]?.message?.content || "(empty content)");
     }
   } catch (error) {
     console.error("❌ Network or Execution Error:", error);

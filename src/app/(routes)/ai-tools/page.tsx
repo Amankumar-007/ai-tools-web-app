@@ -22,13 +22,15 @@ export default function AIToolsDirectory() {
     website: item.website,
     logo: getLogoUrl(item.website),
     pricing: item.pricing as Tool['pricing'],
-    rating: 4.5,
+    rating: 0,
     speed: 'Fast',
-    founded: '2020',
-    pros: ['High quality output', 'User friendly'],
-    cons: ['Learning curve required'],
+    founded: '',
+    pros: [],
+    cons: [],
     bestFor: 'General Purpose',
     apiAvailable: true,
+    sourceDate: item.sourceDate,
+    isVerified: Boolean(item.source),
   }));
 
   return <AIToolsDirectoryClient initialTools={tools} />;

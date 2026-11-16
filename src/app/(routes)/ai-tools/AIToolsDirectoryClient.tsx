@@ -1,18 +1,17 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import {
-  Search, X, ArrowRight,
-  CheckCircle2, Plus, Trash2
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import MainNavbar from '@/components/MainNavbar';
+import { ArrowRight, ArrowUpRight, Check, ChevronDown, ExternalLink, Plus, Search, X } from 'lucide-react';
+import { ALL_CATEGORIES } from '@/lib/categories';
+import { getToolsForCategory } from '@/lib/categoryTools';
 import CategoryToolsResults from '@/components/CategoryToolsResults';
-import { getCurrentUser, signOut, User } from "@/lib/supabase";
+import { getCurrentUser, signOut, type User } from '@/lib/supabase';
+import { getLogoFallbackChain } from '@/lib/logoHelper';
+import MainNavbar from '@/components/MainNavbar';
+import styles from './directory.module.css';
 
-// --- 1. ROBUST DATA STRUCTURE ---
 export interface Tool {
   id: number;
   slug?: string;
@@ -29,318 +28,232 @@ export interface Tool {
   cons: string[];
   bestFor: string;
   apiAvailable: boolean;
+  upvotes?: number;
+  trendScore?: number;
+  isFeatured?: boolean;
+  isVerified?: boolean;
+  sourceDate?: string;
 }
 
-const getCategories = (tools: Tool[]) => {
-  const categoryGroups: { [key: string]: string[] } = {
-    'AI Chat': ['AI Chat', 'Chatbot', 'Conversational AI', 'LLM'],
-    'Image Generation': ['Image Generation', 'Image Editing', 'Design', 'Art'],
-    'Video Generation': ['Video Generation', 'Video Editing', 'Animation'],
-    'Coding': ['Coding', 'Development', 'Code Assistant', 'Programming'],
-    'Productivity': ['Productivity', 'Writing', 'Automation', 'Presentation', 'Text'],
-    'Other': []
-  };
+type SortOption = 'recommended' | 'recent' | 'az';
+type ViewMode = 'grid' | 'list';
+type PricingFilter = 'all' | 'free' | 'freemium' | 'paid';
 
-  const mainCategories = Object.keys(categoryGroups);
-
-  return [
-    { id: 'All', label: 'All AI Tools' },
-    ...mainCategories.map(cat => ({ id: cat, label: cat }))
-  ];
-};
-
-const belongsToCategory = (toolCategory: string, mainCategory: string): boolean => {
-  const categoryGroups: { [key: string]: string[] } = {
-    'AI Chat': ['AI Chat', 'Chatbot', 'Conversational AI', 'LLM'],
-    'Image Generation': ['Image Generation', 'Image Editing', 'Design', 'Art'],
-    'Video Generation': ['Video Generation', 'Video Editing', 'Animation'],
-    'Coding': ['Coding', 'Development', 'Code Assistant', 'Programming'],
-    'Productivity': ['Productivity', 'Writing', 'Automation', 'Presentation', 'Text'],
-    'Other': []
-  };
-
-  if (mainCategory === 'All') return true;
-
-  const groupCategories = categoryGroups[mainCategory] || [];
-  return groupCategories.includes(toolCategory) ||
-    toolCategory.toLowerCase().includes(mainCategory.toLowerCase());
-};
-
-// --- 2. TOOL CARD COMPONENT ---
-const ToolCard = ({ tool, isSelected, onToggle, isMaxReached }: any) => (
-  <motion.div
-    initial={{ opacity: 0 }}
-    animate={{ opacity: 1 }}
-    transition={{ duration: 0.3 }}
-    className={`
-      group relative rounded-2xl p-6 border transition-colors duration-200
-      ${isSelected
-        ? 'border-slate-900 bg-slate-50 dark:border-white dark:bg-slate-900'
-        : 'bg-white dark:bg-[#0B0F1A] border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700'
-      }
-    `}
-  >
-    <button
-      onClick={(e) => onToggle(e, tool)}
-      className={`
-        absolute top-5 right-5 w-7 h-7 rounded-full flex items-center justify-center border transition-all z-20
-        ${isSelected
-          ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-slate-900 dark:border-white'
-          : 'bg-transparent text-slate-400 border-slate-200 dark:border-slate-800 hover:text-slate-900 hover:border-slate-300 dark:hover:text-white dark:hover:border-slate-600 opacity-0 group-hover:opacity-100'
-        }
-        ${!isSelected && isMaxReached ? 'hidden' : ''}
-      `}
-    >
-      {isSelected ? <CheckCircle2 size={14} /> : <Plus size={14} />}
-    </button>
-
-    <Link href={tool.slug ? `/ai-tools/${tool.slug}` : '#'} className="flex flex-col mb-6">
-      <div className="w-12 h-12 rounded-xl border border-slate-100 dark:border-slate-800 p-2.5 flex items-center justify-center mb-5 bg-white dark:bg-[#0B0F1A]">
-        <img src={tool.logo} alt={tool.name} className="w-full h-full object-contain" />
-      </div>
-
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-[10px] font-medium uppercase tracking-widest text-slate-500 dark:text-slate-400">
-          {tool.category}
-        </span>
-      </div>
-
-      <h3 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-white mb-2">{tool.name}</h3>
-      <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed line-clamp-2">{tool.description}</p>
-    </Link>
-
-    <div className="flex items-center justify-between pt-5 border-t border-slate-100 dark:border-slate-800/50">
-      <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
-        {tool.pricing}
-      </span>
-
-      <a
-        href={tool.website}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-xs font-medium text-slate-900 dark:text-white flex items-center gap-1 hover:opacity-70 transition-opacity"
-      >
-        Visit <ArrowRight size={12} />
-      </a>
-    </div>
-  </motion.div>
-);
-
-// --- 3. MAIN CONTENT COMPONENT ---
-// The only part of this page that depends on the query string. Isolating it
-// here means the Suspense boundary it needs wraps just this block — the hero,
-// the category bar and the full tools grid all still render on the server.
-// (When `useSearchParams` is read by the top-level component instead, Next.js
-// opts the entire route into client-side rendering and crawlers receive an
-// empty shell: no <h1>, no tool listings, ~13 words of text.)
-function CategoryRecommendations() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const categoryParam = searchParams.get('category');
-
-  if (!categoryParam) return null;
+function ToolLogo({ tool, prominent = false }: { tool: Tool; prominent?: boolean }) {
+  const sources = useMemo(() => getLogoFallbackChain(tool.website, tool.logo), [tool.website, tool.logo]);
+  const [index, setIndex] = useState(0);
 
   return (
-    <div className="mb-16">
-      <div className="flex justify-end mb-4">
-        <button
-          onClick={() => router.push('/ai-tools')}
-          className="text-xs font-medium text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1"
-        >
-          <X size={12} /> Clear Filter
-        </button>
-      </div>
-      <CategoryToolsResults category={categoryParam} />
-      <div className="mt-12 pt-12 border-t border-slate-100 dark:border-slate-800">
-        <h2 className="text-lg font-medium text-slate-900 dark:text-white mb-6">Directory</h2>
-      </div>
-    </div>
+    <span className={styles.logo} aria-hidden="true">
+      {sources[index] ? (
+        <img src={sources[index]} alt="" loading={prominent ? 'eager' : 'lazy'} onError={() => setIndex((current) => current + 1)} />
+      ) : (
+        tool.name.charAt(0).toUpperCase()
+      )}
+    </span>
   );
 }
 
-function AIToolsContent({ initialTools }: { initialTools: Tool[] }) {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeCat, setActiveCat] = useState('All');
-  const [compareList, setCompareList] = useState<Tool[]>([]);
-  const [tools] = useState<Tool[]>(initialTools);
-  const [user, setUser] = useState<User | null>(null);
-  const router = useRouter();
+function RecommendationResults() {
+  const category = useSearchParams().get('category');
+  if (!category) return null;
+  return (
+    <section className={styles.recommendations} aria-label={`Recommendations for ${category}`}>
+      <div className={styles.sectionHeading}>
+        <div>
+          <span className={styles.eyebrow}>FOR YOU</span>
+          <h2>Recommendations for “{category}”</h2>
+        </div>
+        <Link href="/ai-tools" className={styles.textLink}>Clear <X size={15} /></Link>
+      </div>
+      <CategoryToolsResults category={category} />
+    </section>
+  );
+}
 
+export default function AIToolsDirectoryClient({ initialTools, initialFeatured = [], totalCount }: {
+  initialTools: Tool[];
+  initialFeatured?: Tool[];
+  totalCount?: number;
+}) {
+  const router = useRouter();
+  const searchRef = useRef<HTMLInputElement>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('all');
+  const [pricing, setPricing] = useState<PricingFilter>('all');
+  const [verified, setVerified] = useState(false);
+  const [sort, setSort] = useState<SortOption>('recommended');
+  const [view, setView] = useState<ViewMode>('grid');
+  const [compare, setCompare] = useState<Tool[]>([]);
+  const [notice, setNotice] = useState('');
+
+  useEffect(() => { getCurrentUser().then(setUser); }, []);
   useEffect(() => {
-    const fetchUser = async () => {
-      const currentUser = await getCurrentUser();
-      setUser(currentUser);
+    const onKeyDown = (event: KeyboardEvent) => {
+      const typing = event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement;
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        searchRef.current?.focus();
+      } else if (event.key === '/' && !typing) {
+        event.preventDefault();
+        searchRef.current?.focus();
+      } else if (event.key === 'Escape' && document.activeElement === searchRef.current) {
+        setSearch('');
+        searchRef.current?.blur();
+      }
     };
-    fetchUser();
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
-  const handleSignOut = async () => {
-    await signOut();
-    setUser(null);
-    router.push("/");
+  const featured = useMemo(() => {
+    const picked = initialFeatured.length ? initialFeatured : initialTools.filter((tool) => tool.isFeatured);
+    return (picked.length ? picked : initialTools).slice(0, 3);
+  }, [initialFeatured, initialTools]);
+
+  const matches = (tool: Tool) => {
+    const query = search.trim().toLowerCase();
+    if (query && !`${tool.name} ${tool.category} ${tool.description}`.toLowerCase().includes(query)) return false;
+    if (pricing !== 'all' && tool.pricing.toLowerCase() !== pricing) return false;
+    if (verified && !tool.isVerified) return false;
+    return true;
   };
 
-  const handleProtectedLink = (
-    e: React.MouseEvent<HTMLAnchorElement | HTMLDivElement>,
-    href: string
-  ) => {
-    e.preventDefault();
-    if (!user) {
-      router.push(`/login?redirect=${encodeURIComponent(href)}`);
-    } else {
-      router.push(href);
-    }
-  };
+  const filteredTools = useMemo(() => {
+    return initialTools.filter(matches);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialTools, search, pricing, verified]);
 
-  const handleToggle = (e: React.MouseEvent, tool: Tool) => {
-    e.stopPropagation();
-    setCompareList(prev => {
-      if (prev.find(t => t.id === tool.id)) return prev.filter(t => t.id !== tool.id);
-      if (prev.length < 4) return [...prev, tool];
-      return prev;
+  const availableCategories = useMemo(() => ALL_CATEGORIES.filter((item) =>
+    getToolsForCategory(item.slug, initialTools).tools.length > 0
+  ), [initialTools]);
+
+  const categories = useMemo(() => availableCategories
+    .filter((item) => category === 'all' || item.slug === category)
+    .map((item) => ({
+      category: item,
+      tools: getToolsForCategory(item.slug, filteredTools).tools.sort((a, b) => {
+        if (sort === 'az') return a.name.localeCompare(b.name);
+        if (sort === 'recent') return (b.sourceDate || '').localeCompare(a.sourceDate || '');
+        return 0;
+      }),
+    }))
+    .filter((item) => item.tools.length > 0),
+  [availableCategories, category, filteredTools, sort]);
+
+  const visibleToolCount = useMemo(() => new Set(categories.flatMap((item) =>
+    item.tools.map((tool) => tool.slug)
+  )).size, [categories]);
+
+  const reset = () => { setSearch(''); setCategory('all'); setPricing('all'); setVerified(false); setSort('recommended'); };
+  const handleSignOut = async () => { await signOut(); setUser(null); router.push('/'); };
+  const handleProtectedLink = (event: MouseEvent<HTMLAnchorElement | HTMLDivElement>, href: string) => {
+    event.preventDefault();
+    router.push(user ? href : `/login?redirect=${encodeURIComponent(href)}`);
+  };
+  const toggleCompare = (tool: Tool) => {
+    setCompare((current) => {
+      if (current.some((item) => item.name === tool.name)) return current.filter((item) => item.name !== tool.name);
+      if (current.length === 4) { setNotice('Choose up to four tools to compare.'); return current; }
+      return [...current, tool];
     });
   };
-
-  const handleAnalyze = () => {
-    const names = compareList.map(t => t.name).join(',');
-    router.push(`/ai-tools/analyze?names=${encodeURIComponent(names)}`);
-  };
-
-  const filtered = tools.filter(t =>
-    belongsToCategory(t.category, activeCat) &&
-    t.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  const categories = getCategories(tools);
+  const selected = (tool: Tool) => compare.some((item) => item.name === tool.name);
+  const activeFilters = search || category !== 'all' || pricing !== 'all' || verified;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#0B0F1A] text-slate-900 dark:text-slate-100 font-sans selection:bg-slate-200 dark:selection:bg-slate-800">
-      <MainNavbar
-        user={user}
-        onSignOut={handleSignOut}
-        onProtectedLink={handleProtectedLink}
-      />
+    <div className={styles.page}>
+      <MainNavbar user={user} onSignOut={handleSignOut} onProtectedLink={handleProtectedLink} />
 
-      {/* --- HERO SECTION --- */}
-      <header className="relative pt-32 pb-16 px-6 text-center z-10">
-        <motion.p
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-          className="text-xs font-medium tracking-[0.2em] uppercase text-slate-400 mb-6"
-        >
-          2026 Intelligence Index
-        </motion.p>
-
-        <motion.h1
-          className="text-5xl md:text-6xl font-semibold tracking-tight mb-10 text-slate-900 dark:text-white"
-          initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }}
-        >
-          Master The <span className="text-slate-400 dark:text-slate-500 italic">AI Era</span>
-        </motion.h1>
-
-        <div className="max-w-md mx-auto relative group">
-          <div className="relative flex items-center bg-transparent rounded-xl border border-slate-200 dark:border-slate-800 focus-within:border-slate-400 dark:focus-within:border-slate-600 transition-colors">
-            <Search className="ml-4 text-slate-400 w-4 h-4" />
-            <input
-              className="w-full py-3.5 px-4 text-sm outline-none bg-transparent placeholder:text-slate-400 text-slate-900 dark:text-white"
-              placeholder="Search tools..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+      <main className={styles.main}>
+        <header className={styles.hero}>
+          <div className={styles.heroCopy}>
+            <span className={styles.eyebrow}><span className={styles.dot} /> THE AI TOOL DIRECTORY <span className={styles.eyebrowDivider}>/</span> {(totalCount || initialTools.length).toLocaleString()} TOOLS</span>
+            <h1>Find the right AI tool <em>for the job.</em></h1>
+            <p>A simpler way to discover, filter, and compare tools that make your work easier.</p>
           </div>
-        </div>
-      </header>
+          <div className={styles.searchBox}>
+            <Search size={22} aria-hidden="true" />
+            <input ref={searchRef} type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search tools, categories, or what you want to do..." aria-label="Search AI tools" />
+            {search ? <button onClick={() => setSearch('')} aria-label="Clear search"><X size={19} /></button> : <kbd>Ctrl K</kbd>}
+          </div>
+          <div className={styles.quickLinks} aria-label="Popular categories">
+            <span>Explore:</span>
+            {['ai-chat-assistant', 'assistant-code', 'image-generators', 'productivity'].map((slug) => {
+              const item = ALL_CATEGORIES.find((entry) => entry.slug === slug);
+              if (!item) return null;
+              return <button key={slug} onClick={() => { setCategory(slug); document.getElementById('directory')?.scrollIntoView({ behavior: 'smooth' }); }}>{item.name} <ArrowUpRight size={13} /></button>;
+            })}
+          </div>
+        </header>
 
-      {/* --- EXPLORER --- */}
-      <main className="max-w-6xl mx-auto px-6 pb-40 relative z-10">
-        {/* Categories */}
-        <div className="flex gap-2 overflow-x-auto pb-4 mb-10 justify-center no-scrollbar">
-          {categories.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => {
-                setActiveCat(cat.id);
-                // Read at click time rather than via useSearchParams, so this
-                // component keeps no render-time dependency on the query string.
-                if (new URLSearchParams(window.location.search).has('category')) {
-                  router.push('/ai-tools');
-                }
-              }}
-              className={`px-4 py-2 rounded-full text-xs font-medium transition-colors whitespace-nowrap ${activeCat === cat.id
-                ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900'
-                : 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+        <div className={styles.content}>
+          <div className={styles.recommendationWrap}><RecommendationResults /></div>
+          {!activeFilters && featured.length > 0 && (
+            <section className={styles.featuredSection} aria-labelledby="featured-heading">
+              <div className={styles.sectionHeading}>
+                <div><span className={styles.eyebrow}>A GOOD PLACE TO START</span><h2 id="featured-heading">Featured tools</h2></div>
+                <span className={styles.sectionNote}>A few standouts from the directory</span>
+              </div>
+              <div className={styles.featuredGrid}>
+                {featured.map((tool, index) => (
+                  <article key={`${tool.name}-${index}`} className={styles.featuredCard}>
+                    <div className={styles.featuredArtwork}>
+                      <span className={styles.featuredNumber}>0{index + 1} / FEATURED</span>
+                      <ToolLogo tool={tool} prominent />
+                      <span className={styles.featuredDecoration} aria-hidden="true">✳</span>
+                    </div>
+                    <div className={styles.featuredDetails}>
+                      <span className={styles.featuredCategory}>{tool.category}</span>
+                      <h3><Link href={tool.slug ? `/ai-tools/${tool.slug}` : tool.website}>{tool.name}</Link></h3>
+                      <p>{tool.description}</p>
+                      <div className={styles.featuredBottom}><span>{tool.pricing}</span><a href={tool.website} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${tool.name}`}><ArrowUpRight size={20} /></a></div>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </section>
+          )}
 
-        {/* AI Recommendations Section */}
-        <React.Suspense fallback={null}>
-          <CategoryRecommendations />
-        </React.Suspense>
+          <section id="directory" className={styles.directory} aria-labelledby="directory-heading">
+            <div className={styles.sectionHeading}>
+              <div><span className={styles.eyebrow}>BROWSE THE COLLECTION</span><h2 id="directory-heading">Explore by category<span className={styles.headingCount}>{categories.length}</span></h2></div>
+              <span className={styles.sectionNote}>{visibleToolCount.toLocaleString()} matching tools</span>
+            </div>
+            <div className={styles.toolbar}>
+              <label className={styles.selectWrap}><span className={styles.srOnly}>Category</span><select value={category} onChange={(event) => setCategory(event.target.value)}><option value="all">All categories</option>{availableCategories.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}</select><ChevronDown size={16} /></label>
+              <label className={styles.selectWrap}><span className={styles.srOnly}>Pricing</span><select value={pricing} onChange={(event) => setPricing(event.target.value as PricingFilter)}><option value="all">Any pricing</option><option value="free">Free</option><option value="freemium">Freemium</option><option value="paid">Paid</option></select><ChevronDown size={16} /></label>
+              <label className={styles.verified}><input type="checkbox" checked={verified} onChange={(event) => setVerified(event.target.checked)} /> Source checked</label>
+              <label className={`${styles.selectWrap} ${styles.sortSelect}`}><span className={styles.srOnly}>Sort by</span><select value={sort} onChange={(event) => setSort(event.target.value as SortOption)}><option value="recommended">Recommended</option><option value="recent">Recently updated</option><option value="az">Name A–Z</option></select><ChevronDown size={16} /></label>
+              <div className={styles.viewToggle} aria-label="View mode"><button onClick={() => setView('grid')} className={view === 'grid' ? styles.selectedView : ''} aria-label="Grid view" aria-pressed={view === 'grid'}>▦</button><button onClick={() => setView('list')} className={view === 'list' ? styles.selectedView : ''} aria-label="List view" aria-pressed={view === 'list'}>☷</button></div>
+              {activeFilters && <button className={styles.clearButton} onClick={reset}>Clear filters <X size={14} /></button>}
+            </div>
 
-        {/* Tools Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <AnimatePresence>
-            {filtered.map((tool) => (
-              <ToolCard
-                key={tool.id}
-                tool={tool}
-                isSelected={!!compareList.find(c => c.id === tool.id)}
-                isMaxReached={compareList.length >= 4}
-                onToggle={handleToggle}
-              />
-            ))}
-          </AnimatePresence>
+            {categories.length === 0 ? <div className={styles.empty}><Search size={28} /><h3>No tools found</h3><p>Try a different search or clear your filters.</p><button onClick={reset}>Clear filters <ArrowRight size={16} /></button></div> :
+              <div className={view === 'grid' ? styles.categoryGrid : styles.categoryList}>
+                {categories.map(({ category: item, tools }) => (
+                  <article key={item.slug} className={styles.categoryCard}>
+                    <div className={styles.categoryHeader}><div><span className={styles.categoryIndex}>{String(ALL_CATEGORIES.indexOf(item) + 1).padStart(2, '0')} / CATEGORY</span><h3>{item.name}</h3></div><span className={styles.categoryCount}>{tools.length}</span></div>
+                    <p className={styles.categoryDescription}>{item.description}</p>
+                    <div className={styles.toolList}>{tools.slice(0, 8).map((tool, index) => (
+                      <div key={`${tool.name}-${index}`} className={styles.toolRow}>
+                        <ToolLogo tool={tool} />
+                        <div className={styles.toolInfo}><Link href={tool.slug ? `/ai-tools/${tool.slug}` : tool.website}>{tool.name}</Link><span>{tool.pricing}</span></div>
+                        <button className={selected(tool) ? styles.compareSelected : styles.compareButton} onClick={() => toggleCompare(tool)} aria-label={`${selected(tool) ? 'Remove' : 'Add'} ${tool.name} ${selected(tool) ? 'from' : 'to'} comparison`} title={selected(tool) ? 'Remove from comparison' : 'Add to comparison'}>{selected(tool) ? <Check size={16} /> : <Plus size={16} />}</button>
+                        <a className={styles.visitButton} href={tool.website} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${tool.name}`}><ExternalLink size={15} /></a>
+                      </div>
+                    ))}</div>
+                    <Link className={styles.categoryFooter} href={`/ai-tools/category/${item.slug}`}>View all {item.name} tools <ArrowRight size={16} /></Link>
+                  </article>
+                ))}
+              </div>}
+          </section>
         </div>
       </main>
 
-      {/* --- COMPARISON DOCK --- */}
-      <AnimatePresence>
-        {compareList.length > 0 && (
-          <motion.div
-            initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 50, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed bottom-8 left-0 right-0 z-50 flex justify-center px-4"
-          >
-            <div className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 p-2 pr-3 rounded-full shadow-lg flex items-center gap-6 max-w-lg w-full">
-              <div className="flex items-center -space-x-2 pl-2">
-                {compareList.map(t => (
-                  <img key={t.id} src={t.logo} className="w-8 h-8 rounded-full border border-slate-700 dark:border-slate-300 bg-white object-contain" />
-                ))}
-                {compareList.length < 2 && <div className="w-8 h-8 rounded-full border border-dashed border-slate-700 dark:border-slate-300 flex items-center justify-center text-xs text-slate-500">+</div>}
-              </div>
-
-              <div className="flex-1">
-                <p className="font-medium text-sm">Compare</p>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500">{compareList.length} / 4 selected</p>
-              </div>
-
-              <div className="flex gap-1.5">
-                <button onClick={() => setCompareList([])} className="p-2 hover:bg-white/10 dark:hover:bg-black/5 rounded-full text-slate-400 dark:text-slate-500 transition">
-                  <Trash2 size={16} />
-                </button>
-                <button
-                  disabled={compareList.length < 2}
-                  onClick={handleAnalyze}
-                  className="bg-white text-slate-900 dark:bg-slate-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed px-5 py-2 rounded-full font-medium text-sm transition-colors"
-                >
-                  Analyze
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {compare.length > 0 && <div className={styles.compareDock} role="region" aria-label="Compare selected tools"><div className={styles.compareInner}><div><strong>Compare tools <span>{compare.length}/4</span></strong><p>{compare.map((tool) => tool.name).join(', ')}</p></div><div className={styles.compareActions}><button onClick={() => setCompare([])}>Clear</button><button disabled={compare.length < 2} onClick={() => router.push(`/ai-tools/analyze?names=${encodeURIComponent(compare.map((tool) => tool.name).join(','))}`)}>Compare now <ArrowRight size={16} /></button></div></div></div>}
+      {notice && <div className={styles.notice} role="status">{notice}<button onClick={() => setNotice('')} aria-label="Dismiss notice"><X size={14} /></button></div>}
     </div>
   );
-}
-
-// --- 4. MAIN CLIENT COMPONENT ---
-// No Suspense boundary here: the query-string dependency now lives in
-// <CategoryRecommendations>, which carries its own narrow boundary. Wrapping
-// the whole page as before meant the server rendered only the fallback spinner.
-export default function AIToolsDirectoryClient({ initialTools }: { initialTools: Tool[] }) {
-  return <AIToolsContent initialTools={initialTools} />;
 }

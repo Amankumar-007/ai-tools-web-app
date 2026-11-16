@@ -33,77 +33,138 @@ export async function POST(req: NextRequest) {
       bestFor: t.bestFor,
     }));
 
-    const prompt = `You are an expert AI product analyst. Compare the following AI tools in detail:
+    const prompt = `You are a world-class AI researcher and benchmark architect. Perform an exhaustive, objective, and technical comparison of the following AI tools:
 ${JSON.stringify(toolsData, null, 2)}
 
-Provide a comprehensive, professional comparison in JSON format. The JSON should have the following structure:
+Produce a deep, highly detailed comparison in strict JSON format. The JSON MUST follow this EXACT structure:
 {
-  "summary": "A brief overview of how these tools compare.",
+  "summary": "A 3-4 sentence authoritative executive summary comparing core model architectures, reasoning depth, context windows, and real-world trade-offs between these platforms.",
   "metrics": [
-    { "name": "ToolName", "speed": 0-100, "accuracy": 0-100, "value": 0-100, "innovation": 0-100, "easeOfUse": 0-100 }
+    {
+      "name": "ExactToolName1",
+      "speed": 92,
+      "accuracy": 95,
+      "value": 88,
+      "innovation": 94,
+      "easeOfUse": 90,
+      "contextDepth": 96
+    }
   ],
   "features": [
-    { "feature": "Feature Name", "ToolName1": "✓/✗/Partial", "ToolName2": "..." }
+    { "feature": "Complex Reasoning & Mathematical Logic", "ExactToolName1": "Exceptional", "ExactToolName2": "Very High" },
+    { "feature": "Code Generation & Multi-File Architecture", "ExactToolName1": "Industry-Leading", "ExactToolName2": "Strong" },
+    { "feature": "Effective Context Window & Retrieval", "ExactToolName1": "200k Tokens", "ExactToolName2": "128k Tokens" },
+    { "feature": "Live Web Browsing & Source Citations", "ExactToolName1": "✓ Native", "ExactToolName2": "✓ Native" },
+    { "feature": "Multimodal Input (Vision, Audio, Docs)", "ExactToolName1": "Vision + Files", "ExactToolName2": "Full Multimodal" },
+    { "feature": "File & PDF Document Parsing Limits", "ExactToolName1": "Up to 30MB", "ExactToolName2": "Up to 512MB" },
+    { "feature": "Free Tier Allowances & Daily Caps", "ExactToolName1": "Generous", "ExactToolName2": "Moderate" },
+    { "feature": "API Latency, Reliability & Token Rates", "ExactToolName1": "Fast (<1s TTFT)", "ExactToolName2": "Ultra-Fast" },
+    { "feature": "Enterprise Privacy & SOC-2 Compliance", "ExactToolName1": "✓ Available", "ExactToolName2": "✓ Available" }
+  ],
+  "toolDetails": [
+    {
+      "name": "ExactToolName1",
+      "overallScore": 94,
+      "badge": "Best for Coding & Software Engineering",
+      "coreStrengths": [
+        "Unmatched multi-step reasoning and prompt adherence",
+        "Clean, error-free code generation and architectural refactoring",
+        "Deep context comprehension with zero hallucination on long documents"
+      ],
+      "tradeoffs": [
+        "Lower hourly rate limits during peak global traffic",
+        "Requires paid subscription for frontier reasoning models"
+      ],
+      "pricingBreakdown": "Free tier available; Pro plan at $20/month; API pay-per-token."
+    }
   ],
   "highlights": [
-    { "title": "Best for X", "tool": "ToolName", "reason": "Short reason" }
+    {
+      "title": "Best for Software Engineering & Coding",
+      "tool": "ExactToolName",
+      "reason": "Technical reason explaining why this platform wins this specific domain."
+    },
+    {
+      "title": "Best for Creative Writing & Nuance",
+      "tool": "ExactToolName",
+      "reason": "Technical reason explaining why this platform wins this specific domain."
+    },
+    {
+      "title": "Best for Real-Time Research & Citations",
+      "tool": "ExactToolName",
+      "reason": "Technical reason explaining why this platform wins this specific domain."
+    },
+    {
+      "title": "Best for API Scale & High-Volume Automation",
+      "tool": "ExactToolName",
+      "reason": "Technical reason explaining why this platform wins this specific domain."
+    }
   ],
-  "verdict": "Final overall recommendation."
+  "verdict": "A decisive, actionable strategic recommendation detailing exactly when to choose each tool based on specific workflows, team sizes, and budgets."
 }
 
-IMPORTANT: Return ONLY valid JSON. No markdown, no extra text.`;
+CRITICAL RULES:
+1. Every tool listed in the input MUST appear in 'metrics', 'toolDetails', and as a key in every item of 'features'.
+2. Return ONLY the raw valid JSON object. No markdown ticks, no commentary.`;
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://tomatoai.in',
-        'X-Title': 'TomatoAI Tool Analysis',
-      },
-      body: JSON.stringify({
-        model: 'nvidia/nemotron-3-nano-30b-a3b:free',
-        messages: [
-          {
-            role: 'user',
-            content: prompt,
-          },
-        ],
-        temperature: 0.7,
-        max_tokens: 2000,
-      }),
-    });
+    const callModel = async (modelId: string) => {
+      return await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'https://tomatoai.in',
+          'X-Title': 'TomatoAI Tool Analysis',
+        },
+        body: JSON.stringify({
+          model: modelId,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+          max_tokens: 3500,
+        }),
+      });
+    };
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('OpenRouter API error:', errorData);
-      return NextResponse.json(
-        { error: 'Failed to generate AI analysis' },
-        { status: 502 }
-      );
+    const modelsToTry = [
+      'openrouter/free',
+      'google/gemma-4-26b-a4b-it:free',
+      'nvidia/nemotron-3.5-lightning:free',
+      'google/gemma-4-31b-it:free',
+      'nvidia/nemotron-3-nano-30b-a3b:free'
+    ];
+
+    let content: string | null = null;
+    for (const model of modelsToTry) {
+      try {
+        const response = await callModel(model);
+        if (response.ok) {
+          const data = await response.json();
+          const candidate = data.choices?.[0]?.message?.content;
+          if (candidate && candidate.trim().length > 50) {
+            content = candidate;
+            break;
+          }
+        }
+      } catch (err) {
+        console.warn(`Model ${model} failed, trying next...`, err);
+      }
     }
-
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
 
     if (!content) {
       return NextResponse.json(
-        { error: 'No analysis generated' },
+        { error: 'No analysis generated from AI' },
         { status: 502 }
       );
     }
 
-    // Parse the JSON from the AI response - handle markdown code blocks if present
+    // Extract JSON using robust regex
     let analysis;
     try {
-      let jsonStr = content.trim();
-      // Strip markdown code block wrappers if present
-      if (jsonStr.startsWith('```')) {
-        jsonStr = jsonStr.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
-      }
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      const jsonStr = jsonMatch ? jsonMatch[0] : content.trim();
       analysis = JSON.parse(jsonStr);
     } catch (parseError) {
-      console.error('Failed to parse AI response:', content);
+      console.error('Failed to parse AI response as JSON:', content);
       return NextResponse.json(
         { error: 'Failed to parse AI analysis into structured data', raw: content },
         { status: 500 }

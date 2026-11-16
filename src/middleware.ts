@@ -75,6 +75,7 @@ const PUBLIC_API_ROUTES = [
   "/api/category-tools",
   "/api/analyze-tools",
   "/api/chatgpt",
+  "/api/admin/", // Admin endpoints manage their own session/JWT check
   // Authenticated separately via CRON_SECRET inside the route handler,
   // not Supabase user auth (Vercel Cron has no user session).
   "/api/cron/",

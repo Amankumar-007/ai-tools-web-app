@@ -2,9 +2,9 @@ import type { Metadata } from 'next'
 import { createPageMetadata } from '@/metadata-utils'
 
 export const metadata: Metadata = createPageMetadata({
-  title: 'AI Video Tutorials - ChatGPT, Midjourney & More',
-  description: 'A curated library of AI video tutorials covering ChatGPT, Midjourney and the best AI tools, from complete beginner to advanced workflows.',
-  keywords: ['AI video tutorials', 'ChatGPT tutorial', 'Midjourney guide', 'learn AI tools', 'find AI courses', 'AI tutorial videos'],
+  title: 'AI Video Library - 1,000 Videos Across 26 Topics',
+  description: 'Browse 1,000 AI videos across 26 topics, including ChatGPT, Claude, coding, image generation, video creation, research, and automation. Search and filter by topic and length.',
+  keywords: ['AI videos', 'AI video tutorials', 'ChatGPT tutorial', 'AI coding tutorials', 'AI video generation', 'learn AI tools', 'AI courses'],
   path: '/ai-videos',
 })
 

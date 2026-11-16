@@ -17,46 +17,46 @@ export interface ToolAboutContent {
 // all flagged as thin content. This block gives each page the substance a
 // search engine (and a first-time visitor) needs, and ships FAQ structured
 // data alongside it.
-export default function ToolPageAbout({ content }: { content: ToolAboutContent }) {
+export default function ToolPageAbout({ content, forceLight = false }: { content: ToolAboutContent; forceLight?: boolean }) {
   return (
-    <section className="border-t border-slate-200 dark:border-white/10 bg-white dark:bg-[#070709]">
+    <section className={`border-t border-slate-200 bg-white ${forceLight ? '' : 'dark:border-white/10 dark:bg-[#070709]'}`}>
       <JsonLd data={faqPageStructuredData(content.faqs)} />
       <div className="max-w-3xl mx-auto px-6 py-16">
-        <h2 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-white tracking-tight mb-6">
+        <h2 className={`text-2xl md:text-3xl font-bold text-slate-900 tracking-tight mb-6 ${forceLight ? '' : 'dark:text-white'}`}>
           {content.heading}
         </h2>
 
         <div className="flex flex-col gap-4 mb-12">
           {content.intro.map((paragraph) => (
-            <p key={paragraph.slice(0, 40)} className="text-slate-600 dark:text-slate-300 leading-relaxed">
+            <p key={paragraph.slice(0, 40)} className={`text-slate-600 leading-relaxed ${forceLight ? '' : 'dark:text-slate-300'}`}>
               {paragraph}
             </p>
           ))}
         </div>
 
-        <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">How to use it</h3>
+        <h3 className={`text-xl font-semibold text-slate-900 mb-6 ${forceLight ? '' : 'dark:text-white'}`}>How to use it</h3>
         <ol className="flex flex-col gap-6 mb-12">
           {content.steps.map((step, index) => (
             <li key={step.title} className="flex gap-4">
-              <span className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-900 dark:bg-white text-white dark:text-slate-900 flex items-center justify-center text-sm font-bold">
+              <span className={`flex-shrink-0 w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center text-sm font-bold ${forceLight ? '' : 'dark:bg-white dark:text-slate-900'}`}>
                 {index + 1}
               </span>
               <div>
-                <h4 className="font-semibold text-slate-900 dark:text-white mb-1">{step.title}</h4>
-                <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{step.text}</p>
+                <h4 className={`font-semibold text-slate-900 mb-1 ${forceLight ? '' : 'dark:text-white'}`}>{step.title}</h4>
+                <p className={`text-slate-600 leading-relaxed ${forceLight ? '' : 'dark:text-slate-300'}`}>{step.text}</p>
               </div>
             </li>
           ))}
         </ol>
 
-        <h3 className="text-xl font-semibold text-slate-900 dark:text-white mb-6">
+        <h3 className={`text-xl font-semibold text-slate-900 mb-6 ${forceLight ? '' : 'dark:text-white'}`}>
           Frequently asked questions
         </h3>
         <div className="flex flex-col gap-6">
           {content.faqs.map((faq) => (
             <div key={faq.question}>
-              <h4 className="font-semibold text-slate-900 dark:text-white mb-2">{faq.question}</h4>
-              <p className="text-slate-600 dark:text-slate-300 leading-relaxed">{faq.answer}</p>
+              <h4 className={`font-semibold text-slate-900 mb-2 ${forceLight ? '' : 'dark:text-white'}`}>{faq.question}</h4>
+              <p className={`text-slate-600 leading-relaxed ${forceLight ? '' : 'dark:text-slate-300'}`}>{faq.answer}</p>
             </div>
           ))}
         </div>

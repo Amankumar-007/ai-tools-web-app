@@ -1,10 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  distDir: process.env.NODE_ENV === 'development' ? '.next-dev' : '.next',
   turbopack: {
-    // turbopack configuration
+    root: process.cwd(),
   },
+  outputFileTracingRoot: process.cwd(),
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'serpapi.com' },
@@ -12,83 +13,20 @@ const nextConfig: NextConfig = {
       { protocol: 'https', hostname: 'images.pexels.com' },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'assets.lummi.ai' },
-      { protocol: 'https', hostname: 'hebbkx1anhila5yf.public.blob.vercel-storage.com' }
+      { protocol: 'https', hostname: 'hebbkx1anhila5yf.public.blob.vercel-storage.com' },
+      // Logo & favicon services
+      { protocol: 'https', hostname: 'www.google.com' },
+      { protocol: 'https', hostname: 'logo.clearbit.com' },
+      { protocol: 'https', hostname: 'icon.horse' },
+      { protocol: 'https', hostname: 't0.gstatic.com' },
+      { protocol: 'https', hostname: 't1.gstatic.com' },
+      { protocol: 'https', hostname: 't2.gstatic.com' },
+      { protocol: 'https', hostname: 't3.gstatic.com' },
     ],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60 * 60 * 24 * 365, // 1 year
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-  },
-  webpack: (config, { isServer, dev, nextRuntime, webpack }) => {
-    if (nextRuntime === 'edge') {
-      config.plugins.push(
-        new webpack.DefinePlugin({
-          'process.version': JSON.stringify(process.version),
-        })
-      );
-    }
-
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        punycode: false,
-      }
-
-      // Optimize bundle splitting for large dependencies
-      if (!dev) {
-        config.optimization = {
-          ...config.optimization,
-          splitChunks: {
-            chunks: 'all',
-            maxInitialRequests: 25,
-            minSize: 20000,
-            cacheGroups: {
-              default: false,
-              vendors: false,
-              // Split PDF.js into separate chunk
-              pdfjs: {
-                name: 'pdfjs',
-                chunks: 'all',
-                test: /[\\/]node_modules[\\/](pdfjs-dist|pdf-parse|pdf-lib)[\\/]/,
-                priority: 40,
-                enforce: true,
-              },
-              // Split Three.js into separate chunk
-              three: {
-                name: 'three',
-                chunks: 'all',
-                test: /[\\/]node_modules[\\/]three[\\/]/,
-                priority: 35,
-                enforce: true,
-              },
-              // Split React Three Fiber into separate chunk
-              reactThreeFiber: {
-                name: 'react-three-fiber',
-                chunks: 'all',
-                test: /[\\/]node_modules[\\/]@react-three[\\/]/,
-                priority: 30,
-                enforce: true,
-              },
-              // Framework chunk
-              framework: {
-                name: 'framework',
-                chunks: 'all',
-                test: /[\\/]node_modules[\\/](react|react-dom|next)[\\/]/,
-                priority: 45,
-                enforce: true,
-              },
-              // Commons chunk
-              commons: {
-                name: 'commons',
-                minChunks: 2,
-                priority: 20,
-              },
-            },
-          },
-        }
-      }
-    }
-    return config
   },
   eslint: {
     ignoreDuringBuilds: true,

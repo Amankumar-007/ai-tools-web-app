@@ -58,7 +58,7 @@ export default function AnimatedAiInput() {
         // Save to localStorage so it can be restored if user is redirected to login
         localStorage.setItem('pending_prompt', queryValue);
 
-        router.push(`/tomato-ai/chat?q=${query}`);
+        router.push(`/tomato-ai?q=${query}`);
         setInputValue("");
     };
 
@@ -72,17 +72,6 @@ export default function AnimatedAiInput() {
                     "transition-all duration-300 focus-within:border-black/20 dark:focus-within:border-white/20 focus-within:shadow-[0_22px_45px_rgba(0,0,0,0.09),_0_4px_12px_rgba(0,0,0,0.04)] dark:focus-within:shadow-[0_22px_45px_rgba(0,0,0,0.45),_0_4px_12px_rgba(0,0,0,0.2)]"
                 )}
             >
-                {/* Hand-drawn Generate annotation matching user reference */}
-                <div className="flex items-start gap-1 absolute -top-7 sm:-top-8 left-3 sm:left-4 md:left-6 pointer-events-none select-none z-30">
-                    <span className="text-blue-600 dark:text-blue-400 font-bold text-xs sm:text-sm md:text-base tracking-wide italic font-mono drop-shadow-xs transform -rotate-12 mt-0.5">
-                        Generate
-                    </span>
-                    <svg width="34" height="28" viewBox="0 0 38 32" fill="none" className="text-blue-600 dark:text-blue-400 stroke-current transform rotate-3 w-7 h-6 sm:w-9 sm:h-7 md:w-10 md:h-8">
-                        <path d="M3 4C12 5 24 12 30 28" strokeWidth="2.4" strokeLinecap="round" fill="none"/>
-                        <path d="M21 24L30 28L31 19" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
-                    </svg>
-                </div>
-
                 {/* Animated Icon Section */}
                 <div className="flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 flex items-center justify-center overflow-hidden">
                     <AnimatePresence mode="wait">
