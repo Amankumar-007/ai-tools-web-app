@@ -13,8 +13,8 @@ export default function AgentManagerSection() {
               alt="Tomato AI UI Preview"
               width={1000}
               height={600}
+              sizes="(max-width: 768px) 100vw, 66vw"
               className="w-full h-auto object-cover"
-              priority
             />
           </div>
 
@@ -27,11 +27,11 @@ export default function AgentManagerSection() {
           <h2 className="text-2xl font-semibold ">
             Tomato AI
           </h2>
-          <p className="text-lg text-gray-600 leading-relaxed">
+          <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
             Your intelligent assistant for managing multiple agents in parallel,
             across multiple workspaces.
           </p>
-          <ul className="space-y-3 text-lg text-gray-600">
+          <ul className="space-y-3 text-lg text-gray-700 dark:text-gray-300">
             <li className="flex items-start">
               <span className="text-red-500 mr-2">•</span>
               <span>Manage multiple AI agents simultaneously</span>

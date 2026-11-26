@@ -123,9 +123,9 @@ export function createPageMetadata(config: PageMetadataConfig): Metadata {
       url,
       images: config.openGraph?.images || [
         {
-          url: '/ab.png',
-          width: 1536,
-          height: 1024,
+          url: '/og-default.jpg',
+          width: 1200,
+          height: 630,
           alt: `${config.title} | TomatoAi`,
         },
       ],
@@ -134,7 +134,7 @@ export function createPageMetadata(config: PageMetadataConfig): Metadata {
       ...baseMetadata.twitter,
       title: config.twitter?.title || config.title,
       description: config.twitter?.description || config.description,
-      images: config.twitter?.images || ['/ab.png'],
+      images: config.twitter?.images || ['/og-default.jpg'],
     },
     // `noindex, follow` rather than `noindex, nofollow`: these pages (login,
     // register, checkout success…) shouldn't rank, but they still link back

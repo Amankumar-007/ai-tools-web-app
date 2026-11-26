@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { motionReveal } from "@/lib/motion";
 import {
     Youtube, Image as ImageIcon, Mic, Video, ArrowRight, Sparkles, Zap
 } from 'lucide-react';
@@ -113,7 +114,7 @@ export const AIWorkflowSection: React.FC<AIWorkflowSectionProps> = ({ onOpenAllT
                                         initial={{ opacity: 0, y: 20 }}
                                         whileInView={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
-                                        transition={{ delay: step.delay }}
+                                        transition={{ ...motionReveal, delay: step.delay }}
                                         className="relative flex flex-col items-center text-center group"
                                     >
                                         {/* Step Number Badge */}

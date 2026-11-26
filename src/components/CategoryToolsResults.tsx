@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { motionFade } from "@/lib/motion";
 import {
   Star, ExternalLink, RefreshCw, Sparkles, AlertCircle, ArrowUpRight
 } from 'lucide-react';
@@ -36,7 +37,7 @@ const ToolCard = ({ tool }: { tool: CategoryTool; index: number }) => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
+      transition={motionFade}
       className="group flex flex-col justify-between bg-white dark:bg-[#0B0F1A] border border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-600 rounded-2xl p-6 transition-all duration-300 shadow-sm hover:shadow-md dark:shadow-none"
     >
       <div>

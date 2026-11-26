@@ -95,10 +95,15 @@ export default function TrendingClient({ initialTools, initialNews, initialRepos
     setTools(category === 'All' ? initialTools : initialTools.filter(t => t.category === category));
   };
 
+  const [live, setLive] = useState(false);
+  useEffect(() => { setLive(true); }, []);
+
   const formatTimeAgo = (dateStr: string) => {
     try {
       const pubDate = new Date(dateStr);
       if (isNaN(pubDate.getTime())) return "Recently";
+      // The same text on the server and on the first browser render, whatever their clocks and time zones.
+      if (!live) return pubDate.toISOString().slice(0, 10);
       const diffInHours = Math.floor((Date.now() - pubDate.getTime()) / 3600000);
       if (diffInHours < 1) return `Just now`;
       if (diffInHours < 24) return `${diffInHours}h ago`;
@@ -275,7 +280,7 @@ export default function TrendingClient({ initialTools, initialNews, initialRepos
                 <button
                   key={filter}
                   onClick={() => handleFilter(filter)}
-                  className={`transition-colors ${activeFilter === filter ? 'text-slate-900 dark:text-white' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+                  className={`py-2 px-1 transition-colors ${activeFilter === filter ? 'text-slate-900 dark:text-white' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
                 >
                   {filter}
                 </button>

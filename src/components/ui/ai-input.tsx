@@ -3,31 +3,20 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import Image from "next/image"
 import { AnimatePresence, motion } from "framer-motion"
+import { motionFade, motionSpring } from "@/lib/motion";
 import { Globe, Paperclip, Plus, Send, Lightbulb, Square } from "lucide-react"
 import { useRouter } from "next/navigation"
 
 import { cn } from "@/lib/utils"
 import { Textarea } from "@/components/ui/textarea"
 import LightningToggle from "@/components/ui/lightning-toggle"
+import { AttachMenu } from "@/components/chat/attach-menu"
+import { AttachmentChips } from "@/components/chat/attachment-chips"
+import type { PendingAttachment } from "@/components/chat/use-attachments"
+import { getModelLabel } from "@/lib/ai-context/model-labels"
 
-// Helper function to get readable model name
-const getModelName = (modelId: string): string => {
-  const modelNames: Record<string, string> = {
-    "openrouter/free": "Auto Free Router",
-    "google/gemma-4-31b-it:free": "Gemma 4 31B IT",
-    "google/gemma-4-26b-a4b-it:free": "Gemma 4 26B IT",
-    "nvidia/nemotron-3-nano-30b-a3b:free": "Nemotron 3 Nano 30B",
-    "nvidia/nemotron-3-super-120b-a12b:free": "Nemotron 3 Super 120B",
-    "nvidia/nemotron-3-ultra-550b-a55b:free": "Nemotron 3 Ultra 550B",
-    "nvidia/nemotron-3.5-lightning:free": "Nemotron 3.5 Lightning",
-    "openai/gpt-oss-20b:free": "GPT OSS 20B",
-    "poolside/laguna-xs-2.1:free": "Laguna XS 2.1",
-    "poolside/laguna-s-2.1:free": "Laguna S 2.1",
-    "cohere/north-mini-code:free": "Cohere North Mini Code",
-    "z-ai/glm-5.2:free": "GLM 5.2",
-  }
-  return modelNames[modelId] || modelId.split("/")[1]?.replace(":free", "") || modelId.replace(":free", "")
-}
+// Readable model name (shared with the rest of the chat UI)
+const getModelName = getModelLabel
 
 interface UseAutoResizeTextareaProps {
   minHeight: number
@@ -87,7 +76,7 @@ const AnimatedPlaceholder = ({ showSearch }: { showSearch: boolean }) => (
       initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -5 }}
-      transition={{ duration: 0.1 }}
+      transition={motionFade}
       className="pointer-events-none w-[150px] text-sm absolute text-black/70 dark:text-white/70"
     >
       {showSearch ? "Search the web..." : "Ask Tomato Ai..."}
@@ -99,6 +88,15 @@ type AiInputProps = {
   onSubmit?: (text: string) => void
   onSubmitWithMode?: (text: string, isSearch: boolean) => void
   onFileSelect?: (file: File | null) => void
+  /**
+   * Multi-file attachments owned by the parent (minimal variant). When set, the
+   * "+" button opens the attach menu and files are paste/drop targets too.
+   */
+  attachments?: PendingAttachment[]
+  onFilesSelected?: (files: File[]) => void
+  onRemoveAttachment?: (id: string) => void
+  /** Attachments are still being read: typing is fine, sending waits. */
+  busy?: boolean
   onModelSelect?: () => void
   onStop?: () => void
   onLightningSelect?: () => void
@@ -110,12 +108,17 @@ type AiInputProps = {
   value?: string
   onChange?: (value: string) => void
   textareaRef?: any
+  variant?: "default" | "minimal"
 }
 
 export default function AiInput({
   onSubmit,
   onSubmitWithMode,
   onFileSelect,
+  attachments,
+  onFilesSelected,
+  onRemoveAttachment,
+  busy,
   onModelSelect,
   onStop,
   onLightningSelect,
@@ -126,14 +129,16 @@ export default function AiInput({
   selectedModel,
   value: controlledValue,
   onChange: controlledOnChange,
-  textareaRef: externalTextareaRef
+  textareaRef: externalTextareaRef,
+  variant = "default"
 }: AiInputProps) {
   const [internalValue, setInternalValue] = useState("")
   const isControlled = controlledValue !== undefined
   const value = isControlled ? controlledValue : internalValue
 
+  const textareaMinHeight = variant === "minimal" ? 42 : MIN_HEIGHT
   const { textareaRef: internalTextareaRef, adjustHeight } = useAutoResizeTextarea({
-    minHeight: MIN_HEIGHT,
+    minHeight: textareaMinHeight,
     maxHeight: MAX_HEIGHT,
   })
 
@@ -142,9 +147,9 @@ export default function AiInput({
   useEffect(() => {
     const textarea = textareaRef.current as HTMLTextAreaElement | null
     if (!textarea) return
-    textarea.style.height = `${MIN_HEIGHT}px`
-    textarea.style.height = `${Math.max(MIN_HEIGHT, Math.min(textarea.scrollHeight, MAX_HEIGHT))}px`
-  }, [value, textareaRef])
+    textarea.style.height = `${textareaMinHeight}px`
+    textarea.style.height = `${Math.max(textareaMinHeight, Math.min(textarea.scrollHeight, MAX_HEIGHT))}px`
+  }, [value, textareaRef, textareaMinHeight])
 
   const [showSearch, setShowSearch] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -177,8 +182,12 @@ export default function AiInput({
     }
   }
 
+  const attachmentCount = attachments?.length ?? 0
+  const canSend = Boolean(value.trim()) || attachmentCount > 0
+  const [dragging, setDragging] = useState(false)
+
   const handleSubmit = () => {
-    if (!value.trim() || submitting || disabled) return;
+    if (!canSend || submitting || disabled || busy) return;
 
     const queryValue = value.trim();
     const q = encodeURIComponent(queryValue);
@@ -221,6 +230,79 @@ export default function AiInput({
       }
     }
   }, [imagePreview])
+
+  if (variant === "minimal") {
+    const acceptsFiles = (event: React.DragEvent) => Boolean(onFilesSelected) && Array.from(event.dataTransfer.types).includes("Files")
+    return (
+      <div
+        onDragOver={(event) => { if (acceptsFiles(event)) { event.preventDefault(); setDragging(true) } }}
+        onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragging(false) }}
+        onDrop={(event) => {
+          if (!acceptsFiles(event)) return
+          event.preventDefault()
+          setDragging(false)
+          onFilesSelected?.(Array.from(event.dataTransfer.files))
+        }}
+        className={cn(
+          "w-full rounded-[28px] border border-zinc-300/80 bg-white/95 p-2 shadow-[0_12px_35px_rgba(17,17,17,0.12)] backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-500 focus-within:border-[var(--accent-line)] focus-within:shadow-[0_14px_42px_color-mix(in_srgb,var(--accent)_18%,transparent)] dark:border-white/20 dark:bg-[#1b1b1d]/95 dark:shadow-[0_14px_44px_rgba(0,0,0,0.28)]",
+          dragging && "border-[var(--accent-line)] ring-2 ring-[var(--accent-line)]"
+        )}
+      >
+        {attachments && attachments.length > 0 && onRemoveAttachment && (
+          <div className="px-2 pt-1">
+            <AttachmentChips items={attachments} onRemove={onRemoveAttachment} />
+          </div>
+        )}
+        {!onFilesSelected && (imagePreview || fileName) && (
+          <div className="mb-2 flex items-center gap-2 rounded-xl bg-zinc-100 px-3 py-2 text-sm text-zinc-600 dark:bg-white/5 dark:text-zinc-300">
+            {imagePreview ? <Image src={imagePreview} alt="Attachment preview" width={32} height={32} className="h-8 w-8 rounded-md object-cover" /> : <Paperclip className="h-4 w-4 shrink-0" />}
+            <span className="min-w-0 flex-1 truncate">{fileName || "Image attached"}</span>
+            <button type="button" onClick={handelClose} aria-label="Remove attachment" className="rounded-md p-1 hover:bg-black/5 dark:hover:bg-white/10"><Plus className="h-4 w-4 rotate-45" /></button>
+          </div>
+        )}
+        <div className="px-3 pt-1">
+          <textarea
+            value={value}
+            ref={textareaRef}
+            rows={1}
+            placeholder={placeholder || (showSearch ? "Search the web..." : "Ask TomatoAI anything...")}
+            aria-label={showSearch ? "Search the web" : "Message TomatoAI"}
+            onChange={(event) => { controlledOnChange ? controlledOnChange(event.target.value) : setInternalValue(event.target.value); adjustHeight() }}
+            onKeyDown={(event) => { if (event.key === "Enter" && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); handleSubmit() } }}
+            onPaste={(event) => {
+              // Pasting a screenshot or copied file attaches it instead of inserting text.
+              const files = Array.from(event.clipboardData.files)
+              if (onFilesSelected && files.length > 0) {
+                event.preventDefault()
+                onFilesSelected(files)
+              }
+            }}
+            disabled={submitting || disabled}
+            className="block max-h-40 min-h-[42px] w-full resize-none bg-transparent px-2 py-2 text-base leading-6 text-zinc-900 outline-none placeholder:text-zinc-500 dark:text-zinc-100 dark:placeholder:text-zinc-400"
+          />
+        </div>
+        <div className="flex items-center justify-between gap-2 px-2 pb-1 pt-1">
+          {onFilesSelected ? (
+            <AttachMenu onFiles={onFilesSelected} disabled={disabled} />
+          ) : (
+            <label className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/10" title="Attach file">
+              <input type="file" accept="image/*,.pdf,.txt,.md,.csv,.json" ref={fileInputRef} onChange={handelChange} className="sr-only" aria-label="Attach file" />
+              <Plus className="h-5 w-5" />
+            </label>
+          )}
+          <div className="flex shrink-0 items-center gap-1">
+            <button type="button" onClick={() => setShowSearch(!showSearch)} aria-label={showSearch ? "Turn off web search" : "Search the web"} aria-pressed={showSearch} title="Search the web" className={cn("flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-zinc-100 dark:hover:bg-white/10", showSearch ? "text-[var(--accent-line)]" : "text-zinc-500 dark:text-zinc-300")}><Globe className="h-[19px] w-[19px]" /></button>
+            {onLightningSelect && <button type="button" onClick={onLightningSelect} aria-label="Toggle lightning mode" aria-pressed={Boolean(lightningActive)} title="Lightning mode" className={cn("flex h-9 w-9 items-center justify-center rounded-full transition-colors hover:bg-zinc-100 dark:hover:bg-white/10", lightningActive ? "text-amber-500" : "text-zinc-500 dark:text-zinc-300")}><Lightbulb className="h-[19px] w-[19px]" /></button>}
+            {onModelSelect && <button type="button" onClick={onModelSelect} aria-label="Choose AI model" title={selectedModel ? getModelName(selectedModel) : "Choose AI model"} className="flex h-9 w-9 items-center justify-center rounded-full text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-white/10"><span className="text-xs font-semibold tracking-wide">AI</span></button>}
+            <button type="button" onClick={submitting ? onStop : handleSubmit} disabled={!submitting && (!canSend || disabled || busy)} aria-label={submitting ? "Stop generating" : busy ? "Reading your files…" : "Send message"} title={busy && !submitting ? "Reading your files…" : undefined} className={cn("ml-1 flex h-10 w-10 items-center justify-center rounded-full transition-[background-color,color,transform] duration-200 active:scale-95", submitting || (canSend && !busy) ? "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]" : "bg-zinc-100 text-zinc-400 dark:bg-[#303034] dark:text-zinc-400")}>
+              {submitting ? <Square className="h-4 w-4 fill-current" /> : <Send className="h-[18px] w-[18px]" />}
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="w-full py-2">
       <div className="relative bg-white dark:bg-neutral-900 max-w-3xl border border-black/10 dark:border-white/10 rounded-[22px] p-1 w-full mx-auto shadow-[0_18px_35px_rgba(0,0,0,0.07),_0_3px_10px_rgba(0,0,0,0.035)] dark:shadow-[0_18px_35px_rgba(0,0,0,0.35),_0_3px_10px_rgba(0,0,0,0.15)]">
@@ -347,13 +429,9 @@ export default function AiInput({
                       scale: showSearch ? 1.1 : 1,
                     }}
                     whileHover={{
-                      rotate: showSearch ? 180 : 15,
-                      scale: 1.1,
-                      transition: {
-                        type: "spring",
-                        stiffness: 300,
-                        damping: 10,
-                      },
+                      rotate: showSearch ? 180 : 8,
+                      scale: 1.04,
+                      transition: motionSpring,
                     }}
                     transition={{
                       type: "spring",
@@ -378,7 +456,7 @@ export default function AiInput({
                         opacity: 1,
                       }}
                       exit={{ width: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
+                      transition={motionFade}
                       className="text-sm overflow-hidden whitespace-nowrap text-[#ff3f17] flex-shrink-0"
                     >
                       Search

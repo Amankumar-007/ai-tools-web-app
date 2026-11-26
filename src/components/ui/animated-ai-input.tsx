@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +43,7 @@ export default function AnimatedAiInput() {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            setCurrentIndex((prev) => (prev + 1) % AI_MODELS.length);
+            if (document.visibilityState === "visible") setCurrentIndex((prev) => (prev + 1) % AI_MODELS.length);
         }, 4000); // Change every 4 seconds
 
         return () => clearInterval(interval);
@@ -78,12 +79,14 @@ export default function AnimatedAiInput() {
                         <motion.img
                             key={AI_MODELS[currentIndex].icon}
                             src={AI_MODELS[currentIndex].icon}
-                            alt={AI_MODELS[currentIndex].name}
+                            alt=""
+                            width={32}
+                            height={32}
                             className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-sm opacity-80"
-                            initial={{ y: 20, opacity: 0, filter: "blur(5px)" }}
-                            animate={{ y: 0, opacity: 0.8, filter: "blur(0px)" }}
-                            exit={{ y: -20, opacity: 0, filter: "blur(5px)" }}
-                            transition={{ duration: 0.5, ease: "easeInOut" }}
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 0.8 }}
+                            exit={{ y: -20, opacity: 0 }}
+                            transition={motionReveal}
                         />
                     </AnimatePresence>
                 </div>
@@ -93,10 +96,11 @@ export default function AnimatedAiInput() {
                     <input
                         ref={inputRef}
                         type="text"
+                        aria-label="Ask any AI model"
+                        enterKeyHint="send"
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
                         className="w-full bg-transparent border-none outline-none text-black/90 dark:text-white/90 text-sm sm:text-base md:text-xl py-1.5 sm:py-2 focus:ring-0 placeholder-transparent"
-                        onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                     />
 
                     <AnimatePresence mode="wait">
@@ -104,9 +108,9 @@ export default function AnimatedAiInput() {
                             <motion.div
                                 key={AI_MODELS[currentIndex].placeholder}
                                 initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 0.4, y: 0 }}
+                                animate={{ opacity: 0.65, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.5 }}
+                                transition={motionReveal}
                                 className="absolute inset-0 flex items-center pointer-events-none text-black dark:text-white overflow-hidden whitespace-nowrap"
                             >
                                 <span className="text-sm sm:text-base md:text-xl truncate">
@@ -120,6 +124,7 @@ export default function AnimatedAiInput() {
                 {/* Send Button */}
                 <button
                     type="submit"
+                    aria-label="Send"
                     className={cn(
                         "flex-shrink-0 w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all duration-300",
                         "bg-black dark:bg-white text-white dark:text-black shadow-lg",

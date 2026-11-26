@@ -6,7 +6,9 @@ import { signUp } from "@/lib/supabase";
 import { supabase } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 import { toast } from "sonner";
+import { safeRedirectPath } from "@/lib/security/redirect";
 
 interface AuthError {
   message: string;
@@ -41,7 +43,7 @@ function RegisterPage() {
       if (session?.user && (event === "SIGNED_IN" || event === "USER_UPDATED")) {
         // Optional logic: check if user is confirmed
         // if (session.user.email_confirmed_at)
-        const redirectTo = searchParams.get("redirect") || "/";
+        const redirectTo = safeRedirectPath(searchParams.get("redirect"), "/");
         toast.success("Email verified! Welcome to TomatoAi.");
         router.push(redirectTo);
       }
@@ -81,7 +83,7 @@ function RegisterPage() {
     setLoading(true);
 
     try {
-      const redirectTo = searchParams.get("redirect") || "/tomato-ai";
+      const redirectTo = safeRedirectPath(searchParams.get("redirect"), "/tomato-ai");
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
       const finalRedirectUrl = `${baseUrl}${redirectTo}`;
 
@@ -146,32 +148,26 @@ function RegisterPage() {
   );
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
       {/* Fixed blurred background (light/dark) */}
       <div
         aria-hidden
         className="fixed inset-0 -z-10 dark:hidden"
         style={{
-          backgroundImage: "url('/generated-image.png')",
+          backgroundImage: "url('/art/generated-image.webp')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       <div
         aria-hidden
         className="fixed inset-0 -z-10 hidden dark:block"
         style={{
-          backgroundImage: "url('/generated-image (1).png')",
+          backgroundImage: "url('/art/generated-image-dark.webp')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       {/* Floating Tomatoes Background */}
@@ -236,7 +232,7 @@ function RegisterPage() {
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={motionReveal}
         className="relative z-10 bg-white/95 backdrop-blur-md p-8 sm:p-10 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 dark:border-gray-700 dark:bg-gray-800/90"
       >
         {emailSent ? (
@@ -244,7 +240,7 @@ function RegisterPage() {
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.5 }}
+              transition={motionReveal}
               className="flex justify-center mb-6"
             >
               <div className="w-20 h-20 bg-red-50 dark:bg-red-900/30 rounded-full flex items-center justify-center border-2 border-red-100 dark:border-red-800">
@@ -284,7 +280,7 @@ function RegisterPage() {
             <motion.h1
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
+              transition={{ ...motionReveal, delay: 0.2 }}
               className="text-3xl font-bold text-gray-800 dark:text-white mb-8 text-center tracking-tight"
             >
               Create Account
@@ -308,7 +304,7 @@ function RegisterPage() {
             <motion.button
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.5 }}
+              transition={{ ...motionReveal, delay: 0.3 }}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={handleGoogleSignup}

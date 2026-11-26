@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
+import { motionFade, motionReveal } from "@/lib/motion";
 import { authFetch } from "@/lib/auth-fetch"
 
 type ResultType = "web" | "news" | "images"
@@ -67,26 +68,20 @@ function SearchContent() {
         aria-hidden
         className="fixed inset-0 -z-10 dark:hidden"
         style={{
-          backgroundImage: "url('/generated-image.png')",
+          backgroundImage: "url('/art/generated-image.webp')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       <div
         aria-hidden
         className="fixed inset-0 -z-10 hidden dark:block"
         style={{
-          backgroundImage: "url(" + "'/generated-image (1).png'" + ")",
+          backgroundImage: "url(" + "'/art/generated-image-dark.webp'" + ")",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -94,13 +89,13 @@ function SearchContent() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={motionReveal}
           className="mb-8"
         >
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-2xl sm:text-3xl font-bold break-words text-gray-900 dark:text-white">
             Search Results for <span className="text-indigo-600">&quot;{query || "No query"}&quot;</span>
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-gray-600 dark:text-gray-300">
             {isLoading ? "Searching..." : results.length > 0 ? `${results.length} results found` : "No results found"}
           </p>
         </motion.div>
@@ -139,7 +134,7 @@ function SearchContent() {
             {/* Web Results */}
             {groupedResults.web.length > 0 && (
               <section>
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Web Results</h2>
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Web Results</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <AnimatePresence>
                     {groupedResults.web.map((result, i) => (
@@ -148,7 +143,7 @@ function SearchContent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3, delay: i * 0.1 }}
+                        transition={{ ...motionFade, delay: Math.min(i, 6) * 0.035 }}
                         className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
                       >
                         <a
@@ -171,7 +166,7 @@ function SearchContent() {
             {/* News Results */}
             {groupedResults.news.length > 0 && (
               <section>
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">News</h2>
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">News</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   <AnimatePresence>
                     {groupedResults.news.map((result, i) => (
@@ -180,7 +175,7 @@ function SearchContent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3, delay: i * 0.1 }}
+                        transition={{ ...motionFade, delay: Math.min(i, 6) * 0.035 }}
                         className="p-6 bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow"
                       >
                         <a
@@ -203,7 +198,7 @@ function SearchContent() {
             {/* Image Results */}
             {groupedResults.images.length > 0 && (
               <section>
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">Images</h2>
+                <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Images</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   <AnimatePresence>
                     {groupedResults.images.map((result, i) => (
@@ -212,7 +207,7 @@ function SearchContent() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.3, delay: i * 0.1 }}
+                        transition={{ ...motionFade, delay: Math.min(i, 6) * 0.035 }}
                         className="relative group"
                       >
                         <a href={result.link} target="_blank" rel="noopener noreferrer">
@@ -248,8 +243,8 @@ export default function SearchPage() {
         // can only render on the client). Carries the page's <h1> so the
         // document is never heading-less.
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-3xl font-bold text-gray-900">Search</h1>
-          <p className="mt-2 text-gray-600">Loading results…</p>
+          <h1 className="text-2xl sm:text-3xl font-bold break-words text-gray-900 dark:text-white">Search</h1>
+          <p className="mt-2 text-gray-600 dark:text-gray-300">Loading results…</p>
         </div>
       }
     >

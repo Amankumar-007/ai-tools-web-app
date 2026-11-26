@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,8 +8,36 @@ import dynamic from "next/dynamic";
 import { supabase } from "@/lib/supabase-browser";
 import { authFetch } from "@/lib/auth-fetch";
 import Modal from 'react-modal';
-import AiInput from "@/components/ui/ai-input";
-import LightningToggle from "@/components/ui/lightning-toggle";
+import TomatoComposer from "@/components/chat/composer/tomato-composer";
+import { MessageActions } from "@/components/chat/message-actions";
+import { useReadAloud } from "@/components/chat/use-read-aloud";
+import { useVoicePrefs } from "@/lib/voice/prefs";
+import { StoredImage } from "@/components/chat/stored-image";
+import { useAttachments } from "@/components/chat/use-attachments";
+import {
+  ACCENT_STORAGE_KEY,
+  DEFAULT_ACCENT,
+  ThemePicker,
+  accentCss,
+  isAccentId,
+  type AccentId,
+} from "@/components/chat/theme-picker";
+import {
+  buildChatContext,
+  commitAttachments,
+  ensureImageDescriptions,
+  type LegacyImage,
+  type MessageAttachment,
+} from "@/lib/ai-context/builder";
+import { getModelLabel, isTaskType, TASK_LABELS } from "@/lib/ai-context/model-labels";
+import {
+  deleteConversationItems,
+  deleteUserItems,
+  moveUserItems,
+  putItems,
+} from "@/lib/ai-context/store";
+import { detectImageRequest } from "@/lib/ai-context/heuristics";
+import { AUTO_MODEL, type ChatContext, type ChatTurn, type TaskType } from "@/lib/ai-context/types";
 import {
   Sparkles,
   Code,
@@ -33,10 +61,17 @@ import {
   Maximize2,
   Cat,
   Image as ImageIcon,
-  Square,
-  Plus
+  Plus,
+  PanelLeftClose,
+  MessageSquareText,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { toast } from "sonner";
+import { Flame, Zap } from "lucide-react";
+import { QuotaModal, type QuotaInfo } from "@/components/chat/quota-modal";
+import { getSummary, touchToday } from "@/lib/growth/client";
+import { dayKey } from "@/lib/growth/config";
 // Set modal app element for accessibility
 if (typeof window !== 'undefined') {
   Modal.setAppElement('body');
@@ -52,8 +87,14 @@ const MarkdownRenderer = dynamic(() => import('@/components/TomatoMarkdown'), {
 });
 
 type Role = "user" | "assistant" | "system";
-const DEFAULT_MODEL = "openrouter/free";
+// Auto: the server picks the best model for each message (image, code, document…).
+const DEFAULT_MODEL = AUTO_MODEL;
 const LIGHTNING_MODEL = "nvidia/nemotron-3.5-lightning:free";
+
+/** Thrown when the daily limit is hit: the limit dialog explains it, so it is not shown as a generic error. */
+class QuotaStop extends Error {}
+
+type ChatPayload = { messages: ChatTurn[]; model: string; temperature: number; context: ChatContext };
 
 type Message = {
   id: string;
@@ -61,8 +102,24 @@ type Message = {
   content: string;
   createdAt: number;
   status?: 'stopped' | 'interrupted';
+  /** Older messages only: image uploaded to a remote URL before the context store existed. */
   image?: { url: string; name: string };
+  /** Files shared with this message; their content lives in the context store. */
+  attachments?: MessageAttachment[];
+  /** Which model answered, and for what kind of task. */
+  meta?: { model: string; task?: TaskType };
 };
+
+function stripLegacyImage(content: string) {
+  return content.replace(/^!\[[^\]]*\]\([^)]*\)\s*/, '');
+}
+
+function defaultPromptFor(files: Array<{ kind: 'image' | 'document' }>) {
+  if (files.length === 0) return '';
+  return files.every((file) => file.kind === 'image')
+    ? (files.length > 1 ? 'Describe these images.' : 'Describe this image.')
+    : 'Summarize the attached file' + (files.length > 1 ? 's.' : '.');
+}
 
 type Conversation = {
   id: string;
@@ -80,104 +137,97 @@ function formatTitleFromPrompt(text: string) {
   return (text || "New chat").split("\n").slice(0, 40).join(" ") || "New chat";
 }
 
-// Model Selection Modal Component
+// Model picker: a quiet grid of logos. The name appears below on hover/focus and for the current pick.
+const MODEL_CHOICES = [
+  { id: AUTO_MODEL, name: "Auto", type: "smart routing", logo: "/logo.png" },
+  { id: "openrouter/free", name: "OpenRouter Free Router", type: "smart", logo: "https://www.google.com/s2/favicons?domain=openrouter.ai&sz=128" },
+  { id: "google/gemma-4-31b-it:free", name: "Gemma 4 31B IT", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=google.com&sz=128" },
+  { id: "google/gemma-4-26b-a4b-it:free", name: "Gemma 4 26B IT", type: "fast", logo: "https://www.google.com/s2/favicons?domain=google.com&sz=128" },
+  { id: "nvidia/nemotron-3-nano-30b-a3b:free", name: "Nemotron 3 Nano 30B", type: "compact", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
+  { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 3 Super 120B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
+  { id: "nvidia/nemotron-3-ultra-550b-a55b:free", name: "Nemotron 3 Ultra 550B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
+  { id: "nvidia/nemotron-3.5-lightning:free", name: "Nemotron 3.5 Lightning", type: "fast", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
+  { id: "openai/gpt-oss-20b:free", name: "GPT OSS 20B", type: "compact", logo: "https://www.google.com/s2/favicons?domain=openai.com&sz=128" },
+  { id: "poolside/laguna-xs-2.1:free", name: "Laguna XS 2.1", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=poolside.ai&sz=128" },
+  { id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=poolside.ai&sz=128" },
+  { id: "cohere/north-mini-code:free", name: "Cohere North Mini Code", type: "code", logo: "https://www.google.com/s2/favicons?domain=cohere.com&sz=128" },
+  { id: "z-ai/glm-5.2:free", name: "GLM 5.2", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=zhipuai.cn&sz=128" },
+];
+
+// What each kind of model is good for, in the words used in the message bar's model list.
+const MODEL_NOTES: Record<string, string> = {
+  'smart routing': 'Picks the best model for each task',
+  smart: 'Smart routing across free models',
+  balanced: 'A good all-rounder',
+  fast: 'Fast answers',
+  compact: 'Light and quick',
+  large: 'Deep and powerful',
+  reasoning: 'Thinks it through',
+  code: 'Best for code',
+};
+const COMPOSER_MODELS = MODEL_CHOICES.map((model) => ({ id: model.id, name: model.name, note: MODEL_NOTES[model.type] ?? model.type }));
+
 function ModelSelectionModal({ isOpen, onClose, selectedModel, onSelectModel }: {
   isOpen: boolean;
   onClose: () => void;
   selectedModel: string;
   onSelectModel: (model: string) => void;
 }) {
-  const models = [
-    { id: "openrouter/free", name: "Auto Free Router", type: "smart", logo: "https://www.google.com/s2/favicons?domain=openrouter.ai&sz=128" },
-    { id: "google/gemma-4-31b-it:free", name: "Gemma 4 31B IT", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=google.com&sz=128" },
-    { id: "google/gemma-4-26b-a4b-it:free", name: "Gemma 4 26B IT", type: "fast", logo: "https://www.google.com/s2/favicons?domain=google.com&sz=128" },
-    { id: "nvidia/nemotron-3-nano-30b-a3b:free", name: "Nemotron 3 Nano 30B", type: "compact", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
-    { id: "nvidia/nemotron-3-super-120b-a12b:free", name: "Nemotron 3 Super 120B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
-    { id: "nvidia/nemotron-3-ultra-550b-a55b:free", name: "Nemotron 3 Ultra 550B", type: "large", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
-    { id: "nvidia/nemotron-3.5-lightning:free", name: "Nemotron 3.5 Lightning", type: "fast", logo: "https://www.google.com/s2/favicons?domain=nvidia.com&sz=128" },
-    { id: "openai/gpt-oss-20b:free", name: "GPT OSS 20B", type: "compact", logo: "https://www.google.com/s2/favicons?domain=openai.com&sz=128" },
-    { id: "poolside/laguna-xs-2.1:free", name: "Laguna XS 2.1", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=poolside.ai&sz=128" },
-    { id: "poolside/laguna-s-2.1:free", name: "Laguna S 2.1", type: "reasoning", logo: "https://www.google.com/s2/favicons?domain=poolside.ai&sz=128" },
-    { id: "cohere/north-mini-code:free", name: "Cohere North Mini Code", type: "code", logo: "https://www.google.com/s2/favicons?domain=cohere.com&sz=128" },
-    { id: "z-ai/glm-5.2:free", name: "GLM 5.2", type: "balanced", logo: "https://www.google.com/s2/favicons?domain=zhipuai.cn&sz=128" },
-  ];
+  // The model whose name is shown under the grid: hovered/focused, else the current pick.
+  const [peek, setPeek] = useState<string | null>(null);
+  const shown = MODEL_CHOICES.find((model) => model.id === (peek ?? selectedModel));
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (closeTimer.current) clearTimeout(closeTimer.current); }, []);
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const filteredModels = models.filter(m =>
-    m.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const choose = (id: string) => {
+    onSelectModel(id);
+    setPeek(id);
+    // Brief pause so the chosen name is visible (there is no hover on touch screens).
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => { setPeek(null); onClose(); }, 320);
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onRequestClose={onClose}
-      className="fixed inset-0 flex items-center justify-center p-4 z-[9999]"
-      overlayClassName="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-md z-[9998]"
+      closeTimeoutMS={220}
+      contentLabel="Choose a model"
+      className="model-dialog fixed inset-0 z-[9999] flex items-center justify-center p-4 outline-none"
+      overlayClassName="model-overlay fixed inset-0 z-[9998] bg-black/50 backdrop-blur-[6px]"
     >
-      <MotionDiv
-        initial={{ opacity: 0, scale: 0.96, y: 16 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-        className="relative bg-white/95 dark:bg-[#0A0A0A]/95 backdrop-blur-xl rounded-[32px] w-full max-w-[460px] shadow-2xl border border-white/20 dark:border-white/10 overflow-hidden"
-      >
-        {/* Ambient Glows */}
-        <div className="absolute top-0 left-0 w-[400px] h-[400px] bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-[80px] -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-purple-400/20 dark:bg-purple-600/10 rounded-full blur-[80px] translate-x-1/3 translate-y-1/3 pointer-events-none" />
-
-        <div className="relative p-6 pb-4 border-b border-gray-100/50 dark:border-white/5 flex items-center justify-between z-10">
-          <div>
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Intelligence Models</h2>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Select the AI brain for your task</p>
-          </div>
-          <button onClick={onClose} className="p-2 bg-gray-100 dark:bg-white/5 rounded-full text-gray-400 hover:text-gray-600 dark:hover:text-white transition-colors">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="relative p-6 pt-4 z-10">
-          <div className="relative mb-6">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search models..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-11 pr-4 py-3 bg-gray-50 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm font-medium dark:text-gray-200 transition-all placeholder-gray-400 dark:placeholder-gray-500"
-            />
-          </div>
-
-          <div className="space-y-2 max-h-[50vh] overflow-y-auto px-1 custom-scrollbar pr-2">
-            {filteredModels.map((model) => (
+      <div className="w-full max-w-[348px] rounded-[28px] border border-zinc-200 bg-[#fcfbfa] p-5 shadow-[0_24px_90px_rgba(0,0,0,0.22)] dark:border-white/10 dark:bg-[#19191b]">
+        <div role="radiogroup" aria-label="Model" className="grid grid-cols-4 gap-3">
+          {MODEL_CHOICES.map((model) => {
+            const selected = selectedModel === model.id;
+            return (
               <button
                 key={model.id}
-                onClick={() => {
-                  onSelectModel(model.id);
-                  onClose();
-                }}
-                className={`w-full flex items-center justify-between p-3 rounded-2xl text-left transition-all duration-200 group ${selectedModel === model.id
-                  ? "bg-slate-900 dark:bg-white border-transparent shadow-md"
-                  : "bg-white/50 dark:bg-white/[0.02] hover:bg-slate-50 dark:hover:bg-white/[0.04] border border-gray-100 dark:border-white/5"
-                  }`}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                aria-label={`${model.name}, ${model.type}`}
+                title={model.name}
+                onClick={() => choose(model.id)}
+                onMouseEnter={() => setPeek(model.id)}
+                onMouseLeave={() => setPeek(null)}
+                onFocus={() => setPeek(model.id)}
+                onBlur={() => setPeek(null)}
+                className={`flex aspect-square items-center justify-center rounded-2xl border bg-white transition-[transform,box-shadow,border-color] duration-200 hover:scale-105 focus-visible:scale-105 focus-visible:outline-none active:scale-95 dark:border-white/10 ${selected
+                  ? "border-[var(--accent)] shadow-[0_0_0_2px_var(--accent)]"
+                  : "border-zinc-200 focus-visible:border-[var(--accent-line)]"}`}
               >
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center p-1.5 overflow-hidden bg-white shadow-sm border border-gray-100 dark:border-white/10 transition-colors">
-                    <img src={model.logo} alt={model.name} className="w-full h-full object-contain drop-shadow-sm" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className={`text-sm font-semibold truncate ${selectedModel === model.id ? 'text-white dark:text-gray-900' : 'text-gray-900 dark:text-gray-100'}`}>{model.name}</span>
-                    <span className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${selectedModel === model.id ? 'text-white/70 dark:text-gray-900/70' : 'text-gray-400 dark:text-gray-500'}`}>{model.type}</span>
-                  </div>
-                </div>
-                {selectedModel === model.id && (
-                  <div className="w-6 h-6 rounded-full bg-white/20 dark:bg-black/10 flex items-center justify-center mr-1">
-                    <Check className="w-3.5 h-3.5 text-white dark:text-gray-900" />
-                  </div>
-                )}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={model.logo} alt="" className="h-8 w-8 object-contain" />
               </button>
-            ))}
-          </div>
+            );
+          })}
         </div>
-      </MotionDiv>
+        <p aria-live="polite" className="mt-5 min-h-5 truncate text-center text-sm text-zinc-700 dark:text-zinc-300">
+          {shown?.name}
+          {shown && <span className="text-zinc-400 dark:text-zinc-500"> · {shown.type}</span>}
+        </p>
+      </div>
     </Modal>
   );
 }
@@ -297,12 +347,18 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [conversationSearch, setConversationSearch] = useState('');
   const [hasStartedChat, setHasStartedChat] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [accent, setAccent] = useState<AccentId>(DEFAULT_ACCENT);
   const [user, setUser] = useState<any>(null);
   const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [showLoginPopup, setShowLoginPopup] = useState(false);
-  const [attachment, setAttachment] = useState<{ type: 'image' | 'text', content?: string, url?: string, name: string } | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  // Files chosen for the next message (read in the background), and a counter that
+  // refreshes images shown from the context store when anonymous items move to a user.
+  const attach = useAttachments();
+  const [contextVersion, setContextVersion] = useState(0);
+  // Daily usage chip + limit dialog. `remaining` is the allowance left today plus bonus credits.
+  const [quota, setQuota] = useState<{ remaining: number | null; streak: number | null }>({ remaining: null, streak: null });
+  const [quotaInfo, setQuotaInfo] = useState<QuotaInfo | null>(null);
   const [selectedModel, setSelectedModel] = useState(DEFAULT_MODEL);
   const previousModelRef = useRef(DEFAULT_MODEL);
   const [showModelModal, setShowModelModal] = useState(false);
@@ -310,13 +366,42 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   const [showMemoryModal, setShowMemoryModal] = useState(false);
   const listRef = useRef<HTMLDivElement | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  // The header and the message bar float over the chat, so the message list fills the whole window height and its
+  // scrollbar runs top to bottom. These measure the two, so the list keeps its content clear of them.
+  const headerRef = useRef<HTMLElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const guardedMain = useRef<HTMLElement | null>(null);
+  // The navbar and the message bar are pinned. Focusing the message box (typing, pasting) must not scroll the page frame,
+  // or the navbar slides out of view and everything shifts. Any such scroll is put straight back.
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el || guardedMain.current === el) return;
+    guardedMain.current = el;
+    const reset = () => { if (el.scrollTop) el.scrollTop = 0; if (el.scrollLeft) el.scrollLeft = 0; };
+    el.addEventListener("scroll", reset);
+  });
+  const composerRef = useRef<HTMLDivElement>(null);
+  const [chrome, setChrome] = useState({ top: 72, bottom: 150 });
+  useLayoutEffect(() => {
+    const measure = () => {
+      const top = headerRef.current?.offsetHeight ?? 0;
+      const bottom = composerRef.current?.offsetHeight ?? 0;
+      setChrome((current) => (current.top === top && current.bottom === bottom ? current : { top, bottom }));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (headerRef.current) observer.observe(headerRef.current);
+    if (composerRef.current) observer.observe(composerRef.current);
+    window.addEventListener("resize", measure);
+    return () => { observer.disconnect(); window.removeEventListener("resize", measure); };
+  });
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const sidebarCloseRef = useRef<HTMLButtonElement>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const stickToBottomRef = useRef(true);
   const requestActiveRef = useRef(false);
-  const lastFailedRequestRef = useRef<{ convoId: string; payload: { messages: any[]; model: string; temperature: number }; partialId?: string } | null>(null);
+  const lastFailedRequestRef = useRef<{ convoId: string; payload?: ChatPayload; imagePrompt?: { prompt: string; aspectRatio: string }; partialId?: string } | null>(null);
+  const [makingImage, setMakingImage] = useState(false);
 
   const selectModel = (model: string) => {
     if (model === LIGHTNING_MODEL) {
@@ -371,6 +456,24 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   const router = useRouter();
   const hasTriggeredRef = useRef(false);
 
+  // Once a day: count today for the streak (and award milestone credits), and load how much is left today.
+  useEffect(() => {
+    if (isAuthChecking || !user?.id) { setQuota({ remaining: null, streak: null }); return; }
+    let cancelled = false;
+    (async () => {
+      const key = `tomato_touch_${user.id}`;
+      let touchedToday = false;
+      try { touchedToday = localStorage.getItem(key) === dayKey(); } catch { /* private mode */ }
+      const result = touchedToday ? await getSummary() : await touchToday();
+      if (cancelled || !result) return;
+      if (!touchedToday) { try { localStorage.setItem(key, dayKey()); } catch { /* ignore */ } }
+      setQuota({ remaining: result.enabled ? (result.remaining?.chat ?? null) : null, streak: result.streak ?? null });
+      const touch = (result as { touch?: { awarded: number; streak: number } }).touch;
+      if (touch?.awarded) toast.success(`${touch.streak}-day streak! +${touch.awarded} bonus credits`);
+    })();
+    return () => { cancelled = true; };
+  }, [user?.id, isAuthChecking]);
+
   useEffect(() => {
     if (isAuthChecking) return;
     if (!isLoaded || loadedUid !== (user?.id || 'anon')) return;
@@ -424,12 +527,26 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   // Dark mode initialization
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldUseDark = savedTheme === "dark" || (!savedTheme && prefersDark);
+    const shouldUseDark = savedTheme !== "light";
 
     setIsDarkMode(shouldUseDark);
     document.documentElement.classList.toggle("dark", shouldUseDark);
   }, []);
+
+  // Accent colour: restore the saved choice, and apply it on <html> so portalled
+  // menus and dialogs pick it up too. Removed again when leaving the page.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(ACCENT_STORAGE_KEY);
+      if (isAccentId(saved)) setAccent(saved);
+    } catch { }
+    return () => document.documentElement.removeAttribute('data-accent');
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.dataset.accent = accent;
+    try { localStorage.setItem(ACCENT_STORAGE_KEY, accent); } catch { }
+  }, [accent]);
 
   // Update dark mode
   useEffect(() => {
@@ -459,6 +576,8 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
             const merged = [...newAnonParsed, ...userParsed];
             localStorage.setItem(`chatgpt_convos_v1_${user.id}`, JSON.stringify(merged));
             localStorage.removeItem('chatgpt_convos_v1_anon');
+            // Their files and images follow the conversations into the user's context store.
+            void moveUserItems('anon', user.id).then(() => setContextVersion((version) => version + 1));
 
             const anonActiveId = sessionStorage.getItem('tomato_ai_active_id_anon');
             if (anonActiveId) {
@@ -529,6 +648,20 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     () => convos.find((c) => c.id === activeId) || null,
     [convos, activeId]
   );
+
+  // Voice: answers can be read aloud (per answer with Listen, or automatically when switched on in the message bar).
+  const speech = useReadAloud();
+  const [voicePrefs] = useVoicePrefs();
+  const wasLoadingRef = useRef(false);
+  useEffect(() => {
+    if (loading) { if (!wasLoadingRef.current) speech.stop(); }
+    else if (wasLoadingRef.current && voicePrefs.speakReplies) {
+      const last = active?.messages[active.messages.length - 1];
+      if (last && last.role !== "user" && last.content && last.status !== "stopped") speech.speak(last.id, last.content);
+    }
+    wasLoadingRef.current = loading;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading]);
   const filteredConvos = useMemo(() => convos.filter((conversation) =>
     conversation.title.toLowerCase().includes(conversationSearch.trim().toLowerCase())
   ), [convos, conversationSearch]);
@@ -605,7 +738,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     return convo;
   }
 
-  async function runCompletion(convoId: string, payload: { messages: any[]; model: string; temperature: number }) {
+  async function runCompletion(convoId: string, payload: ChatPayload) {
     if (requestActiveRef.current) return;
     requestActiveRef.current = true;
     setLoading(true);
@@ -619,6 +752,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     let fullText = '';
     let lastPaint = 0;
     let status: Message['status'];
+    let meta: Message['meta'];
 
     try {
       const response = await authFetch('/api/chatgpt', {
@@ -629,11 +763,21 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
       });
       if (!response.ok) {
         const body = await response.json().catch(() => ({}));
+        if (body.code === 'quota') {
+          setQuotaInfo(body as QuotaInfo);
+          setQuota((current) => ({ ...current, remaining: 0 }));
+          throw new QuotaStop(body.error);
+        }
         throw new Error(body.error || 'The AI service is unavailable. Please try again.');
       }
+      const quotaLeft = response.headers.get('X-Quota-Remaining');
+      if (quotaLeft !== null && Number.isFinite(Number(quotaLeft))) setQuota((current) => ({ ...current, remaining: Number(quotaLeft) }));
       if (!response.body) throw new Error('The response could not be streamed. Please try again.');
-      const fallbackModel = response.headers.get('X-Fallback-Model');
-      if (fallbackModel) toast.info(`Switched to ${fallbackModel}`);
+      const modelUsed = response.headers.get('X-Model-Used');
+      const task = response.headers.get('X-Task-Type');
+      if (modelUsed) meta = { model: modelUsed, task: isTaskType(task) ? task : undefined };
+      // The model the user picked could not handle this request (or was unavailable).
+      if (modelUsed && response.headers.get('X-Model-Switched')) toast.info(`Switched to ${getModelLabel(modelUsed)}`);
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
@@ -649,7 +793,11 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
       fullText += decoder.decode();
       if (!fullText.trim()) throw new Error('The AI returned an empty response. Please try again.');
     } catch (error) {
-      if (controller.signal.aborted) {
+      if (error instanceof QuotaStop) {
+        // The limit dialog is already showing. Keep the request so "Retry" works after upgrading or earning credits.
+        setChatError(error.message);
+        lastFailedRequestRef.current = { convoId, payload };
+      } else if (controller.signal.aborted) {
         status = 'stopped';
       } else {
         status = 'interrupted';
@@ -658,7 +806,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
       }
     } finally {
       if (fullText.trim()) {
-        const assistant: Message = { id: assistantId, role: 'assistant', content: fullText, createdAt: Date.now(), status };
+        const assistant: Message = { id: assistantId, role: 'assistant', content: fullText, createdAt: Date.now(), status, meta };
         setConvos((previous) => previous.map((conversation) => conversation.id === convoId
           ? { ...conversation, messages: [...conversation.messages, assistant], updatedAt: Date.now() }
           : conversation));
@@ -671,62 +819,98 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     }
   }
 
-  const processFile = async (file: File) => {
-    setIsUploading(true);
+  /** "Generate an image of ...": asks the image model and shows the picture in the conversation. */
+  async function runImageGeneration(convoId: string, request: { prompt: string; aspectRatio: string }, ownerId: string) {
+    if (requestActiveRef.current) return;
+    requestActiveRef.current = true;
+    setLoading(true);
+    setMakingImage(true);
+    setChatError('');
+    setStreamingConversationId(convoId);
+    setStreamingText('');
+    lastFailedRequestRef.current = null;
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+    let assistant: Message | null = null;
+
     try {
-      if (file.size > 10 * 1024 * 1024) throw new Error('Choose a file smaller than 10 MB.');
-      if (file.type.startsWith('image/')) {
-        const base64Image = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(String(reader.result));
-          reader.onerror = () => reject(new Error('Could not read the image.'));
-          reader.readAsDataURL(file);
-        });
-        const res = await authFetch('/api/upload-image', { method: 'POST', body: JSON.stringify({ image: base64Image }) });
-        if (!res.ok) throw new Error('Could not upload the image.');
-        const data = await res.json();
-        if (!data.url) throw new Error('The image upload did not return a URL.');
-        setAttachment({ type: 'image', url: data.url, name: file.name });
-      } else if (file.type === 'application/pdf') {
-        const { extractTextFromPdf } = await import('@/services/pdfService');
-        const text = await extractTextFromPdf(file);
-        if (!text.trim()) throw new Error('No readable text was found in the PDF.');
-        setAttachment({ type: 'text', content: text.slice(0, 40_000), name: file.name });
-      } else {
-        const text = await file.text();
-        if (!text.trim()) throw new Error('The file is empty.');
-        setAttachment({ type: 'text', content: text.slice(0, 40_000), name: file.name });
+      const response = await authFetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+        signal: controller.signal,
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        if (body.code === 'quota') {
+          setQuotaInfo(body as QuotaInfo);
+          setQuota((current) => ({ ...current, remaining: 0 }));
+          throw new QuotaStop(body.error);
+        }
+        if (response.status === 401) {
+          setShowLoginPopup(true);
+          throw new Error('Sign in to create images.');
+        }
+        throw new Error(body.error || 'Image generation is unavailable. Please try again.');
       }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Could not attach the file.');
-      setAttachment(null);
+      const quotaLeft = response.headers.get('X-Quota-Remaining');
+      if (quotaLeft !== null && Number.isFinite(Number(quotaLeft))) setQuota((current) => ({ ...current, remaining: Number(quotaLeft) }));
+
+      const data = await response.json();
+      if (typeof data?.imageBase64 !== 'string' || typeof data?.mimeType !== 'string') throw new Error('The image service returned no picture. Please try again.');
+      const bytes = Uint8Array.from(atob(data.imageBase64), (char) => char.charCodeAt(0));
+      const blob = new Blob([bytes], { type: data.mimeType });
+      const size = await new Promise<{ width: number; height: number }>((resolve) => {
+        const probe = new window.Image();
+        const url = URL.createObjectURL(blob);
+        probe.onload = () => { resolve({ width: probe.naturalWidth || 1024, height: probe.naturalHeight || 1024 }); URL.revokeObjectURL(url); };
+        probe.onerror = () => { resolve({ width: 1024, height: 1024 }); URL.revokeObjectURL(url); };
+        probe.src = url;
+      });
+
+      // Keep the picture in the conversation's store (with its prompt as the description, so follow-up questions have context).
+      const itemId = `gen_${Math.random().toString(36).slice(2)}${Date.now().toString(36)}`;
+      const name = request.prompt.slice(0, 60);
+      await putItems([{
+        id: itemId, uid: ownerId, convoId, name, mime: data.mimeType, size: blob.size, createdAt: Date.now(),
+        kind: 'image', blob, width: size.width, height: size.height, description: `Image generated from the request: ${request.prompt}`, source: 'generated',
+      }]);
+      setContextVersion((version) => version + 1);
+      assistant = {
+        id: uid(), role: 'assistant', createdAt: Date.now(),
+        content: 'Here is your image. To change it, describe the new version in full (for example "a red tomato on a wooden table, at night") and I will create another one.',
+        attachments: [{ id: itemId, kind: 'image', name, mime: data.mimeType, size: blob.size }],
+        meta: typeof data.model === 'string' ? { model: data.model } : undefined,
+      };
+    } catch (error) {
+      if (error instanceof QuotaStop) {
+        setChatError(error.message);
+        lastFailedRequestRef.current = { convoId, imagePrompt: request };
+      } else if (!controller.signal.aborted) {
+        setChatError(error instanceof Error ? error.message : 'Image generation failed. Please try again.');
+        lastFailedRequestRef.current = { convoId, imagePrompt: request };
+      }
     } finally {
-      setIsUploading(false);
+      if (assistant) {
+        const message = assistant;
+        setConvos((previous) => previous.map((conversation) => conversation.id === convoId
+          ? { ...conversation, messages: [...conversation.messages, message], updatedAt: Date.now() }
+          : conversation));
+      }
+      setStreamingText('');
+      setStreamingConversationId(null);
+      setLoading(false);
+      setMakingImage(false);
+      abortControllerRef.current = null;
+      requestActiveRef.current = false;
     }
-  };
+  }
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) processFile(file);
-    // Reset input so same file can be selected again if needed
-    e.target.value = "";
-  };
-
-  const handleAiInputFileSelect = (file: File | null) => {
-    if (file) {
-      processFile(file);
-    } else {
-      setAttachment(null);
-    }
-  };
-
-  const removeAttachment = () => {
-    setAttachment(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  async function submitMessage(text: string, forceNewChat = false) {
-    if (!text.trim() || requestActiveRef.current || isUploading) return;
+  async function submitMessage(rawText: string, forceNewChat = false) {
+    const files = attach.ready;
+    // Files with no question: ask for a summary / description.
+    const text = rawText.trim() || defaultPromptFor(files.map((file) => ({ kind: file.kind })));
+    if (!text || requestActiveRef.current || attach.busy) return;
 
     if (!user) {
       const totalAnonMessages = convos.reduce((acc, c) => acc + c.messages.filter(m => m.role === 'user').length, 0);
@@ -740,65 +924,82 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     requestActiveRef.current = true;
     setChatError('');
     setInput("");
-    if (fileInputRef.current) fileInputRef.current.value = "";
     if (!hasStartedChat) setHasStartedChat(true);
 
     let convo = forceNewChat ? null : active;
     if (!convo) convo = createNewChat();
+    const ownerId = user?.id || 'anon';
 
-    const messageContent = attachment?.type === 'image' && attachment.url
-      ? `![${attachment.name}](${attachment.url})\n\n${text}`
-      : attachment?.type === 'text' && attachment.content
-        ? `${text}\n\n[Attached File: ${attachment.name}]\n${attachment.content.slice(0, 40_000)}`
-        : text;
+    try {
+      // 1. Save what the user attached into their context store.
+      const saved = files.length
+        ? await commitAttachments(ownerId, convo.id, files.map((file) => file.processed!))
+        : { attachments: [] as MessageAttachment[], newItemIds: new Set<string>() };
 
-    const userMsg: Message = { id: uid(), role: "user", content: messageContent, createdAt: Date.now(),
-      image: attachment?.type === 'image' && attachment.url ? { url: attachment.url, name: attachment.name } : undefined };
-    setConvos(prev => {
-      return prev.map(c =>
-        c.id === convo?.id
+      const userMsg: Message = {
+        id: uid(), role: "user", content: text, createdAt: Date.now(),
+        attachments: saved.attachments.length ? saved.attachments : undefined,
+      };
+      const conversationId = convo.id;
+      const title = files.length && !rawText.trim() ? files[0].name : text;
+      setConvos(prev => prev.map(c =>
+        c.id === conversationId
           ? {
             ...c,
-            title: c.messages.length === 0 ? formatTitleFromPrompt(text) : c.title,
+            title: c.messages.length === 0 ? formatTitleFromPrompt(title) : c.title,
             messages: [...c.messages, userMsg],
             updatedAt: Date.now(),
           }
           : c
-      );
-    });
-    setAttachment(null);
+      ));
+      attach.clear();
 
-    const apiMessages: any[] = [{
-      role: 'system',
-      content: `You are TomatoAI, a helpful AI assistant. Answer the user's request directly. If you are unsure, say so.` +
-        (customMemory.trim() ? `\n\nUser context: ${customMemory.trim().slice(0, 2_000)}` : ''),
-    }, ...convo.messages.slice(-20).map((message) => ({
-      role: message.role,
-      content: message.image
-        ? [{ type: 'text', text: message.content.replace(/^!\[[^\]]*\]\([^)]*\)\s*/, '').slice(0, 12_000) }, { type: 'image_url', image_url: { url: message.image.url } }]
-        : message.content.slice(0, 12_000),
-    }))];
+      // 2. Rebuild the context for this request from the store. It does not
+      //    depend on which model answers, so any model can pick up the chat.
+      const recent = convo.messages.slice(-20);
+      const history: ChatTurn[] = recent
+        .filter((message) => message.role === 'user' || message.role === 'assistant')
+        .map((message) => ({
+          role: message.role as 'user' | 'assistant',
+          content: message.image ? stripLegacyImage(message.content) : message.content,
+        }));
+      const legacyImages: LegacyImage[] = recent
+        .filter((message) => message.image)
+        .map((message) => ({ id: message.id, name: message.image!.name, url: message.image!.url }));
+      const previousQuestion = [...recent].reverse().find((message) => message.role === 'user')?.content ?? '';
 
-    let lastMessageContent: any = text;
-    let modelToUse = selectedModel;
-    if (attachment?.type === 'image' && attachment.url) {
-      lastMessageContent = [
-        { type: 'text', text },
-        { type: 'image_url', image_url: { url: attachment.url } }
-      ];
-      modelToUse = 'google/gemma-4-31b-it:free';
-    } else if (attachment?.type === 'text' && attachment.content) {
-      lastMessageContent = `${text}\n\n[Attached File Content]:\n${attachment.content.slice(0, 40_000)}`;
+      const context = await buildChatContext({
+        uid: ownerId,
+        convoId: conversationId,
+        query: `${previousQuestion}\n${text}`,
+        question: text,
+        memory: customMemory,
+        newItemIds: saved.newItemIds,
+        legacyImages,
+      });
+
+      requestActiveRef.current = false;
+
+      // A request to create a picture goes to the image model instead of the chat models.
+      const imageRequest = files.length === 0 ? detectImageRequest(text) : null;
+      if (imageRequest) {
+        await runImageGeneration(conversationId, imageRequest, ownerId);
+        return;
+      }
+
+      await runCompletion(conversationId, {
+        messages: [...history, { role: 'user', content: text }],
+        model: selectedModel,
+        temperature: 0.6,
+        context,
+      });
+
+      // 3. Once answered, describe any new images in words so text-only models can use them later.
+      void ensureImageDescriptions(ownerId, conversationId);
+    } catch (error) {
+      requestActiveRef.current = false;
+      toast.error(error instanceof Error ? error.message : 'Could not send your message. Please try again.');
     }
-    if (convo.messages.slice(-20).some((message) => message.image)) modelToUse = 'google/gemma-4-31b-it:free';
-    apiMessages.push({ role: 'user', content: lastMessageContent });
-    requestActiveRef.current = false;
-    await runCompletion(convo.id, { messages: apiMessages, model: modelToUse, temperature: 0.6 });
-  }
-
-  async function sendMessage(e?: React.FormEvent) {
-    e?.preventDefault();
-    submitMessage(input.trim());
   }
 
   async function sendText(text: string) {
@@ -811,13 +1012,16 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
       if (request.partialId) setConvos((previous) => previous.map((conversation) => conversation.id === request.convoId
         ? { ...conversation, messages: conversation.messages.filter((message) => message.id !== request.partialId) }
         : conversation));
-      void runCompletion(request.convoId, request.payload);
+      if (request.imagePrompt) void runImageGeneration(request.convoId, request.imagePrompt, user?.id || 'anon');
+      else if (request.payload) void runCompletion(request.convoId, request.payload);
     }
   }
 
 
   function deleteConvo(id: string) {
     if (activeId === id) stopGenerating();
+    // Remove the conversation's documents and images from the context store too.
+    void deleteConversationItems(user?.id || 'anon', id);
     setConvos((prevConvos) => {
       const updatedConvos = prevConvos.filter((c) => c.id !== id);
 
@@ -845,6 +1049,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     setConvos([]);
     setActiveId(null);
     setHasStartedChat(false);
+    void deleteUserItems(user?.id || 'anon');
 
     if (user) {
       localStorage.removeItem(`chatgpt_convos_v1_${user.id}`);
@@ -855,8 +1060,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
   if (isAuthChecking) {
     return (
       <div
-        className="flex min-h-dvh items-center justify-center bg-slate-50 bg-center bg-no-repeat dark:bg-slate-950"
-        style={{ backgroundImage: `url('/${isDarkMode ? 'chatbot2.png' : 'chatbot1.png'}')`, backgroundSize: '100% 100%' }}
+        className="flex min-h-dvh items-center justify-center bg-[#0b0b0d] text-white"
       >
         {/* `isAuthChecking` starts true, so this is what the server renders
             and what a crawler sees. It therefore carries the page's heading
@@ -888,13 +1092,25 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
     );
   }
 
+  const showWelcome = !forceChatView && (!hasStartedChat || (!active && !loading));
+
   return (
     <div
-      className="relative flex h-dvh overflow-hidden bg-slate-50 bg-center bg-no-repeat font-inter antialiased dark:bg-slate-950"
-      style={{ backgroundImage: !hasStartedChat ? `url('/${isDarkMode ? 'chatbot2.png' : 'chatbot1.png'}')` : 'none', backgroundSize: '100% 100%' }}
+      className="relative flex h-dvh overflow-clip bg-[#faf9f7] font-inter text-zinc-900 antialiased transition-[background-color,color] duration-700 dark:bg-[#0b0b0d] dark:text-zinc-100"
     >
+      {/* Accent colour variables (--accent, --accent-soft, …), one block per theme */}
+      <style dangerouslySetInnerHTML={{ __html: accentCss() }} />
       {/* Enhanced Custom Styles */}
       <style jsx global>{`
+        .model-overlay { opacity: 0; transition: opacity var(--motion-quick) var(--motion-fade); }
+        .model-overlay.ReactModal__Overlay--after-open { opacity: 1; }
+        .model-overlay.ReactModal__Overlay--before-close { opacity: 0; }
+        .model-dialog > div { opacity: 0; transform: translateY(12px) scale(.97); transition: opacity var(--motion-quick) var(--motion-fade), transform var(--motion-quick) var(--motion-settle); }
+        .model-dialog.ReactModal__Content--after-open > div { opacity: 1; transform: translateY(0) scale(1); }
+        .model-dialog.ReactModal__Content--before-close > div { opacity: 0; transform: translateY(8px) scale(.98); }
+        @keyframes welcomeReveal { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        .welcome-reveal { animation: welcomeReveal var(--motion-reveal) var(--motion-settle) both; }
+        .welcome-reveal-delayed { animation: welcomeReveal var(--motion-reveal) 100ms var(--motion-settle) both; }
         .inline-code {
           background-color: rgba(156, 163, 175, 0.2);
           border: 1px solid rgba(156, 163, 175, 0.3);
@@ -956,11 +1172,11 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
         }
 
         .message-enter {
-          animation: slideInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          animation: slideInUp var(--motion-reveal) var(--motion-settle);
         }
         
         .sidebar-enter {
-          animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          animation: slideInLeft var(--motion-quick) var(--motion-settle);
         }
         
         .input-focused {
@@ -968,7 +1184,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
         }
         
         .bounce-in {
-          animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          animation: scaleIn var(--motion-quick) var(--motion-settle);
         }
 
         @keyframes marquee {
@@ -987,7 +1203,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
 
         /* 3D code card shadows */
         .code-card {
-          transition: box-shadow 200ms ease, transform 200ms ease;
+          transition: box-shadow var(--motion-quick) var(--motion-fade), transform var(--motion-quick) var(--motion-settle);
           box-shadow:
             0 1px 2px rgba(0, 0, 0, 0.05),
             0 3px 6px rgba(0, 0, 0, 0.08),
@@ -1070,6 +1286,8 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
       </Modal>
 
       {/* Model Selection Modal */}
+      <QuotaModal info={quotaInfo} onClose={() => setQuotaInfo(null)} />
+
       <ModelSelectionModal
         isOpen={showModelModal}
         onClose={() => setShowModelModal(false)}
@@ -1079,23 +1297,22 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
 
 
       {/* Conversation drawer */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50">
+        <div className={`fixed inset-0 z-50 transition-[visibility] duration-300 ${sidebarOpen ? 'visible' : 'invisible'}`} aria-hidden={!sidebarOpen}>
           <div
-            className="absolute inset-0 bg-black/35"
+            className={`chat-drawer-backdrop absolute inset-0 bg-black/45 backdrop-blur-[2px] transition-opacity duration-300 ${sidebarOpen ? 'opacity-100' : 'opacity-0'}`}
             onClick={() => setSidebarOpen(false)}
           />
-          <aside role="dialog" aria-modal="true" aria-label="Conversations" className="absolute bottom-0 left-0 top-0 w-[min(88vw,340px)] border-r border-slate-200 bg-white shadow-2xl dark:border-slate-800 dark:bg-slate-950">
+          <aside role="dialog" aria-modal={sidebarOpen} aria-label="Conversations" className={`chat-drawer absolute bottom-0 left-0 top-0 w-[min(88vw,350px)] border-r border-zinc-200 bg-[#fcfbfa] shadow-2xl transition-transform duration-300 ease-out dark:border-white/10 dark:bg-[#171719] ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
             <div className="flex h-full flex-col overflow-hidden">
-              <div className="border-b border-slate-200 p-4 dark:border-slate-800">
-                <div className="mb-5 flex items-center justify-between">
+              <div className="border-b border-zinc-200/80 p-5 dark:border-white/10">
+                <div className="mb-6 flex items-center justify-between">
                   <Link href="/" onClick={() => setSidebarOpen(false)} className="flex min-w-0 items-center gap-3">
-                    <Image src="/logo.png" alt="" width={32} height={32} className="rounded-lg" />
+                    <Image src="/logo.png" alt="" width={32} height={32} className="rounded-xl" />
                     <div>
                       {/* Sidebar brand label, not the page heading — the page's
                           single <h1> lives in the chat's empty state below. */}
-                      <span className="block text-sm font-semibold text-slate-900 dark:text-white">TomatoAI</span>
-                      <span className="block text-xs text-slate-500 dark:text-slate-400">Your workspace</span>
+                      <span className="block text-sm font-semibold text-zinc-900 dark:text-white">TomatoAI</span>
+                      <span className="block text-xs text-zinc-500 dark:text-zinc-400">Your workspace</span>
                     </div>
                   </Link>
                   <button
@@ -1103,48 +1320,44 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                     ref={sidebarCloseRef}
                     onClick={() => setSidebarOpen(false)}
                     aria-label="Close conversations"
-                    className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                    className="flex h-9 w-9 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-white/10 dark:hover:text-white"
                   >
-                    <svg className="w-5 h-5 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <PanelLeftClose className="h-5 w-5" />
                   </button>
                 </div>
                 <button
                   onClick={startNewConversation}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-slate-700 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--accent)] px-4 py-3 text-sm font-semibold text-white transition-all hover:bg-[var(--accent-hover)] active:scale-[.98]"
                 >
                   <Plus className="h-4 w-4" /> New chat
                 </button>
 
                 <button
                   onClick={() => { setSidebarOpen(false); setShowMemoryModal(true); }}
-                  className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                  className="mt-3 w-full rounded-xl px-4 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/5"
                 >
                   <div className="flex items-center justify-center gap-2">
                     <Brain className="h-4 w-4" /> Personal instructions
                   </div>
                 </button>
-                <div className="relative mt-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                  <input value={conversationSearch} onChange={(event) => setConversationSearch(event.target.value)} placeholder="Search chats" aria-label="Search conversations" className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-9 text-sm outline-none focus:border-blue-500 dark:border-slate-800 dark:bg-slate-900 dark:text-white" />
+                <div className="relative mt-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400" />
+                  <input value={conversationSearch} onChange={(event) => setConversationSearch(event.target.value)} placeholder="Search chats" aria-label="Search conversations" className="w-full rounded-xl border border-zinc-200 bg-white py-2.5 pl-9 pr-9 text-sm text-zinc-900 outline-none transition-colors placeholder:text-zinc-400 focus:border-[var(--accent-line)] dark:border-white/10 dark:bg-white/5 dark:text-white" />
                   {conversationSearch && <button type="button" onClick={() => setConversationSearch('')} aria-label="Clear chat search" className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-slate-400 hover:text-slate-700 dark:hover:text-white"><X className="h-4 w-4" /></button>}
                 </div>
               </div>
-              <div className="min-h-0 flex-1 overflow-y-auto p-3">
+              <div className="min-h-0 flex-1 overflow-y-auto px-3 py-4">
                 {filteredConvos.length === 0 ? (
                   <div className="text-center text-gray-500 dark:text-gray-400 py-12">
-                    <div className="w-12 h-12 bg-slate-100 dark:bg-slate-800 rounded-xl mx-auto mb-4 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-                      </svg>
+                    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100 dark:bg-white/5">
+                      <MessageSquareText className="h-5 w-5 text-zinc-400" />
                     </div>
                     <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{convos.length ? 'No matching chats' : 'No conversations yet'}</h3>
                     <p className="text-sm">{convos.length ? 'No chats match your search.' : 'Start your first conversation with TomatoAI.'}</p>
                   </div>
                 ) : (
                   <div className="space-y-1">
-                    <h3 className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    <h3 className="mb-3 px-3 text-xs font-medium uppercase tracking-[.14em] text-zinc-500 dark:text-zinc-400">
                       Recent chats
                     </h3>
                     {filteredConvos.map((c) => (
@@ -1156,9 +1369,9 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                             setSidebarOpen(false);
                             setChatError('');
                           }}
-                          className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors ${activeId === c.id
-                            ? "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white"
-                            : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900"
+                          className={`w-full rounded-xl px-3 py-3 text-left transition-colors ${activeId === c.id
+                            ? "bg-[var(--accent-soft)] text-[var(--accent-ink)]"
+                            : "text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-white/5"
                             }`}
                         >
                           <div className="flex items-start gap-3">
@@ -1180,7 +1393,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                             e.stopPropagation();
                             deleteConvo(c.id);
                           }}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:opacity-100 dark:hover:bg-red-900/20 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100"
+                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-zinc-400 transition-colors hover:bg-red-50 hover:text-red-600 focus:opacity-100 dark:hover:bg-red-900/20 md:opacity-0 md:group-hover:opacity-100 md:group-focus-within:opacity-100"
                         >
                           <svg className="w-4 h-4 text-red-400 hover:text-red-600 dark:hover:text-red-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1192,17 +1405,17 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                 )}
               </div>
 
-              <div className="border-t border-slate-200 p-3 dark:border-slate-800">
-                  <p className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Explore</p>
-                  <nav aria-label="Explore TomatoAI" className="grid grid-cols-2 gap-1 text-sm text-slate-600 dark:text-slate-300">
-                    <Link href="/ai-tools" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900">AI tools</Link>
-                    <Link href="/prompts" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900">Prompts</Link>
-                    <Link href="/ai-workflows" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900">Workflows</Link>
-                    <Link href="/ai-videos" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-900">Videos</Link>
+              <div className="border-t border-zinc-200/80 p-4 dark:border-white/10">
+                  <p className="px-2 pb-2 text-xs font-medium uppercase tracking-[.14em] text-zinc-500">Explore</p>
+                  <nav aria-label="Explore TomatoAI" className="grid grid-cols-2 gap-1 text-sm text-zinc-600 dark:text-zinc-300">
+                    <Link href="/ai-tools" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 transition-colors hover:bg-zinc-100 dark:hover:bg-white/5">AI tools</Link>
+                    <Link href="/prompts" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 transition-colors hover:bg-zinc-100 dark:hover:bg-white/5">Prompts</Link>
+                    <Link href="/ai-workflows" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 transition-colors hover:bg-zinc-100 dark:hover:bg-white/5">Workflows</Link>
+                    <Link href="/ai-videos" onClick={() => setSidebarOpen(false)} className="rounded-lg px-3 py-2 transition-colors hover:bg-zinc-100 dark:hover:bg-white/5">Videos</Link>
                   </nav>
                   {convos.length > 0 && <button
                     onClick={clearAll}
-                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-slate-400 dark:hover:bg-red-900/20"
+                    className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-xs font-medium text-zinc-500 transition-colors hover:bg-red-50 hover:text-red-600 dark:text-zinc-400 dark:hover:bg-red-900/20"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1213,19 +1426,25 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
             </div>
           </aside>
         </div>
-      )}
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col relative overflow-hidden">
+      <main ref={mainRef} className="flex-1 min-h-0 flex flex-col relative overflow-clip">
+        <div aria-hidden="true" className={`welcome-artwork pointer-events-none absolute inset-0 transition-opacity duration-700 ${showWelcome && !isDarkMode ? 'opacity-100' : 'opacity-0'}`}>
+          {/* Compact WebP, resized to the screen by next/image. Only the artwork for the current theme is fetched with priority. */}
+          <Image src="/art/chatbot-light.webp" alt="" fill sizes="100vw" quality={70} priority={!isDarkMode} className="object-cover object-center" />
+        </div>
+        <div aria-hidden="true" className={`welcome-artwork pointer-events-none absolute inset-0 transition-opacity duration-700 ${showWelcome && isDarkMode ? 'opacity-100' : 'opacity-0'}`}>
+          <Image src="/art/chatbot-dark.webp" alt="" fill sizes="100vw" quality={70} priority={isDarkMode} className="object-cover object-center" />
+        </div>
         {/* Transparent Navbar — inline, scrolls with content, takes no fixed space */}
-        <header className="flex shrink-0 items-center justify-between gap-3 bg-transparent px-4 py-3 sm:px-5">
+        <header ref={headerRef} className={`absolute inset-x-0 top-0 z-20 flex items-center justify-between gap-3 px-4 py-3 transition-colors duration-700 sm:px-8 ${showWelcome ? "bg-transparent" : "bg-[#faf9f7]/92 backdrop-blur-md dark:bg-[#0b0b0d]/92"}`}>
           <div className="flex min-w-0 items-center gap-3">
           <button
             ref={menuButtonRef}
             onClick={() => setSidebarOpen(true)}
             type="button"
             aria-label="Open conversations"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-zinc-600 transition-colors hover:bg-black/5 dark:text-zinc-400 dark:hover:bg-white/5"
           >
             <svg className="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -1234,7 +1453,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
 
           <Link href="/" className="flex min-w-0 items-center gap-2">
             <Image src="/logo.png" alt="" width={30} height={30} className="h-7 w-7 shrink-0 object-contain" />
-            <span className="truncate text-sm font-semibold text-slate-900 dark:text-white sm:text-base">TomatoAI</span>
+            <span className="truncate text-sm font-medium tracking-tight text-zinc-900 transition-colors duration-700 dark:text-zinc-100 sm:text-base">TomatoAI</span>
           </Link>
           </div>
 
@@ -1248,20 +1467,25 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </button>
+            {user && quota.remaining !== null && (
+              <Link
+                href="/account"
+                title="Messages left today (resets at midnight IST). Click for your account."
+                className={`hidden items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors sm:flex ${quota.remaining === 0 ? 'border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400' : quota.remaining <= 3 ? 'border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400' : 'border-zinc-300/70 text-zinc-700 hover:bg-black/5 dark:border-white/15 dark:text-zinc-200 dark:hover:bg-white/10'}`}
+              >
+                <Zap className="h-3.5 w-3.5" /> {quota.remaining} left
+                {quota.streak ? <span className="ml-1 flex items-center gap-0.5 border-l border-current/20 pl-2"><Flame className="h-3.5 w-3.5" />{quota.streak}</span> : null}
+              </Link>
+            )}
+            <ThemePicker value={accent} onChange={setAccent} />
             <button
               onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2 rounded-lg hover:bg-gray-100/20 dark:hover:bg-gray-800/20 transition-colors"
+              className="relative flex h-10 w-10 items-center justify-center rounded-xl text-zinc-700 transition-colors duration-500 ease-[ease-in-out] hover:bg-black/10 dark:text-zinc-100 dark:hover:bg-white/10"
               title={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label={isDarkMode ? "Switch to light mode" : "Switch to dark mode"}
             >
-              {isDarkMode ? (
-                <svg className="w-5 h-5 text-yellow-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
-                </svg>
-              ) : (
-                <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="currentColor" viewBox="0 0 24 24">
-                  <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 01.818.162z" clipRule="evenodd" />
-                </svg>
-              )}
+              <Sun aria-hidden="true" className={`absolute h-5 w-5 transition-[opacity,rotate,scale] duration-500 ease-[ease-in-out] ${isDarkMode ? 'rotate-0 scale-100 opacity-100' : 'rotate-90 scale-75 opacity-0'}`} />
+              <Moon aria-hidden="true" className={`absolute h-5 w-5 transition-[opacity,rotate,scale] duration-500 ease-[ease-in-out] ${isDarkMode ? '-rotate-90 scale-75 opacity-0' : 'rotate-0 scale-100 opacity-100'}`} />
             </button>
 
             {user ? (
@@ -1282,79 +1506,34 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
           </div>
         </header>
 
-        <div ref={listRef} className="flex-1 overflow-y-auto w-full">
-          {(!forceChatView && (!hasStartedChat || (!active && !loading))) ? (
-            <div className="flex flex-col items-center justify-center h-full px-4 relative">
-              <div className="max-w-2xl w-full text-center mb-12">
-                <div className="mb-8 bounce-in">
-                  <MotionDiv
-                    whileHover={{ scale: 1.07, rotate: 5 }}
-                    whileTap={{ scale: 0.98 }}
-                    transition={{ type: "spring", stiffness: 320, damping: 18 }}
-                    className="mx-auto mb-6"
-                    style={{ width: 64, height: 64 }}
-                  >
-                    <Image
-                      src="/logo.png"
-                      alt="TomatoAI"
-                      width={64}
-                      height={64}
-                      className="rounded-2xl shadow-xl"
-                    />
-                  </MotionDiv>
-                  {selectedModel === LIGHTNING_MODEL ? (
-                    <>
-                      <h1 className="lightning-title-enter mb-4 bg-gradient-to-r from-yellow-500 to-amber-600 bg-clip-text text-6xl font-black uppercase tracking-tighter text-transparent dark:from-yellow-400 dark:to-amber-400">
-                        Lightning
-                      </h1>
-                      <p className="text-xl text-gray-600 dark:text-gray-400 font-medium fade-in font-['Inter','system-ui','-apple-system','sans-serif']" style={{ animationDelay: '200ms' }}>
-                        Ultra-fast responses. Powered by Nemotron 3.5 Lightning.
-                      </p>
-                    </>
-                  ) : (
-                    <>
-                      <h1 className="text-5xl font-bold mb-4 text-gray-900 dark:text-gray-100 fade-in font-['Inter','system-ui','-apple-system','sans-serif'] tracking-tight">
-                        Hi, I'm TomatoAI
-                      </h1>
-                      <p className="text-xl text-gray-600 dark:text-gray-400 font-light fade-in font-['Inter','system-ui','-apple-system','sans-serif']" style={{ animationDelay: '200ms' }}>
-                        How can I help you today?
-                      </p>
-                    </>
-                  )}
+        <div ref={listRef} className="absolute inset-0 z-0 w-full overflow-y-auto chat-scroll-hidden" style={{ paddingTop: chrome.top, paddingBottom: chrome.bottom }}>
+          {showWelcome ? (
+            <div className="flex h-full min-h-[320px] flex-col items-center justify-center px-5 pb-20 text-center md:pb-0">
+              <div className="max-w-2xl -translate-y-8 md:-translate-y-12">
+                <div className="welcome-reveal mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-zinc-200 bg-white/80 shadow-sm backdrop-blur-md dark:border-white/10 dark:bg-[#19191b]/80">
+                  <Image src="/logo.png" alt="" width={30} height={30} className="h-7 w-7 object-contain" />
                 </div>
-
-                <div className="relative mb-8">
-                  <AiInput
-                    onSubmitWithMode={(text, isSearch) => {
-                      if (isSearch) {
-                        router.push(`/search?q=${encodeURIComponent(text)}`);
-                      } else {
-                        sendText(text);
-                      }
-                    }}
-                    onStop={stopGenerating}
-                    submitting={loading}
-                    disabled={isUploading}
-                    onLightningSelect={toggleLightning}
-                    lightningActive={selectedModel === LIGHTNING_MODEL}
-                    onModelSelect={() => setShowModelModal(true)}
-                    selectedModel={selectedModel}
-                    value={input}
-                    onChange={setInput}
-                    textareaRef={textareaRef}
-                  />
-                </div>
-
-                <div className="w-full max-w-xl mx-auto overflow-hidden">
-                  <SuggestionMarquee onSelect={(query) => {
-                    setInput(query);
-                    textareaRef.current?.focus();
-                  }} />
+                <h1 className="welcome-reveal text-3xl font-medium tracking-[-0.04em] text-zinc-900 transition-colors duration-700 dark:text-zinc-50 sm:text-4xl">
+                  {user?.user_metadata?.full_name ? `Hey ${String(user.user_metadata.full_name).split(' ')[0]},` : 'Hey there,'} how can I help?
+                </h1>
+                <p className="welcome-reveal-delayed mt-3 text-base text-zinc-800 transition-colors duration-700 dark:text-zinc-300">
+                  Ask a question, explore an idea, or work through something together.
+                </p>
+                <div className="welcome-reveal-delayed mt-9 flex flex-wrap justify-center gap-2">
+                  {[
+                    { label: 'Brainstorm an idea', prompt: 'Help me brainstorm an idea for ' },
+                    { label: 'Write something', prompt: 'Help me write ' },
+                    { label: 'Explain a concept', prompt: 'Explain this concept to me: ' },
+                  ].map((suggestion) => (
+                    <button key={suggestion.label} type="button" onClick={() => { setInput(suggestion.prompt); textareaRef.current?.focus(); }} className="rounded-full border border-zinc-900/10 bg-white/70 px-4 py-2 text-sm text-zinc-800 backdrop-blur-md transition-all hover:-translate-y-0.5 hover:bg-white dark:border-white/15 dark:bg-black/30 dark:text-zinc-200 dark:hover:bg-black/50">
+                      {suggestion.label}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="w-full max-w-4xl mx-auto px-4 py-4 md:py-8 space-y-6 md:space-y-8">
+            <div className="mx-auto w-full max-w-3xl space-y-7 px-5 py-6 pb-8 md:py-10">
               {active?.messages.map((m) => (
                 <div
                   key={m.id}
@@ -1362,8 +1541,17 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                 >
                   {m.role === "user" ? (
                     <div className="flex justify-end">
-                      <div className="bg-gray-900 dark:bg-gray-700 text-white px-4 md:px-6 py-3 md:py-4 rounded-2xl max-w-[90%] md:max-w-[85%] shadow-sm">
+                      <div className="max-w-[90%] rounded-3xl bg-[var(--accent)] px-5 py-3 text-white md:max-w-[85%]">
                         {m.image && <img src={m.image.url} alt={m.image.name} loading="lazy" className="mb-3 max-h-72 max-w-full rounded-lg object-contain" />}
+                        {m.attachments?.map((file) => file.kind === 'image'
+                          ? <StoredImage key={file.id} uid={user?.id || 'anon'} id={file.id} name={file.name} version={contextVersion} />
+                          : (
+                            <div key={file.id} className="mb-3 flex items-center gap-2 rounded-xl bg-white/15 px-3 py-2 text-sm">
+                              <FileText className="h-4 w-4 shrink-0" />
+                              <span className="min-w-0 truncate">{file.name}</span>
+                              {file.scanned && <span className="shrink-0 text-xs opacity-80">scanned</span>}
+                            </div>
+                          ))}
                         <div className="text-sm leading-relaxed whitespace-pre-wrap break-words font-['Inter','system-ui','-apple-system','sans-serif'] font-normal">
                           {m.image ? m.content.replace(/^!\[[^\]]*\]\([^)]*\)\s*/, '') : m.content}
                         </div>
@@ -1371,11 +1559,20 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                     </div>
                   ) : (
                     <div className="space-y-3 w-full">
-                      <div className="ml-0 md:ml-11 overflow-x-auto">
+                      <div className="overflow-x-auto">
                         <div className="max-w-full">
+                          {m.attachments?.map((file) => file.kind === 'image'
+                            ? <StoredImage key={file.id} uid={user?.id || 'anon'} id={file.id} name={file.name} version={contextVersion} variant="plain" />
+                            : null)}
                           <MarkdownRenderer content={m.content} />
                           {m.status === 'stopped' && <span className="mt-2 block text-xs text-slate-500">Stopped</span>}
                           {m.status === 'interrupted' && <span className="mt-2 block text-xs text-amber-600">Response interrupted</span>}
+                          {m.content && <MessageActions id={m.id} text={m.content} speech={speech} />}
+                          {m.meta && (
+                            <span className="mt-2 block text-xs text-zinc-500 dark:text-zinc-400">
+                              {getModelLabel(m.meta.model)}{m.meta.task ? ` · ${TASK_LABELS[m.meta.task]}` : ''}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1395,7 +1592,7 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
                       <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: "0.1s" }}></div>
                       <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: "0.2s" }}></div>
                     </div>
-                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-2 font-['Inter','system-ui','-apple-system','sans-serif']">Thinking...</span>
+                    <span className="text-sm text-gray-500 dark:text-gray-400 ml-2 font-['Inter','system-ui','-apple-system','sans-serif']">{makingImage ? 'Creating your image...' : 'Thinking...'}</span>
                   </div>}
                 </div>
               )}
@@ -1409,158 +1606,35 @@ function ChatInterface({ forceChatView = false }: { forceChatView?: boolean }) {
           )}
         </div>
 
-        {(hasStartedChat || forceChatView) && (
-          <div className="hidden md:block border-t border-gray-200/50 dark:border-gray-700/50 bg-white/20 dark:bg-gray-900/20 backdrop-blur-md">
-            <div className="max-w-4xl mx-auto">
-              <div className="relative">
-                <AiInput
-                  onSubmitWithMode={(text, isSearch) => {
-                    if (isSearch) {
-                      router.push(`/search?q=${encodeURIComponent(text)}`);
-                    } else {
-                      sendText(text);
-                    }
-                  }}
-                  onStop={stopGenerating}
-                  submitting={loading}
-                  disabled={isUploading}
-                  onLightningSelect={toggleLightning}
-                  lightningActive={selectedModel === LIGHTNING_MODEL}
-                  onFileSelect={handleAiInputFileSelect}
-                  onModelSelect={() => setShowModelModal(true)}
-                  selectedModel={selectedModel}
-                  value={input}
-                  onChange={setInput}
-                  textareaRef={textareaRef}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        <div ref={composerRef} className={`absolute inset-x-0 bottom-0 z-10 px-3 pb-[max(12px,env(safe-area-inset-bottom))] pt-2 transition-colors duration-700 max-md:fixed max-md:backdrop-blur-lg md:px-5 md:pb-4 ${showWelcome ? "max-md:bg-transparent" : "max-md:bg-[#faf9f7]/95 max-md:dark:bg-[#0b0b0d]/95 md:bg-gradient-to-t md:from-[#faf9f7] md:via-[#faf9f7]/90 md:to-transparent md:pt-10 md:dark:from-[#0b0b0d] md:dark:via-[#0b0b0d]/90"}`}>
+          <TomatoComposer
+            value={input}
+            onChange={setInput}
+            onSend={(text, { search }) => {
+              // Web search only makes sense with a question and no files.
+              if (search && text && attach.items.length === 0) {
+                router.push(`/search?q=${encodeURIComponent(text)}`);
+              } else {
+                sendText(text);
+              }
+            }}
+            onStop={stopGenerating}
+            submitting={loading}
+            busy={attach.busy}
+            attachments={attach.items}
+            onFilesSelected={attach.addFiles}
+            onRemoveAttachment={attach.remove}
+            models={COMPOSER_MODELS}
+            selectedModel={selectedModel}
+            onModelChange={selectModel}
+            lightningActive={selectedModel === LIGHTNING_MODEL}
+            onLightningToggle={toggleLightning}
+            textareaRef={textareaRef}
+            quickActions={showWelcome}
+            footnote="TomatoAI can make mistakes. Check important information."
+          />
+        </div>
       </main>
-
-      {/* Enhanced Mobile Input Bar with Integrated Send Button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-gray-800/95 border-t border-gray-200/80 dark:border-gray-700/80 p-3 md:hidden z-10 backdrop-blur-lg">
-        {attachment && (
-          <div className="flex items-center gap-2 mb-2 p-2 bg-gray-50 dark:bg-gray-700/50 rounded-lg max-w-[200px] relative group">
-            <span className="text-xs truncate max-w-full text-gray-600 dark:text-gray-300">
-              {attachment.name}
-            </span>
-            <button
-              onClick={removeAttachment}
-              className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]"
-            >
-              ✕
-            </button>
-          </div>
-        )}
-        <form onSubmit={sendMessage} className="relative w-full">
-          <div className="relative flex items-end bg-gray-100/90 dark:bg-gray-700/90 rounded-2xl shadow-sm transition-all duration-300 focus-within:ring-2 focus-within:ring-green-500/50">
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              aria-label="Attach file"
-              className="p-3 text-gray-500 hover:text-green-500 dark:text-gray-400 dark:hover:text-green-400 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowModelModal(true)}
-              aria-label="Choose AI model"
-              className="p-3 text-gray-500 hover:text-blue-500 dark:text-gray-400 dark:hover:text-blue-400 transition-colors relative group"
-              title="Select AI Model"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-            </button>
-            <LightningToggle active={selectedModel === LIGHTNING_MODEL} onToggle={toggleLightning} size="md" />
-            <textarea
-              value={input}
-              onChange={(e) => {
-                setInput(e.target.value);
-                // Auto-resize the textarea
-                e.target.style.height = 'auto';
-                e.target.style.height = `${Math.min(e.target.scrollHeight, 150)}px`;
-              }}
-              placeholder="Message TomatoAI..."
-              className="w-full bg-transparent border-0 focus:ring-0 focus:outline-none resize-none py-3 pl-4 pr-12 text-base text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-              disabled={loading || isUploading}
-              onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); if (!loading) void sendMessage(); } }}
-              rows={1}
-              style={{
-                minHeight: '24px',
-                maxHeight: '150px',
-                lineHeight: '1.5',
-                fontSize: '16px',
-                WebkitAppearance: 'none',
-                paddingRight: '60px',
-              }}
-            />
-
-            {/* Send Button - Integrated Inside Input */}
-            <div className="absolute right-2 bottom-1.5 flex items-center space-x-1">
-              {input && (
-                <button
-                  type="button"
-                  className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors rounded-full hover:bg-gray-200/50 dark:hover:bg-gray-600/50"
-                  onClick={() => {
-                    setInput('');
-                    const textarea = document.querySelector('textarea');
-                    if (textarea) textarea.style.height = 'auto';
-                  }}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              )}
-
-              <button
-                type={loading ? "button" : "submit"}
-                disabled={!loading && (!input.trim() || isUploading)}
-                onClick={loading ? stopGenerating : undefined}
-                aria-label={loading ? 'Stop generating' : 'Send message'}
-                className={`p-2 rounded-full transition-all duration-200 ${loading
-                  ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30 shadow-lg hover:shadow-xl transform hover:scale-105'
-                  : input.trim()
-                    ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
-                    : 'text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                  }`}
-              >
-                {loading ? (
-                  <Square className="w-5 h-5 fill-current" />
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="transform rotate-0 transition-transform duration-200 group-hover:rotate-12"
-                  >
-                    <line x1="22" y1="2" x2="11" y2="13"></line>
-                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                  </svg>
-                )}
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
     </div>
   );
 }

@@ -17,7 +17,7 @@ interface ResultsSectionProps {
 
 const ResultsSection: React.FC<ResultsSectionProps> = ({ result, onReset, onOptimize }) => {
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-2 duration-[var(--motion-reveal)] [animation-timing-function:var(--motion-settle)]">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white dark:bg-slate-900 p-4 md:p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-800 gap-4">
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-slate-800 dark:text-white">Analysis Results</h2>

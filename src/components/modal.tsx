@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { motionFade, motionPanel } from "@/lib/motion";
 import { X } from "lucide-react";
 
 const THEME_COLOR = "#1a3a3a"; // The deep green color
@@ -31,6 +32,7 @@ export default function BookModalPlain() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
+                            transition={motionFade}
                             onClick={() => setIsOpen(false)}
                             className="absolute inset-0 bg-[#e5e5e5]/90 backdrop-blur-sm"
                         />
@@ -40,7 +42,7 @@ export default function BookModalPlain() {
                             initial={{ opacity: 0, scale: 0.98 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.98 }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
+                            transition={motionPanel}
                             className="relative w-full max-w-md bg-white p-10 shadow-[0px_20px_40px_-10px_rgba(26,58,58,0.2)]"
                         >
                             {/* HEADER - Very Plain */}

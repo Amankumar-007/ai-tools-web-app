@@ -1,5 +1,6 @@
 // src/app/api/generate-resume/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { withQuota } from '@/lib/growth/meter';
 import { generateResumeTemplate, type ResumeData } from '@/lib/resume-templates';
 import { createResumePrompt } from '../../../lib/resume-prompts';
 
@@ -7,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 type RequestBody = ResumeData & { useAI?: boolean };
 
-export async function POST(req: NextRequest) {
+async function handle(req: NextRequest) {
   try {
     let payload: RequestBody | null = null;
 
@@ -37,7 +38,8 @@ export async function POST(req: NextRequest) {
       try {
         const { GoogleGenerativeAI } = await import('@google/generative-ai');
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        // Gemini 2.5 "thinks" by default and the thinking eats the output budget, truncating short answers; these helpers want direct output.
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash', generationConfig: { thinkingConfig: { thinkingBudget: 0 } } as never });
 
         const prompt = createResumePrompt(payload);
         const res = await model.generateContent(prompt);
@@ -85,3 +87,6 @@ export async function GET() {
     { status: 200 }
   );
 }
+
+/** Spends one AI tool run from the caller's daily quota; refunded if the request fails. */
+export const POST = withQuota<NextRequest>('tool', handle);

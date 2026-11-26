@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import MainNavbar from '@/components/MainNavbar'
-import { getCurrentUser, signOut, User } from '@/lib/supabase'
+import type { User } from '@/lib/supabase'
 
 // Thin client wrapper so server-rendered pages (like the static tool detail
 // pages) can render the navbar without passing functions across the
@@ -12,11 +12,15 @@ export default function ToolPageNavbar() {
   const [user, setUser] = useState<User | null>(null)
   const router = useRouter()
 
+  // The sign-in client is downloaded after the page is shown, not as part of the first load.
   useEffect(() => {
-    getCurrentUser().then(setUser)
+    let alive = true
+    import('@/lib/supabase').then((m) => m.getCurrentUser()).then((u) => { if (alive) setUser(u) }).catch(() => {})
+    return () => { alive = false }
   }, [])
 
   const handleSignOut = async () => {
+    const { signOut } = await import('@/lib/supabase')
     await signOut()
     setUser(null)
     router.push('/')

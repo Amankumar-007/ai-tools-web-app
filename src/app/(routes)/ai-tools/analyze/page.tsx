@@ -669,13 +669,13 @@ function AnalyzeContent() {
         {/* AUTOMATIC AI ANALYSIS STATUS INDICATOR */}
         {/* ========================================================================= */}
         <section aria-label="AI Live Evaluation Status" className="mb-10">
-          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0B0F1A] border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4 shadow-xs">
+          <div className="p-4 sm:p-5 rounded-2xl bg-white dark:bg-[#0B0F1A] border border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 shadow-xs">
             <div className="flex items-center gap-3">
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-white ${isAnalyzing ? 'bg-blue-600 animate-pulse' : 'bg-emerald-600'}`}>
                 <BrainCircuit size={18} />
               </div>
               <div>
-                <div className="text-xs font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                <div className="text-xs font-bold text-slate-900 dark:text-white flex flex-wrap items-center gap-2">
                   <span>AI Benchmarking Engine</span>
                   {isAnalyzing ? (
                     <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20">
@@ -700,7 +700,7 @@ function AnalyzeContent() {
             <button
               onClick={() => runAutomaticAIAnalysis(selectedTools)}
               disabled={isAnalyzing}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
+              className="inline-flex self-start sm:self-auto items-center gap-1.5 px-3 py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
               title="Refresh AI Benchmarks"
             >
               <RefreshCw size={12} className={isAnalyzing ? 'animate-spin' : ''} />

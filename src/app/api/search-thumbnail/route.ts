@@ -5,7 +5,7 @@ import { searchThumbnails } from '@/lib/searchImages'
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
-  const query = searchParams.get('query')
+  const query = (searchParams.get('query') || '').trim().slice(0, 120)
 
   if (!query) {
     return NextResponse.json({ error: 'Missing query' }, { status: 400 })

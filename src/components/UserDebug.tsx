@@ -87,7 +87,7 @@ const UserDebug = () => {
             <span className="font-medium">Status:</span> {user.subscription_status}
           </div>
           <div>
-            <span className="font-medium">Stripe Customer ID:</span> {user.stripe_customer_id || 'None'}
+            <span className="font-medium">Plan ends:</span> {user.subscription_end_date || 'n/a'}
           </div>
           
           {/* Test Result */}

@@ -5,7 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase-browser";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 import { toast } from "sonner";
+import { safeRedirectPath } from "@/lib/security/redirect";
 
 export default function LoginPage() {
   return (
@@ -52,7 +54,7 @@ function Login() {
         setError(authError.message);
       } else if (data.session) {
         toast.success("Welcome back! Redirecting...");
-        const redirectTo = searchParams.get("redirect") || "/tomato-ai";
+        const redirectTo = safeRedirectPath(searchParams.get("redirect"), "/tomato-ai");
         router.push(redirectTo);
       }
     } catch (err) {
@@ -69,7 +71,7 @@ function Login() {
     setLoading(true);
 
     try {
-      const redirectTo = searchParams.get("redirect") || "/tomato-ai";
+      const redirectTo = safeRedirectPath(searchParams.get("redirect"), "/tomato-ai");
       // Construct the absolute URL for Supabase redirect
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
       const finalRedirectUrl = `${baseUrl}${redirectTo}`;
@@ -136,32 +138,26 @@ function Login() {
   );
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden px-4">
       {/* Fixed blurred background (light/dark) */}
       <div
         aria-hidden
         className="fixed inset-0 -z-10 dark:hidden"
         style={{
-          backgroundImage: "url('/generated-image.png')",
+          backgroundImage: "url('/art/generated-image.webp')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       <div
         aria-hidden
         className="fixed inset-0 -z-10 hidden dark:block"
         style={{
-          backgroundImage: "url('/generated-image (1).png')",
+          backgroundImage: "url('/art/generated-image-dark.webp')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       {/* Floating Tomatoes Background */}
@@ -226,13 +222,13 @@ function Login() {
       <motion.div
         initial={{ opacity: 0, y: 20, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={motionReveal}
         className="relative z-10 bg-white/95 backdrop-blur-md p-8 sm:p-10 rounded-2xl shadow-xl w-full max-w-md border border-gray-100 dark:border-gray-700 dark:bg-gray-800/90"
       >
         <motion.h1
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+          transition={{ ...motionReveal, delay: 0.2 }}
           className="text-3xl font-bold text-gray-800 dark:text-white mb-8 text-center tracking-tight"
         >
           Welcome Back!
@@ -256,7 +252,7 @@ function Login() {
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+          transition={{ ...motionReveal, delay: 0.3 }}
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           onClick={handleGoogleLogin}

@@ -1,8 +1,7 @@
 import React from "react"
 import { motion } from "framer-motion"
+import { motionReveal } from "@/lib/motion";
 import styles from './FlipLink.module.css'
-
-const DURATION = 0.25
 const STAGGER = 0.025
 
 interface FlipLinkProps {
@@ -106,9 +105,8 @@ const FlipLink: React.FC<FlipLinkProps> = ({ children, href, className }) => {
               },
             }}
             transition={{
-              duration: DURATION,
-              ease: "easeInOut",
-              delay: STAGGER * i,
+              ...motionReveal,
+              delay: STAGGER * Math.min(i, 8),
             }}
             className="inline-block"
             key={i}
@@ -129,9 +127,8 @@ const FlipLink: React.FC<FlipLinkProps> = ({ children, href, className }) => {
               },
             }}
             transition={{
-              duration: DURATION,
-              ease: "easeInOut",
-              delay: STAGGER * i,
+              ...motionReveal,
+              delay: STAGGER * Math.min(i, 8),
             }}
             className={`${styles.bottomLayer} inline-block`}
             key={i}

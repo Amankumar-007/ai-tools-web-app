@@ -1,12 +1,18 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
 
 
 
-export async function GET(request: NextRequest) {
+/** The template files only change with a deployment, so the list is built once per server instance. */
+let cached: string | null = null;
+
+const HEADERS = { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800' };
+
+export async function GET() {
 
   try {
+    if (cached) return new NextResponse(cached, { status: 200, headers: HEADERS });
     const templatesDir = path.join(process.cwd(), 'public', 'data', 'n8n-templates');
     
     // Read all directories in the n8n-templates folder
@@ -33,7 +39,9 @@ export async function GET(request: NextRequest) {
             description: extractDescription(jsonData, file),
             category: mapDirectoryNameToCategory(categoryDir.name),
             fileName: file,
-            content: content, // Include the full JSON content
+            // The workflow itself is not in the list (all of them together are several MB): the page fetches one file when
+            // someone copies or downloads it.
+            path: `/data/n8n-templates/${encodeURIComponent(categoryDir.name)}/${encodeURIComponent(file)}`,
             tags: generateTags(file, jsonData.name || '', categoryDir.name)
           };
           
@@ -44,12 +52,8 @@ export async function GET(request: NextRequest) {
       }
     }
     
-    return new NextResponse(JSON.stringify({ templates }), {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
+    cached = JSON.stringify({ templates });
+    return new NextResponse(cached, { status: 200, headers: HEADERS });
   } catch (error) {
     console.error('Error reading templates directory:', error);
     return new NextResponse(JSON.stringify({ error: 'Failed to load templates' }), {

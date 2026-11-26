@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { motionSpring } from "@/lib/motion";
 
 export default function Logo() {
   return (
@@ -9,7 +10,7 @@ export default function Logo() {
         <motion.div
           whileHover={{ scale: 1.07, rotate: 5 }}
           whileTap={{ scale: 0.98 }}
-          transition={{ type: 'spring', stiffness: 320, damping: 18 }}
+          transition={motionSpring}
           style={{
             display: 'inline-block',
             borderRadius: '50%',

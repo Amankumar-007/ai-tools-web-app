@@ -99,14 +99,15 @@ const sections: LegalSection[] = [
     body: (
       <>
         <p>
-          Paid plans are billed in advance through Stripe on a recurring basis until cancelled. Prices are shown on
-          our <Link href="/pricing">pricing page</Link> and may change with notice for future billing periods.
+          Paid plans are prepaid through Razorpay for a fixed period (30 days or one year). They do not renew
+          automatically: nothing is charged again unless you choose to renew. Prices are shown on our{" "}
+          <Link href="/pricing">pricing page</Link> and may change for future purchases. Renewing before your plan ends
+          adds the new period after the current one.
         </p>
         <p>
-          You can cancel at any time from your account; cancellation stops future renewals and your plan stays active
-          until the end of the period you have already paid for. Because access is granted immediately, payments are
-          generally non-refundable, but if the service was unavailable or billed in error, contact us within 14 days and
-          we will make it right.
+          Your plan stays active until the end of the period you have paid for. Because access is granted immediately,
+          payments are generally non-refundable, but if the service was unavailable or billed in error, contact us
+          within 14 days and we will make it right.
         </p>
       </>
     ),

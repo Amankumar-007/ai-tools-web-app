@@ -4,7 +4,9 @@ import { generateContentWithGemini } from "@/lib/contentGenerator"
 import AiInput from "@/components/ui/ai-input" // Assuming you saved that component separately
 import { Loader2, Plus, MessageSquare, History, X } from "lucide-react"
 import { motion } from "framer-motion"
+import { motionFade, motionReveal } from "@/lib/motion";
 import Logo from "@/components/Logo"
+import { escapeHtml } from "@/lib/security/html"
 
 interface HistoryItem {
   id: string
@@ -37,7 +39,7 @@ export default function ContentGeneratorPage() {
       }
       setHistory(prev => [newItem, ...prev])
     } catch (err) {
-      setResult("Something went wrong. Try again.")
+      setResult(err instanceof Error ? err.message : "Something went wrong. Try again.")
     } finally {
       setLoading(false)
     }
@@ -72,40 +74,34 @@ export default function ContentGeneratorPage() {
         aria-hidden
         className="fixed inset-0 -z-10 dark:hidden"
         style={{
-          backgroundImage: "url('/generated-image.png')",
+          backgroundImage: "url('/art/generated-image.webp')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       <div
         aria-hidden
         className="fixed inset-0 -z-10 hidden dark:block"
         style={{
-          backgroundImage: "url(" + "'/generated-image (1).png'" + ")",
+          backgroundImage: "url(" + "'/art/generated-image-dark.webp'" + ")",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       {/* Sidebar */}
       <motion.div 
         initial={false}
         animate={{ width: sidebarOpen ? 320 : 0 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
+        transition={motionFade}
         className="bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col overflow-hidden"
       >
         {sidebarOpen && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.1 }}
+            transition={{ ...motionReveal, delay: 0.1 }}
             className="flex flex-col h-full"
           >
             {/* Sidebar Header */}
@@ -147,7 +143,7 @@ export default function ContentGeneratorPage() {
                     key={item.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: index * 0.05 }}
+                    transition={{ ...motionReveal, delay: Math.min(index, 6) * 0.035 }}
                     onClick={() => handleHistoryClick(item)}
                     className="p-3 rounded-lg bg-neutral-50 dark:bg-neutral-800/50 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-all duration-200 group"
                   >
@@ -191,7 +187,7 @@ export default function ContentGeneratorPage() {
           <motion.p 
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            transition={{ ...motionReveal, delay: 0.1 }}
             className="text-gray-500 dark:text-gray-400 mb-6"
           >
             Paste any text below. Gemini will optimize it for clarity and impact.
@@ -202,7 +198,7 @@ export default function ContentGeneratorPage() {
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          transition={{ ...motionReveal, delay: 0.2 }}
           className="max-w-2xl mx-auto"
         >
           <AiInputWrapper
@@ -268,7 +264,7 @@ export default function ContentGeneratorPage() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+                transition={{ ...motionReveal, delay: 0.2 }}
                 className="mb-4 p-4 bg-gradient-to-r from-[#ff3f17]/10 to-orange-500/10 dark:from-[#ff3f17]/20 dark:to-orange-500/20 rounded-xl border border-[#ff3f17]/20 dark:border-[#ff3f17]/30"
               >
                 <div className="flex items-center gap-2 text-[#ff3f17] dark:text-orange-400">
@@ -281,7 +277,7 @@ export default function ContentGeneratorPage() {
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
+                transition={{ ...motionReveal, delay: 0.3 }}
                 className="bg-white dark:bg-neutral-900 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden"
               >
                 <div className="p-8 lg:p-10">
@@ -295,7 +291,7 @@ export default function ContentGeneratorPage() {
                     <div 
                       className="text-gray-800 dark:text-gray-200 leading-relaxed"
                       dangerouslySetInnerHTML={{
-                        __html: result
+                        __html: escapeHtml(result)
                           .replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900 dark:text-gray-100">$1</strong>')
                           .replace(/^## (.*$)/gm, '<h2 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-8 mb-4 first:mt-0">$1</h2>')
                           .replace(/^### (.*$)/gm, '<h3 class="text-xl font-semibold text-gray-800 dark:text-gray-200 mt-6 mb-3">$1</h3>')
@@ -310,7 +306,7 @@ export default function ContentGeneratorPage() {
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
+                  transition={{ ...motionReveal, delay: 0.5 }}
                   className="px-8 py-4 bg-neutral-50 dark:bg-neutral-800/50 border-t border-neutral-200 dark:border-neutral-700"
                 >
                   <div className="flex items-center justify-between text-sm text-gray-600 dark:text-gray-400">
@@ -384,7 +380,7 @@ function AiInputWrapper({
     <div className="w-full py-4">
       <motion.div 
         whileHover={{ scale: 1.01 }}
-        transition={{ duration: 0.2 }}
+        transition={motionFade}
         className="relative max-w-xl border rounded-[22px] border-black/5 p-1 w-full mx-auto shadow-lg"
       >
         <div className="relative rounded-2xl border border-black/5 bg-neutral-800/5 flex flex-col">

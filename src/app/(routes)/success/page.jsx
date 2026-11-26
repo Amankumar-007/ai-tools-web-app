@@ -1,13 +1,14 @@
 "use client";
 import { motion } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 
 export default function Success() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-100 to-green-200">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-green-100 to-green-200 px-4">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.5 }}
+        transition={motionReveal}
         className="bg-white p-10 rounded-2xl shadow-xl text-center"
       >
         <h1 className="text-4xl font-extrabold text-green-700 mb-4">🎉 Payment Successful!</h1>

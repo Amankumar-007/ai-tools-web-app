@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { openRouterFetch } from '@/lib/ai/openrouter-fetch';
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -11,7 +12,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: 'Missing or too-short `rawText` in request body' }, { status: 400 });
         }
 
-        const response = await fetch(OPENROUTER_URL, {
+        const response = await openRouterFetch(OPENROUTER_URL, {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,

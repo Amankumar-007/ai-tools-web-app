@@ -2,12 +2,16 @@
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, LazyMotion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motionFade, motionReveal, motionSpring } from "@/lib/motion";
 import ThemeToggleButton from "@/components/ui/theme-toggle-button";
 import Link from "next/link";
 import Image from "next/image";
 import { ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+// The animation engine is fetched after the page is shown (see lib/motion-features.ts), not as part of the first download.
+const loadMotionFeatures = () => import("@/lib/motion-features").then((mod) => mod.default);
 
 // Define types for user
 interface User {
@@ -22,6 +26,7 @@ interface MainNavbarProps {
 
 const NAV_LINKS = [
   { href: "/ai-tools", label: "AI Tools" },
+  { href: "/tools", label: "Daily Tools" },
   { href: "/#categories", label: "Categories" },
   { href: "/trending", label: "Trending" },
   { href: "/about", label: "About" },
@@ -44,6 +49,7 @@ const EXPLORE_LINKS = [
 
 
 export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNavbarProps) {
+  const reducedMotion = useReducedMotion();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [exploreOpen, setExploreOpen] = useState(false);
@@ -79,6 +85,9 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
     if (href === "/trending") {
       return pathname === "/trending" || pathname.startsWith("/trending/");
     }
+    if (href === "/tools") {
+      return pathname === "/tools" || pathname.startsWith("/tools/");
+    }
     if (href === "/about") {
       return pathname === "/about";
     }
@@ -96,9 +105,11 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
   );
 
   return (
+    <LazyMotion features={loadMotionFeatures}>
     <>
+      {/* Below 1180px the full menu does not fit (its pill ran over the logo and the sign-in buttons): use the drawer. */}
       {/* ===================== MOBILE TOP BAR ===================== */}
-      <header className={`md:hidden fixed left-0 right-0 z-50 transition-all duration-300 
+      <header className={`min-[1180px]:hidden fixed left-0 right-0 z-50 transition-all duration-300 
         ${isScrolled
           ? 'top-0 bg-white/80 dark:bg-[#0A0A0A]/80 backdrop-blur-md py-3 shadow-xs border-b border-black/5 dark:border-white/5'
           : 'top-0 bg-transparent py-4'
@@ -133,23 +144,23 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
         {drawerOpen && (
           <>
             {/* Backdrop */}
-            <motion.div
+            <m.div
               key="backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="md:hidden fixed inset-0 z-[60] bg-black/40"
+              transition={motionFade}
+              className="min-[1180px]:hidden fixed inset-0 z-[60] bg-black/40"
               onClick={closeDrawer}
             />
 
-            <motion.div
+            <m.div
               key="drawer"
               initial={{ x: "100%" }}
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
-              transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              className="md:hidden fixed top-0 right-0 bottom-0 z-[70] w-[85vw] max-w-sm bg-white dark:bg-[#070708] flex flex-col"
+              transition={motionReveal}
+              className="min-[1180px]:hidden fixed top-0 right-0 bottom-0 z-[70] w-[85vw] max-w-sm bg-white dark:bg-[#070708] flex flex-col"
             >
               <div className="flex items-center justify-between px-8 pt-8 pb-4">
                 <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-600">
@@ -171,6 +182,7 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                     return (
                       <Link
                         key={link.href}
+                        prefetch={false}
                         href={link.href}
                         onClick={closeDrawer}
                         className={cn(
@@ -192,18 +204,18 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                     className="flex items-center justify-between w-full text-slate-400 dark:text-slate-500 text-sm font-semibold tracking-wider uppercase mb-4"
                   >
                     <span>Explore Tools</span>
-                    <motion.span animate={{ rotate: exploreOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <m.span animate={{ rotate: exploreOpen ? 180 : 0 }} transition={motionSpring}>
                       <ChevronDown className="w-4 h-4" />
-                    </motion.span>
+                    </m.span>
                   </button>
 
                   <AnimatePresence>
                     {exploreOpen && (
-                      <motion.div
+                      <m.div
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        transition={reducedMotion ? { duration: 0 } : { ...motionReveal, opacity: motionFade }}
                         className="overflow-hidden"
                       >
                         <div className="grid grid-cols-1 gap-4 py-2">
@@ -212,6 +224,7 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                             return (
                               <Link
                                 key={item.path}
+                                prefetch={false}
                                 href={item.path}
                                 onClick={closeDrawer}
                                 className={cn(
@@ -226,7 +239,7 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                             );
                           })}
                         </div>
-                      </motion.div>
+                      </m.div>
                     )}
                   </AnimatePresence>
                 </div>
@@ -235,9 +248,9 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
               <div className="px-8 py-8 border-t border-slate-100 dark:border-white/5">
                 {user ? (
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-md">
-                      {user.subscription_tier}
-                    </span>
+                    <Link href="/account" onClick={closeDrawer} className="text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1.5 rounded-md">
+                      {user.subscription_tier} · Account
+                    </Link>
                     <button
                       onClick={() => { closeDrawer(); onSignOut(); }}
                       className="text-xs font-semibold uppercase tracking-wider text-red-500 hover:text-red-600"
@@ -264,17 +277,17 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                   </div>
                 )}
               </div>
-            </motion.div>
+            </m.div>
           </>
         )}
       </AnimatePresence>
 
       {/* ===================== DESKTOP NAV ===================== */}
-      <motion.nav
-        className={`hidden md:block fixed left-0 right-0 z-50 transition-all duration-500 ease-out ${isScrolled ? 'top-0 py-3 bg-transparent' : 'top-3 py-3 bg-transparent'}`}
+      <m.nav
+        className={`hidden min-[1180px]:block fixed left-0 right-0 top-0 z-50 py-3 bg-transparent transition-transform duration-[var(--motion-reveal)] ${isScrolled ? 'translate-y-0' : 'translate-y-3'}`}
         initial={false}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        transition={motionFade}
       >
         <div className="flex items-center justify-between px-8 relative">
           {/* Desktop Logo */}
@@ -288,17 +301,17 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
           </Link>
 
           {/* Liquid Glass Nav Pill */}
-          <motion.div
+          <m.div
             className="absolute left-1/2 -translate-x-1/2 z-30"
             animate={{ scale: 1 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+            transition={motionReveal}
           >
             <div
               className="flex items-center gap-1.5 
                 backdrop-blur-md bg-white/50 dark:bg-black/50
                 border border-white/50 dark:border-white/10
                 shadow-xl shadow-black/5
-                rounded-full px-5 py-2.5
+                rounded-full px-5 py-2.5 xl:w-max
                 relative overflow-visible
                 transition-all duration-300"
               onMouseLeave={() => setHoveredHref(null)}
@@ -314,11 +327,12 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                 return (
                   <Link
                     key={link.href}
+                    prefetch={false}
                     href={link.href}
                     onMouseEnter={() => setHoveredHref(link.href)}
-                    onClick={(e) => link.href !== "/#categories" && link.href !== "/trending" ? onProtectedLink(e, link.href) : undefined}
+                    onClick={(e) => link.href !== "/#categories" && link.href !== "/trending" && link.href !== "/tools" ? onProtectedLink(e, link.href) : undefined}
                     className={cn(
-                      "relative px-4 py-2 rounded-full text-sm transition-colors duration-200 flex items-center justify-center select-none",
+                      "relative px-4 py-2 rounded-full text-sm xl:whitespace-nowrap transition-colors duration-200 flex items-center justify-center select-none",
                       active
                         ? "text-slate-950 dark:text-white font-semibold"
                         : "text-slate-600 dark:text-slate-300 hover:text-slate-950 dark:hover:text-white font-medium"
@@ -326,31 +340,22 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                   >
                     {/* Active Background Pill with Smooth Layout Animation */}
                     {active && (
-                      <motion.span
+                      <m.span
                         layoutId="navbar-active-pill"
                         className="absolute inset-0 rounded-full bg-white dark:bg-white/20 shadow-md border border-slate-200/80 dark:border-white/20 -z-10"
-                        transition={{
-                          type: "spring",
-                          stiffness: 380,
-                          damping: 28,
-                          mass: 0.8
-                        }}
+                        transition={motionSpring}
                       />
                     )}
 
                     {/* Shared Hover Background Pill */}
                     {!active && isHovered && (
-                      <motion.span
+                      <m.span
                         layoutId="navbar-hover-pill"
                         className="absolute inset-0 rounded-full bg-slate-900/5 dark:bg-white/10 -z-10"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 400,
-                          damping: 30
-                        }}
+                        transition={motionFade}
                       />
                     )}
 
@@ -373,30 +378,21 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                   )}
                 >
                   {isExploreActive && (
-                    <motion.span
+                    <m.span
                       layoutId="navbar-active-pill"
                       className="absolute inset-0 rounded-full bg-white dark:bg-white/20 shadow-md border border-slate-200/80 dark:border-white/20 -z-10"
-                      transition={{
-                        type: "spring",
-                        stiffness: 380,
-                        damping: 28,
-                        mass: 0.8
-                      }}
+                      transition={motionSpring}
                     />
                   )}
 
                   {!isExploreActive && hoveredHref === "explore" && (
-                    <motion.span
+                    <m.span
                       layoutId="navbar-hover-pill"
                       className="absolute inset-0 rounded-full bg-slate-900/5 dark:bg-white/10 -z-10"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      transition={{
-                        type: "spring",
-                        stiffness: 400,
-                        damping: 30
-                      }}
+                      transition={motionFade}
                     />
                   )}
 
@@ -413,6 +409,7 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                       return (
                         <Link
                           key={item.path}
+                          prefetch={false}
                           href={item.path}
                           className={cn(
                             "px-3.5 py-2 rounded-xl text-sm font-medium transition-colors flex items-center justify-between",
@@ -432,16 +429,16 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
                 </div>
               </div>
             </div>
-          </motion.div>
+          </m.div>
 
           {/* Desktop Right */}
           <div className="flex items-center gap-3 ml-auto z-30">
             <ThemeToggleButton variant="circle-blur" start="top-right" />
             {user ? (
               <div className="flex items-center gap-2">
-                <span className="text-xs bg-blue-500/20 text-blue-700 dark:text-blue-300 px-3.5 py-1.5 rounded-full border border-blue-500/30 font-semibold">
-                  {user.subscription_tier}
-                </span>
+                <Link href="/account" title="Your account, usage and invite link" className="text-xs bg-blue-500/20 text-blue-700 dark:text-blue-300 px-3.5 py-1.5 rounded-full border border-blue-500/30 font-semibold hover:bg-blue-500/30 transition-colors">
+                  {user.subscription_tier} · Account
+                </Link>
                 <button
                   onClick={onSignOut}
                   className="text-sm font-medium text-slate-600 hover:text-red-500 dark:hover:text-red-400 transition-colors px-2 py-1"
@@ -461,7 +458,7 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
             )}
           </div>
         </div>
-      </motion.nav>
+      </m.nav>
 
       {/* Self-contained style block for hiding scrollbars without globals.css edits */}
       <style dangerouslySetInnerHTML={{
@@ -470,6 +467,7 @@ export default function MainNavbar({ user, onSignOut, onProtectedLink }: MainNav
         .no-scrollbar { -ms-overflow-style: none !important; scrollbar-width: none !important; }
       `}} />
     </>
+    </LazyMotion>
   );
 }
 

@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { Tool } from '@/app/(routes)/ai-tools/AIToolsDirectoryClient';
 import { getAllTools } from '@/lib/tools';
 import { getBestLogoUrl, getLogoFallbackChain } from '@/lib/logoHelper';
@@ -181,7 +182,7 @@ export function getFallbackTools(): Tool[] {
 }
 
 // Insert or update tool in Supabase
-export async function upsertToolToDb(tool: Partial<Tool>): Promise<{ data: any; error: any }> {
+export async function upsertToolToDb(tool: Partial<Tool>, db: SupabaseClient = supabase): Promise<{ data: any; error: any }> {
   try {
     const dbPayload = {
       slug: tool.slug || tool.name?.toLowerCase().replace(/\s+/g, '-'),
@@ -204,7 +205,7 @@ export async function upsertToolToDb(tool: Partial<Tool>): Promise<{ data: any; 
       is_verified: tool.isVerified ?? true,
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('ai_tools')
       .upsert(dbPayload, { onConflict: 'slug' })
       .select()
@@ -217,9 +218,9 @@ export async function upsertToolToDb(tool: Partial<Tool>): Promise<{ data: any; 
 }
 
 // Delete tool from Supabase
-export async function deleteToolFromDb(slugOrId: string | number): Promise<{ success: boolean; error: any }> {
+export async function deleteToolFromDb(slugOrId: string | number, db: SupabaseClient = supabase): Promise<{ success: boolean; error: any }> {
   try {
-    let query = supabase.from('ai_tools').delete();
+    let query = db.from('ai_tools').delete();
     if (typeof slugOrId === 'number') {
       query = query.eq('id', slugOrId);
     } else {
@@ -234,7 +235,7 @@ export async function deleteToolFromDb(slugOrId: string | number): Promise<{ suc
 }
 
 // Sync all tools from local JSON to Supabase (with logo resolution)
-export async function syncAllLocalToolsToSupabase(): Promise<{ count: number; error: any }> {
+export async function syncAllLocalToolsToSupabase(db: SupabaseClient = supabase): Promise<{ count: number; error: any }> {
   try {
     const tools = getFallbackTools();
     const records = tools.map((t) => ({
@@ -258,7 +259,7 @@ export async function syncAllLocalToolsToSupabase(): Promise<{ count: number; er
       is_verified: t.isVerified,
     }));
 
-    const { data, error } = await supabase
+    const { data, error } = await db
       .from('ai_tools')
       .upsert(records, { onConflict: 'slug' });
 

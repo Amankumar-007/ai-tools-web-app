@@ -74,6 +74,14 @@ export function recordLiveVisitor(
     userEmail,
   });
 
+  // Hard cap so the store can never grow without bound; the oldest session goes first.
+  const MAX_SESSIONS = 5000;
+  while (globalVisitorStore.size > MAX_SESSIONS) {
+    const oldest = globalVisitorStore.keys().next().value;
+    if (oldest === undefined) break;
+    globalVisitorStore.delete(oldest);
+  }
+
   // Clean up sessions inactive for more than 15 minutes
   const EXPIRY_MS = 15 * 60 * 1000;
   for (const [key, session] of globalVisitorStore.entries()) {

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 import { ArrowRight, Search, Sparkles } from "lucide-react";
 import Image from "next/image";
 
@@ -85,7 +86,7 @@ export default function VeniceSection() {
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
+            transition={motionReveal}
             className="flex flex-col gap-7 max-w-[540px]"
           >
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white tracking-tight leading-[1.15]">
@@ -113,12 +114,14 @@ export default function VeniceSection() {
                   type="text"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
+                  aria-label="Ask anything"
                   placeholder="Ask Anything..."
                   className="w-full bg-transparent border-none outline-none pl-4 pr-14 py-3 text-base text-slate-800 dark:text-slate-100 placeholder-slate-400 font-medium"
                 />
                 <button
                   type="submit"
                   disabled={!query.trim()}
+                  aria-label="Send"
                   className="absolute right-3 top-1/2 -translate-y-1/2 w-11 h-11 rounded-xl bg-blue-500 hover:bg-blue-600 disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-500 text-white flex items-center justify-center transition-all shadow-lg shadow-blue-500/30 active:scale-95"
                 >
                   <ArrowRight className="w-5 h-5" />
@@ -133,7 +136,7 @@ export default function VeniceSection() {
           initial={{ opacity: 0, x: 40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          transition={{ ...motionReveal, delay: 0.2 }}
           className="relative w-full aspect-square md:aspect-[4/3] lg:aspect-square rounded-[2.5rem] overflow-hidden group shadow-2xl shadow-slate-200/50 dark:shadow-black/50 flex items-center justify-center"
         >
           {/* Ambient overlay */}
@@ -154,7 +157,7 @@ export default function VeniceSection() {
           {/* Center Logo */}
           <div className="relative z-30 w-32 h-32 border border-white/30 dark:border-white/20 rounded-full flex items-center justify-center p-3 backdrop-blur-md bg-white/10 dark:bg-black/30 shadow-2xl transition-transform duration-500 group-hover:scale-110">
             <div className="w-full h-full border border-white/40 dark:border-white/30 rounded-full flex items-center justify-center p-3 relative bg-white/20 dark:bg-black/20">
-              <img src="/apple-touch-icon.png" alt="Tomato AI Logo" className="w-14 h-14 object-contain drop-shadow-xl" />
+              <Image src="/apple-touch-icon.png" alt="Tomato AI Logo" width={56} height={56} className="w-14 h-14 object-contain drop-shadow-xl" />
             </div>
           </div>
         </motion.div>

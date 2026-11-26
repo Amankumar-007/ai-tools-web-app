@@ -1,4 +1,5 @@
 import { AnalysisResult } from "../types/types";
+import { openRouterFetch } from '@/lib/ai/openrouter-fetch';
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -22,7 +23,7 @@ export const analyzeResume = async (
        Provide targeted feedback on missing skills, keyword gaps, and match quality.`
     : `Perform a general expert evaluation of this resume for career optimization.`;
 
-  const response = await fetch(OPENROUTER_URL, {
+  const response = await openRouterFetch(OPENROUTER_URL, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
@@ -127,7 +128,7 @@ export const optimizeResume = async (
   // Use rawText for rewriting (the model needs prose, not JSON, for text generation)
   const resumeText = resumeData.rawText || JSON.stringify(resumeData, null, 2);
 
-  const response = await fetch(OPENROUTER_URL, {
+  const response = await openRouterFetch(OPENROUTER_URL, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
@@ -179,7 +180,7 @@ export const optimizeResume = async (
 };
 
 export const generateRoadmap = async (prompt: string): Promise<any> => {
-  const response = await fetch(OPENROUTER_URL, {
+  const response = await openRouterFetch(OPENROUTER_URL, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,

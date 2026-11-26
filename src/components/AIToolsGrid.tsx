@@ -1,9 +1,10 @@
 "use client";
 
-import React, { MouseEvent } from "react";
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { motionFade } from "@/lib/motion";
 
 interface Feature {
   title: string;
@@ -56,24 +57,14 @@ const FeatureCard = ({
   imageSrc,
   link,
   bgColor,
-  index,
-}: Feature & { index: number }) => {
-  const handleButtonClick = (e: MouseEvent<HTMLButtonElement>, link: string) => {
-    e.preventDefault();
-    if (link.startsWith('http')) {
-      window.open(link, '_blank');
-    } else {
-      window.location.href = link;
-    }
-  };
-
+}: Feature) => {
   return (
     <motion.div
       whileHover={{ scale: 1.03, boxShadow: "0 15px 35px rgba(0,0,0,0.2)" }}
-      transition={{ duration: 0.3, ease: "easeOut" }}
+      transition={motionFade}
       className={`${bgColor} relative rounded-2xl shadow-xl cursor-pointer group min-h-[170px] h-full overflow-hidden`}
     >
-      <Link href={link} className="block h-full w-full">
+      <Link href={link} className="block h-full w-full" {...(link.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
         {/* Background Image */}
         <div className="absolute inset-0 scale-95">
           <Image
@@ -81,22 +72,18 @@ const FeatureCard = ({
             alt={title}
             fill
             className="object-cover opacity-15 group-hover:opacity-25 transition-opacity duration-300"
-            priority={index < 3}
             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
           />
         </div>
 
         {/* Content Overlay */}
         <div className="relative z-10 p-5 flex flex-col justify-between h-full">
-          <h4 className="text-white font-bold text-lg sm:text-xl drop-shadow-md">
+          <h3 className="text-white font-bold text-lg sm:text-xl drop-shadow-md">
             {title}
-          </h4>
-          <button
-            onClick={(e) => handleButtonClick(e, link)}
-            className="mt-3 text-sm sm:text-base text-white bg-white/20 hover:bg-white/30 backdrop-blur-sm px-4 py-1.5 rounded-full transition-all duration-200 transform hover:scale-105 w-fit"
-          >
+          </h3>
+          <span className="mt-3 text-sm sm:text-base text-white bg-black/25 group-hover:bg-black/35 backdrop-blur-sm px-4 py-1.5 rounded-full transition-all duration-200 w-fit">
             Get Started
-          </button>
+          </span>
         </div>
       </Link>
     </motion.div>
@@ -113,7 +100,7 @@ export default function FeatureList() {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature, index) => (
-            <FeatureCard key={index} {...feature} index={index} />
+            <FeatureCard key={index} {...feature} />
           ))}
         </div>
       </div>

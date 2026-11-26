@@ -3,11 +3,17 @@
 import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { motionFade } from "@/lib/motion";
 import {
   ShieldCheck, Lock, Mail, Eye, EyeOff, Key,
   Sparkles, Check, ArrowRight, ShieldAlert, Cpu, Terminal, Zap
 } from 'lucide-react';
 import Link from 'next/link';
+
+/** Only ever redirect to a path inside the admin area (blocks `//evil.com`, `https://…`, `javascript:`). */
+function safeRedirect(target: string): string {
+  return /^\/admin(\/[A-Za-z0-9\-_/]*)?$/.test(target) ? target : '/admin/dashboard';
+}
 
 export default function AdminLoginClient() {
   const [identifier, setIdentifier] = useState('');
@@ -41,16 +47,10 @@ export default function AdminLoginClient() {
         return;
       }
 
-      if (data.token) {
-        try {
-          localStorage.setItem('tomato_admin_token', data.token);
-          document.cookie = `tomato_admin_token=${data.token}; path=/; max-age=604800; SameSite=Lax`;
-        } catch {}
-      }
-
+      // The session is an HttpOnly cookie set by the server; nothing is stored in page JavaScript.
       setSuccessMsg('Security verification passed! Entering Dashboard...');
       setTimeout(() => {
-        router.push(redirectUrl);
+        router.push(safeRedirect(redirectUrl));
         router.refresh();
       }, 500);
     } catch (err: any) {
@@ -76,7 +76,7 @@ export default function AdminLoginClient() {
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={motionFade}
         className="relative z-10 w-full max-w-md"
       >
         {/* Top Header Card */}

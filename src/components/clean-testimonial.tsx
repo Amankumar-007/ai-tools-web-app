@@ -3,6 +3,7 @@
 import type React from "react"
 import { useState, useCallback, useRef } from "react"
 import { motion, useMotionValue, useSpring, AnimatePresence } from "framer-motion"
+import { motionFade, motionReveal, motionSpring } from "@/lib/motion";
 import { User } from "lucide-react"
 
 // --- TYPES ---
@@ -74,13 +75,9 @@ function SplitText({ text }: { text: string }) {
       {words.map((word, i) => (
         <motion.span
           key={i}
-          initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{
-            duration: 0.4,
-            delay: i * 0.03,
-            ease: [0.22, 1, 0.36, 1],
-          }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ ...motionReveal, delay: Math.min(i, 6) * 0.035 }}
           className="inline-block mr-[0.25em]"
         >
           {word}
@@ -126,7 +123,7 @@ export function TestimonialSection() {
         <h2 className="text-4xl md:text-6xl font-bold tracking-tighter">
           What Our Users Say
         </h2>
-        <p className="text-neutral-500 mt-4 text-lg">
+        <p className="text-neutral-600 dark:text-neutral-400 mt-4 text-lg">
           Join thousands of creators who are building the future with Fresh AI.
         </p>
       </div>
@@ -157,12 +154,12 @@ export function TestimonialSection() {
               height: isHovered ? 80 : 0,
               opacity: isHovered ? 1 : 0,
             }}
-            transition={{ type: "spring", damping: 20, stiffness: 200 }}
+            transition={motionSpring}
           >
             <motion.span
               className="text-background text-xs font-medium tracking-wider uppercase"
               animate={{ opacity: isHovered ? 1 : 0 }}
-              transition={{ delay: 0.1 }}
+              transition={{ ...motionReveal, delay: 0.1 }}
             >
               Next
             </motion.span>
@@ -174,14 +171,14 @@ export function TestimonialSection() {
           className="absolute top-8 right-8 flex items-baseline gap-1 font-mono text-xs"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ ...motionReveal, delay: 0.5 }}
         >
           <motion.span
             className="text-2xl font-light text-foreground"
             key={activeIndex}
             initial={{ y: 10, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.3 }}
+            transition={motionFade}
           >
             {String(activeIndex + 1).padStart(2, "0")}
           </motion.span>
@@ -194,7 +191,7 @@ export function TestimonialSection() {
           className="absolute top-8 left-8 flex -space-x-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.6 }}
-          transition={{ delay: 0.6 }}
+          transition={{ ...motionReveal, delay: 0.6 }}
         >
           {liveTestimonials.map((t, i) => (
             <motion.div
@@ -231,7 +228,7 @@ export function TestimonialSection() {
                   className="absolute -inset-1.5 rounded-full border border-accent/40"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
+                  transition={motionReveal}
                 />
                 {liveTestimonials.map((t, i) => (
                   <motion.div
@@ -241,7 +238,7 @@ export function TestimonialSection() {
                       opacity: i === activeIndex ? 1 : 0,
                       zIndex: i === activeIndex ? 1 : 0,
                     }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
+                    transition={motionReveal}
                   >
                     <User size={24} />
                   </motion.div>
@@ -256,13 +253,13 @@ export function TestimonialSection() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 10 }}
-                  transition={{ duration: 0.3 }}
+                  transition={motionFade}
                 >
                   <motion.div
                     className="absolute left-0 top-0 bottom-0 w-px bg-accent"
                     initial={{ scaleY: 0 }}
                     animate={{ scaleY: 1 }}
-                    transition={{ duration: 0.4, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ ...motionReveal, delay: 0.1 }}
                     style={{ originY: 0 }}
                   />
                   <span className="block text-sm font-medium text-foreground tracking-wide">
@@ -282,7 +279,7 @@ export function TestimonialSection() {
               className="absolute inset-y-0 left-0 bg-accent"
               initial={{ width: "0%" }}
               animate={{ width: `${((activeIndex + 1) / liveTestimonials.length) * 100}%` }}
-              transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              transition={motionReveal}
             />
           </div>
         </div>
@@ -292,9 +289,9 @@ export function TestimonialSection() {
           className="absolute bottom-8 left-8 flex items-center gap-2"
           initial={{ opacity: 0 }}
           animate={{ opacity: isHovered ? 0.4 : 0.2 }}
-          transition={{ duration: 0.3 }}
+          transition={motionFade}
         >
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">Click anywhere</span>
+          <span className="text-[10px] text-neutral-600 dark:text-neutral-400 uppercase tracking-widest font-mono">Click anywhere</span>
         </motion.div>
       </div>
     </div>

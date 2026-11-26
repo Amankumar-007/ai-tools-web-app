@@ -4,7 +4,7 @@ import { authFetch } from '@/lib/auth-fetch';
 let pdfjsLib: any = null;
 let workerInitialized = false;
 
-const initializePDFjs = async () => {
+export const initializePDFjs = async () => {
   if (pdfjsLib && workerInitialized) return pdfjsLib;
 
   // Dynamic import is required to prevent pdfjs from being evaluated during SSR/prerender.

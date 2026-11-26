@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { effectivePlan, type PlanMetadata } from '@/lib/billing/plans';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -12,7 +13,6 @@ export interface User {
   email: string;
   subscription_tier: 'FREE' | 'PRO' | 'PREMIUM';
   subscription_status: 'active' | 'canceled' | 'past_due' | 'unpaid';
-  stripe_customer_id?: string;
   subscription_end_date?: string;
 }
 
@@ -65,10 +65,10 @@ export const getCurrentUser = async (): Promise<User | null> => {
     return {
       id: user.id,
       email: user.email!,
-      subscription_tier: (user.user_metadata?.subscription_tier || 'FREE') as 'FREE' | 'PRO' | 'PREMIUM',
+      // From app_metadata, which only the server (payment flow) can write. user_metadata is editable by the user.
+      subscription_tier: effectivePlan(user.app_metadata as PlanMetadata).toUpperCase() as 'FREE' | 'PRO' | 'PREMIUM',
       subscription_status: (user.user_metadata?.subscription_status || 'active') as 'active' | 'canceled' | 'past_due' | 'unpaid',
-      stripe_customer_id: user.user_metadata?.stripe_customer_id,
-      subscription_end_date: user.user_metadata?.subscription_end_date,
+      subscription_end_date: user.app_metadata?.plan_period_end ? new Date(Number(user.app_metadata.plan_period_end) * 1000).toISOString() : undefined,
     };
   } catch (error) {
     console.error('Error getting user:', error);
@@ -84,48 +84,5 @@ export const getSession = async () => {
   } catch (error) {
     console.error('Error getting session:', error);
     return null;
-  }
-};
-
-// Subscription management functions
-export const updateUserSubscription = async (userId: string, subscriptionData: {
-  subscription_tier: string;
-  subscription_status: string;
-  stripe_customer_id?: string;
-  subscription_end_date?: string;
-}) => {
-  try {
-    const { error } = await supabase.auth.admin.updateUserById(userId, {
-      user_metadata: { ...subscriptionData }
-    });
-    if (error) throw error;
-    return { error: null };
-  } catch (error) {
-    console.error('Error updating user subscription:', error);
-    throw error;
-  }
-};
-
-export const createSubscriptionRecord = async (subscriptionData: {
-  user_id: string;
-  stripe_customer_id: string;
-  stripe_subscription_id: string;
-  price_id: string;
-  status: string;
-  current_period_start: string;
-  current_period_end: string;
-}) => {
-  try {
-    const { data, error } = await supabase
-      .from('subscriptions')
-      .insert([subscriptionData])
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  } catch (error) {
-    console.error('Error creating subscription record:', error);
-    throw error;
   }
 };

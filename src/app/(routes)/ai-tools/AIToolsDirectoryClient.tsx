@@ -175,7 +175,7 @@ export default function AIToolsDirectoryClient({ initialTools, initialFeatured =
           </div>
           <div className={styles.searchBox}>
             <Search size={22} aria-hidden="true" />
-            <input ref={searchRef} type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search tools, categories, or what you want to do..." aria-label="Search AI tools" />
+            <input ref={searchRef} type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search tools or tasks..." aria-label="Search AI tools" />
             {search ? <button onClick={() => setSearch('')} aria-label="Clear search"><X size={19} /></button> : <kbd>Ctrl K</kbd>}
           </div>
           <div className={styles.quickLinks} aria-label="Popular categories">

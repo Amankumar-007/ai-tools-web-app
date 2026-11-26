@@ -4,6 +4,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { motionFade } from "@/lib/motion";
 import {
   Search, ArrowLeft, ArrowUp, ExternalLink, Plus, CheckCircle2,
   Trash2, Filter, Sparkles, Check, Info, LayoutGrid, List,
@@ -185,30 +186,30 @@ export default function CategoryDetailClient({
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-28 pb-36">
         {/* Breadcrumb Navigation & Back Link */}
-        <div className="flex items-center justify-between mb-8">
-          <nav className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 font-medium">
+        <div className="flex items-center justify-between gap-3 mb-8">
+          <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 whitespace-nowrap text-xs text-slate-500 dark:text-slate-400 font-medium">
             <Link href="/" className="hover:text-slate-900 dark:hover:text-white transition">Home</Link>
             <span>/</span>
             <Link href="/ai-tools" className="hover:text-slate-900 dark:hover:text-white transition">AI Tools</Link>
             <span>/</span>
-            <span className="text-slate-900 dark:text-white font-bold">{category.name}</span>
+            <span className="truncate text-slate-900 dark:text-white font-bold">{category.name}</span>
           </nav>
 
           <Link
             href="/ai-tools"
-            className="flex items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
+            className="hidden sm:flex shrink-0 items-center gap-1.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline cursor-pointer"
           >
             <ArrowLeft size={14} /> Back to Directory
           </Link>
         </div>
 
         {/* --- PREMIUM CATEGORY HERO BANNER --- */}
-        <header className="relative rounded-3xl bg-white dark:bg-[#0E1322] border border-slate-200/90 dark:border-slate-800 p-8 md:p-10 mb-10 shadow-[0_15px_35px_-15px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.4)] overflow-hidden">
+        <header className="relative rounded-3xl bg-white dark:bg-[#0E1322] border border-slate-200/90 dark:border-slate-800 p-5 sm:p-8 md:p-10 mb-10 shadow-[0_15px_35px_-15px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.4)] overflow-hidden">
           {/* Top Rainbow/Gradient Accent Line */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-sky-400 via-purple-400 to-amber-400" />
 
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-            <div className="flex items-start gap-5">
+            <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-5">
               {/* Category Icon Badge */}
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10 border border-slate-200/80 dark:border-slate-700/60 flex items-center justify-center shrink-0 shadow-xs">
                 <CategoryIcon
@@ -236,10 +237,10 @@ export default function CategoryDetailClient({
             </div>
 
             {/* Quick Category Stat Pills */}
-            <div className="grid grid-cols-3 gap-3 shrink-0">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3 shrink-0">
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 text-center">
                 <p className="text-xs text-slate-400 font-medium">Free Tools</p>
-                <p className="text-lg font-extrabold text-emerald-600 mt-0.5">{stats.freeCount} Tools</p>
+                <p className="text-lg font-extrabold text-emerald-600 mt-0.5">{stats.freeCount}</p>
               </div>
 
               <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 text-center">
@@ -311,7 +312,7 @@ export default function CategoryDetailClient({
             <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-xl p-0.5 border border-slate-200/60 dark:border-slate-700/60">
               <button
                 onClick={() => setViewMode('grid')}
-                className={`p-1.5 rounded-lg transition ${
+                className={`p-2.5 sm:p-1.5 rounded-lg transition ${
                   viewMode === 'grid'
                     ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-xs'
                     : 'text-slate-400 hover:text-slate-700'
@@ -322,7 +323,7 @@ export default function CategoryDetailClient({
               </button>
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-lg transition ${
+                className={`p-2.5 sm:p-1.5 rounded-lg transition ${
                   viewMode === 'list'
                     ? 'bg-white dark:bg-slate-900 text-blue-600 shadow-xs'
                     : 'text-slate-400 hover:text-slate-700'
@@ -366,7 +367,7 @@ export default function CategoryDetailClient({
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   whileHover={{ y: -3 }}
-                  transition={{ duration: 0.2 }}
+                  transition={motionFade}
                   className="rounded-3xl bg-white dark:bg-[#0E1322] border border-slate-200/90 dark:border-slate-800/90 p-6 shadow-xs hover:shadow-xl hover:border-slate-300 dark:hover:border-slate-700 transition-all flex flex-col justify-between"
                 >
                   <div>
@@ -587,7 +588,7 @@ export default function CategoryDetailClient({
             initial={{ y: 50, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 50, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={motionFade}
             className="fixed bottom-8 left-0 right-0 z-50 flex justify-center px-4"
           >
             <div className="bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 p-2.5 pr-4 rounded-full shadow-2xl flex items-center gap-5 max-w-lg w-full border border-slate-700/50 dark:border-slate-300">

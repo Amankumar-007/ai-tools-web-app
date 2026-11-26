@@ -1,5 +1,6 @@
 // Server component: renders JSON-LD directly into the SSR'd HTML <head>/<body>
 import { SITE_URL } from '@/metadata-utils'
+import { safeJsonForScript } from '@/lib/security/html'
 // so crawlers that don't execute JS still see structured data (unlike the old
 // client-side useEffect + DOM-injection approach).
 export default function JsonLd({ data }: { data: Record<string, any> | Record<string, any>[] }) {
@@ -7,7 +8,7 @@ export default function JsonLd({ data }: { data: Record<string, any> | Record<st
     <script
       type="application/ld+json"
       // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+      dangerouslySetInnerHTML={{ __html: safeJsonForScript(data) }}
     />
   )
 }
@@ -15,11 +16,12 @@ export default function JsonLd({ data }: { data: Record<string, any> | Record<st
 export const WebSiteStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
+  '@id': `${SITE_URL}/#website`,
   name: 'TomatoAi India',
   alternateName: 'TomatoAi - AI Tools Directory',
   url: SITE_URL,
   description: 'Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant for productivity, creativity, and automation.',
-  inLanguage: 'en-US',
+  inLanguage: 'en-IN',
   isAccessibleForFree: true,
   potentialAction: {
     '@type': 'SearchAction',
@@ -36,8 +38,10 @@ export const WebSiteStructuredData = {
 export const OrganizationStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': `${SITE_URL}/#organization`,
   name: 'TomatoAi India',
   alternateName: 'TomatoAi AI Tools Directory',
+  areaServed: { '@type': 'Country', name: 'India' },
   url: SITE_URL,
   logo: `${SITE_URL}/logo.png`,
   description: 'Leading AI tools directory helping users discover and compare the best artificial intelligence software and tools.',

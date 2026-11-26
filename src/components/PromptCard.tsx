@@ -27,7 +27,7 @@ export default function PromptCard({ prompt }: { prompt: Prompt }) {
         <p className={`whitespace-pre-wrap text-sm leading-6 text-slate-700 ${expanded ? '' : 'line-clamp-4'}`}>{prompt.content}</p>
       </div>
       <div className="mt-5 flex items-center justify-between gap-3">
-        <button type="button" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded} className="text-sm font-medium text-slate-600 hover:text-slate-950">
+        <button type="button" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded} className="py-2 text-sm font-medium text-slate-600 hover:text-slate-950">
           {expanded ? 'Show less' : 'Read full prompt'}
         </button>
         <button type="button" onClick={handleCopy} aria-label={`Copy ${prompt.title} prompt`} className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-3.5 py-2 text-sm font-medium text-white hover:bg-slate-700">

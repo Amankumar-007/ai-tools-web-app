@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import { motionReveal } from "@/lib/motion";
 import Image from "next/image"
 import { cn } from "@/lib/utils"
 
@@ -58,7 +59,7 @@ export function FeatureSteps({
                 className="flex items-center gap-6 md:gap-8"
                 initial={{ opacity: 0.3 }}
                 animate={{ opacity: index === currentFeature ? 1 : 0.3 }}
-                transition={{ duration: 0.5 }}
+                transition={motionReveal}
               >
                 <motion.div
                   className={cn(
@@ -102,7 +103,7 @@ export function FeatureSteps({
                       initial={{ y: 100, opacity: 0, rotateX: -20 }}
                       animate={{ y: 0, opacity: 1, rotateX: 0 }}
                       exit={{ y: -100, opacity: 0, rotateX: 20 }}
-                      transition={{ duration: 0.5, ease: "easeInOut" }}
+                      transition={motionReveal}
                     >
                       <Image
                         src={feature.image}

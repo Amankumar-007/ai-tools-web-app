@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { motionFade, motionReveal } from "@/lib/motion";
 import { ExternalLink, HelpCircle, Shield, Zap, Cpu, Search, Database, Plus, Minus, Code, FileText, UserPlus } from "lucide-react";
 import Link from "next/link";
 
@@ -84,6 +85,7 @@ export const FAQS = [
 ];
 
 export default function FAQSection() {
+  const reducedMotion = useReducedMotion();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const [isRevealed, setIsRevealed] = useState(false);
 
@@ -154,7 +156,7 @@ export default function FAQSection() {
                           initial={{ height: 0, opacity: 0, marginTop: 0 }}
                           animate={{ height: "auto", opacity: 1, marginTop: 8 }}
                           exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                          transition={reducedMotion ? { duration: 0 } : { ...motionReveal, opacity: motionFade }}
                           className="overflow-hidden"
                         >
                           <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed pb-2">

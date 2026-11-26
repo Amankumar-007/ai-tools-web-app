@@ -3,6 +3,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { motionFade, motionReveal } from "@/lib/motion";
 import Image from "next/image";
 import { ProjectCard } from "@/components/project-card";
 import Logo from "@/components/Logo";
@@ -38,7 +39,7 @@ export default function Home() {
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={motionReveal}
         viewport={{ once: true }}
         className="mb-12"
       >
@@ -57,7 +58,7 @@ export default function Home() {
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={motionReveal}
         viewport={{ once: true }}
         className="mb-12"
       >
@@ -95,7 +96,7 @@ export default function Home() {
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={motionReveal}
         viewport={{ once: true }}
       >
         <h2 className="text-2xl font-bold mb-4">My LinkedIn</h2>
@@ -118,7 +119,7 @@ export default function Home() {
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={motionReveal}
         viewport={{ once: true }}
         className="mb-10"
       >
@@ -151,7 +152,7 @@ export default function Home() {
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
+        transition={motionReveal}
         viewport={{ once: true }}
         className="text-center py-12 mb-8"
       >
@@ -285,7 +286,7 @@ function ProjectsSection() {
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7 }}
+        transition={motionReveal}
         className="mb-16 flex items-center gap-6 bg-primary/10 rounded-xl p-6 shadow-lg"
       >
         <motion.div
@@ -320,7 +321,7 @@ function ProjectsSection() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={motionFade}
             className="w-full max-w-md rounded-xl bg-white dark:bg-neutral-900 p-5 shadow-2xl"
           >
             <div className="flex items-center justify-between mb-2">
@@ -348,7 +349,7 @@ function ProjectsSection() {
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
+        transition={{ ...motionReveal, delay: 0.2 }}
         className="flex flex-wrap gap-2 mb-12"
       >
         {categories.map((category, index) => (
@@ -367,7 +368,7 @@ function ProjectsSection() {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.5, delay: 0.3 }}
+        transition={{ ...motionReveal, delay: 0.3 }}
         className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
       >
         {filteredProjects.map((project, index) => (

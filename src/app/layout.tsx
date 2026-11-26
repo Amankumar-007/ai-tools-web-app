@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ui/theme-provider";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { MotionProvider } from "@/components/ui/motion-provider";
 import { Toaster } from "sonner";
 import Script from "next/script";
 import JsonLd, { WebSiteStructuredData, OrganizationStructuredData } from "@/components/JsonLd";
@@ -52,9 +52,9 @@ export const metadata: Metadata = {
     siteName: 'TomatoAi India',
     images: [
       {
-        url: '/ab.png',
-        width: 1536,
-        height: 1024,
+        url: '/og-default.jpg',
+        width: 1200,
+        height: 630,
         alt: 'TomatoAi - AI Tools Directory',
       },
       {
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     description: 'Discover and explore the best AI tools for every need. Compare features, read reviews, and find the perfect AI assistant.',
     site: '@tomatoai',
     creator: '@tomatoai',
-    images: ['/ab.png'],
+    images: ['/og-default.jpg'],
   },
   robots: {
     index: true,
@@ -119,6 +119,8 @@ export const metadata: Metadata = {
 };
 
 import LiveTracker from "@/components/LiveTracker";
+import { GrowthBootstrap } from "@/components/growth/growth-bootstrap";
+import ToolLauncher from "@/components/daily-tools/ToolLauncher";
 
 export default function RootLayout({
   children,
@@ -126,21 +128,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en-IN" suppressHydrationWarning>
       <head>
         <JsonLd data={WebSiteStructuredData} />
         <JsonLd data={OrganizationStructuredData} />
       </head>
-      <Script async src="https://www.googletagmanager.com/gtag/js?id=G-YDZ0RQNZ2M" strategy="afterInteractive" />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-
-          gtag('config', 'G-YDZ0RQNZ2M');
-        `}
-      </Script>
       <body
         className="antialiased font-inter"
       >
@@ -149,13 +141,25 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
         >
-          <TooltipProvider delayDuration={0}>
+          <MotionProvider>
             {children}
             <Toaster position="top-center" richColors />
             <LiveTracker />
-          </TooltipProvider>
+            <GrowthBootstrap />
+            <ToolLauncher />
+          </MotionProvider>
 
         </ThemeProvider>
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-YDZ0RQNZ2M" strategy="lazyOnload" />
+        <Script id="google-analytics" strategy="lazyOnload">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-YDZ0RQNZ2M');
+          `}
+        </Script>
       </body>
     </html>
   );

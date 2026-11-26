@@ -1,20 +1,11 @@
-# AI Tools Setup Instructions
+# Environment setup
 
-To get the AI tools working, you need to set up your Google Gemini API key:
+1. Copy `.env.example` to `.env.local` (it is git-ignored) and fill in the values.
+2. Put every API key in a plain server variable, e.g. GEMINI_API_KEY, OPENROUTER_API_KEY.
+   NEVER prefix a secret with NEXT_PUBLIC_: those values are embedded in the JavaScript sent to every visitor.
+3. Payments (Razorpay) switch on only when ALL of RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET, SUPABASE_SERVICE_ROLE_KEY and NEXT_PUBLIC_SUPABASE_URL are set. See GROWTH.md.
+   Add the webhook https://YOUR-DOMAIN/api/razorpay/webhook (events: payment.authorized, payment.captured, order.paid, refund.processed).
+4. Create the admin login with `node scripts/admin-setup.cjs` and paste the printed lines into .env.local.
+5. Restart the dev server after changing environment variables.
 
-1. Get your Gemini API key from https://makersuite.google.com/app/apikey
-2. Create a file named ".env.local" in the root of your project
-3. Add the following line to your .env.local file:
-
-NEXT_PUBLIC_GEMINI_API_KEY=your_gemini_api_key_here
-
-4. Restart your development server
-
-Note: The .env.local file should already be in your .gitignore, so your API key won't be committed to version control.
-
-If you don't have a Gemini API key, you can sign up at https://makersuite.google.com/ and get free API access to start.
-
-This API key is used for:
-- Image Generator
-- Prompt Generator
-- Other AI features in the application
+See SECURITY.md for the full list of protections and the production checklist.

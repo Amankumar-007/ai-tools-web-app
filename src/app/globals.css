@@ -3,6 +3,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --default-transition-duration: 220ms;
+  --default-transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -49,6 +56,10 @@
 }
 
 :root {
+  --motion-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-fade: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --motion-quick: 220ms;
+  --motion-reveal: 420ms;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -153,7 +164,7 @@
   }
 
   .animate-hero {
-    animation: fadeInUp 0.5s ease-out 0.1s forwards;
+    animation: fadeInUp var(--motion-reveal) var(--motion-settle) 80ms both;
   }
 
   @keyframes slow-pulse {
@@ -198,6 +209,16 @@
   }
 }
 
+.page-enter {
+  animation: page-enter var(--motion-quick) var(--motion-fade);
+}
+
+@keyframes page-enter {
+  /* Starts visible enough that the main content counts as painted at once, instead of after the fade. */
+  from { opacity: 0.4; }
+  to { opacity: 1; }
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
@@ -209,7 +230,7 @@ html {
 }
 
 .lightning-activate-ring {
-  animation: lightning-activate 650ms ease-out forwards;
+  animation: lightning-activate 650ms var(--motion-settle) forwards;
 }
 
 @keyframes lightning-title-enter {
@@ -218,10 +239,20 @@ html {
 }
 
 .lightning-title-enter {
-  animation: lightning-title-enter 500ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: lightning-title-enter var(--motion-reveal) var(--motion-settle) both;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  /* Keep end events for components that wait for their CSS exit animation. */
+  *, *::before, *::after {
+    animation-delay: 0ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
   .lightning-activate-ring { animation: none; opacity: 0; }
   .lightning-title-enter { animation: none; }
 }
@@ -250,4 +281,40 @@ html {
 
 .dark .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background: rgba(148, 163, 184, 0.7);
-}
+}
+
+/* Chat scrollbars: thin and rounded with no arrow buttons, like ChatGPT. Light and dark. Chrome, Edge and Safari use the
+   webkit rules; Firefox gets the standard properties. Do not set scrollbar-width/color on these elements in Chromium: that
+   turns the webkit rules off and brings back the classic scrollbar with arrows. */
+.chat-scroll::-webkit-scrollbar { width: 10px; height: 10px; }
+.chat-scroll::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+.chat-scroll::-webkit-scrollbar-track { background: transparent; }
+.chat-scroll::-webkit-scrollbar-corner { background: transparent; }
+.chat-scroll::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.18);
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+.chat-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.32); background-clip: content-box; }
+.dark .chat-scroll::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); background-clip: content-box; }
+.dark .chat-scroll::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.34); background-clip: content-box; }
+
+@supports not selector(::-webkit-scrollbar) {
+  .chat-scroll { scrollbar-width: thin; scrollbar-color: rgba(0, 0, 0, 0.22) transparent; }
+  .dark .chat-scroll { scrollbar-color: rgba(255, 255, 255, 0.24) transparent; }
+}
+
+/* The chat list scrolls with the wheel, trackpad and touch, but shows no scrollbar at all. */
+.chat-scroll-hidden { scrollbar-width: none; -ms-overflow-style: none; }
+.chat-scroll-hidden::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+/* Home page logo strip: slides on the compositor, stops for people who prefer reduced motion, and is not rendered while far off screen. */
+@keyframes marquee-slide {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(-50%, 0, 0); }
+}
+.marquee-track { animation: marquee-slide 35s linear infinite; will-change: transform; }
+.marquee-reverse { animation-direction: reverse; }
+.marquee-section { content-visibility: auto; contain-intrinsic-size: auto 480px; }
+@media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }

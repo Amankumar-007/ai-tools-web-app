@@ -1,10 +1,11 @@
 // src/app/api/analyze-image/route.ts
 import { NextRequest, NextResponse } from 'next/server';
+import { withQuota } from '@/lib/growth/meter';
 import { analyzeImageWithOpenRouter } from '@/lib/openrouter';
 
 export const dynamic = 'force-dynamic';
 
-export async function POST(req: NextRequest) {
+async function handle(req: NextRequest) {
   try {
     const contentType = req.headers.get('content-type') || '';
     let imageUrl = '';
@@ -27,6 +28,13 @@ export async function POST(req: NextRequest) {
       } catch {}
     }
 
+    // Only https images or inline image data: never file:, http: or internal addresses.
+    question = question.slice(0, 500);
+    const SAFE_IMAGE_URL = /^(?:https:\/\/\S+|data:image\/(?:png|jpe?g|webp|gif);base64,[A-Za-z0-9+/=]+)$/;
+    if (imageUrl && (imageUrl.length > 2_000_000 || !SAFE_IMAGE_URL.test(imageUrl))) {
+      return NextResponse.json({ success: false, error: 'imageUrl must be an https URL or a PNG/JPEG/WebP/GIF data URL.' }, { status: 400 });
+    }
+
     if (!process.env.OPENROUTER_API_KEY) {
       return NextResponse.json({ success: false, error: 'OPENROUTER_API_KEY not configured' }, { status: 500 });
     }
@@ -47,3 +55,6 @@ export async function POST(req: NextRequest) {
 export async function GET() {
   return NextResponse.json({ ok: true, message: 'POST { imageUrl, question? } to /api/analyze-image' });
 }
+
+/** Spends one AI tool run from the caller's daily quota; refunded if the request fails. */
+export const POST = withQuota<NextRequest>('tool', handle);

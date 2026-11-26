@@ -1,5 +1,3 @@
-import { authFetch } from '@/lib/auth-fetch';
-
 export interface ParsedTemplate {
   id: string;
   name: string;
@@ -9,6 +7,8 @@ export interface ParsedTemplate {
   fileName: string;
   tags: string[];
   content: string;
+  /** Where the workflow file lives (listing responses leave `content` empty). */
+  path?: string;
 }
 
 // Parse README.md content to extract template information
@@ -163,42 +163,31 @@ function generateTags(name: string, description: string, category: string): stri
   return [...new Set(tags)];
 }
 
-// Get template content by filename
-export async function getTemplateContent(fileName: string): Promise<string> {
-  try {
-    const response = await authFetch('/api/n8n-templates');
-    if (!response.ok) {
-      throw new Error('Failed to fetch templates');
-    }
-    const data = await response.json();
-    const template = data.templates.find((t: any) => t.fileName === fileName);
-    
-    if (!template) {
-      throw new Error('Template not found');
-    }
-    
-    return template.content;
-  } catch (error) {
-    console.error('Error loading template content:', error);
-    throw error;
-  }
+/** The workflow JSON of one template, fetched when it is actually wanted. */
+export async function getTemplateContent(template: Pick<ParsedTemplate, 'content' | 'path'>): Promise<string> {
+  if (template.content) return template.content;
+  if (!template.path?.startsWith('/data/n8n-templates/')) throw new Error('Template file not found');
+  const response = await fetch(template.path);
+  if (!response.ok) throw new Error('Failed to fetch the template');
+  return response.text();
 }
 
 // Get all templates from the API
 export async function getAllTemplates(): Promise<ParsedTemplate[]> {
   try {
-    const response = await authFetch('/api/n8n-templates');
+    const response = await fetch('/api/n8n-templates');
     if (!response.ok) {
       throw new Error('Failed to fetch templates');
     }
     const data = await response.json();
     return data.templates.map((template: any) => ({
+      content: '',
       ...template,
       videoUrl: getVideoUrl(template.fileName)
     }));
   } catch (error) {
     console.error('Error loading templates:', error);
-    return [];
+    throw error;
   }
 }
 

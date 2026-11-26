@@ -9,7 +9,7 @@
 .brand span:last-child{font-weight:400}
 .brandMark{display:grid;place-items:center;width:34px;height:34px;margin-right:4px;border-radius:10px;background:var(--accent);color:var(--paper);font-size:20px;letter-spacing:-.08em}
 .navLinks{display:flex;align-items:center;gap:34px;height:100%}
-.navLinks a{display:flex;align-items:center;height:100%;border-bottom:2px solid transparent;color:color-mix(in srgb,var(--ink) 66%,transparent);font-size:13px;font-weight:600;white-space:nowrap;transition:color .2s}
+.navLinks a{display:flex;align-items:center;height:100%;border-bottom:2px solid transparent;color:color-mix(in srgb,var(--ink) 66%,transparent);font-size:13px;font-weight:600;white-space:nowrap;transition:color var(--motion-quick) var(--motion-fade)}
 .navLinks a:hover,.navLinks .navActive{color:var(--accent)}
 .navLinks .navActive{border-bottom-color:var(--accent)}
 .navActions{display:flex;align-items:center;gap:12px}
@@ -46,7 +46,7 @@
 .textLink{display:inline-flex;align-items:center;gap:5px;color:var(--accent);font-size:12px;font-weight:700}
 .featuredSection{margin-bottom:66px}
 .featuredGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-.featuredCard{display:flex;flex-direction:column;min-height:330px;overflow:hidden;border-radius:12px;background:var(--ink);color:var(--paper);transition:transform .2s}
+.featuredCard{display:flex;flex-direction:column;min-height:330px;overflow:hidden;border-radius:12px;background:var(--ink);color:var(--paper);transition:transform var(--motion-quick) var(--motion-settle)}
 .featuredCard:hover{transform:translateY(-3px)}
 .featuredArtwork{position:relative;display:grid;place-items:center;min-height:148px;overflow:hidden;background:var(--accent)}
 .featuredArtwork:before,.featuredArtwork:after{position:absolute;content:"";width:220px;height:220px;border:1px solid color-mix(in srgb,var(--paper) 24%,transparent);border-radius:50%;pointer-events:none}
@@ -80,7 +80,7 @@
 .clearButton{display:inline-flex;align-items:center;gap:4px;border:0;background:none;color:var(--accent);font-size:12px;font-weight:700}
 .categoryGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
 .categoryList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
-.categoryCard{display:flex;flex-direction:column;min-width:0;padding:23px 23px 0;border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);border-radius:12px;background:var(--paper);transition:border-color .2s,transform .2s}
+.categoryCard{display:flex;flex-direction:column;min-width:0;padding:23px 23px 0;border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);border-radius:12px;background:var(--paper);transition:border-color var(--motion-quick) var(--motion-fade),transform var(--motion-quick) var(--motion-settle)}
 .categoryCard:hover{border-color:var(--accent);transform:translateY(-2px)}
 .categoryHeader{display:flex;justify-content:space-between;align-items:center;gap:12px}
 .categoryIndex{color:var(--accent);font-size:10px;font-weight:800;letter-spacing:.12em}
@@ -118,3 +118,6 @@
 .srOnly{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 @media(max-width:1000px){.navLinks{gap:18px}.categoryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.categoryList{grid-template-columns:1fr}.featuredGrid{gap:10px}}
 @media(max-width:700px){.main{padding:66px 18px 0}.hero{min-height:calc(70svh - 66px);padding:30px 0}.hero h1{font-size:clamp(42px,10vw,62px)}.hero p{font-size:14px}.searchBox{height:58px;margin-top:28px;padding:0 15px}.searchBox input{font-size:12px}.searchBox kbd{display:none}.content{padding:30px 0 100px}.sectionHeading{align-items:start}.sectionHeading h2{font-size:25px}.sectionNote{display:none}.featuredGrid,.categoryGrid{grid-template-columns:1fr}.featuredCard{min-height:320px}.featuredSection{margin-bottom:52px}.toolbar{padding:10px}.selectWrap{flex:1;min-width:calc(50% - 5px)}.sortSelect{margin-left:0}.verified{height:38px;padding-left:2px}.viewToggle{margin-left:auto}.categoryCard{padding:20px 20px 0}.categoryFooter{margin:8px -20px 0;padding:0 20px}.compareInner{align-items:start;flex-direction:column;gap:12px}.compareActions{width:100%;justify-content:space-between}}
+
+/* Bigger tap targets on touch-sized screens. */
+@media (max-width:640px){.compareButton,.compareSelected,.visitButton{width:34px;height:34px}}

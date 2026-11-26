@@ -31,8 +31,8 @@ const sections: LegalSection[] = [
             summarizer, resume analyzer or prompt generator are processed to return your result.
           </li>
           <li>
-            <strong>Payment information.</strong> Paid plans are processed by Stripe. Card numbers never reach our
-            servers &mdash; we only receive a subscription status and a customer reference.
+            <strong>Payment information.</strong> Paid plans are processed by Razorpay. Card numbers never reach our
+            servers &mdash; we only receive a payment reference and the plan you bought.
           </li>
           <li>
             <strong>Usage data.</strong> Standard request logs (IP address, browser type, pages visited, timestamps),

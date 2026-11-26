@@ -1,6 +1,7 @@
 "use client";
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 
 export default function SmoothVideoPlayer() {
   const [videoSrc, setVideoSrc] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export default function SmoothVideoPlayer() {
               key={videoSrc}
               initial={{ opacity: 0, scale: 0.98 }}
               animate={{ opacity: isLoaded ? 1 : 0, scale: 1 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              transition={{ ...motionReveal, duration: 0.8 }}
               onLoadedData={() => setIsLoaded(true)}
               src={videoSrc}
               autoPlay

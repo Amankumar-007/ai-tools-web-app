@@ -16,8 +16,8 @@ export default function OptimizeWithAI() {
     try {
       const output = await optimizeTextWithGemini(input) as { improved?: string; text?: string };
       setResult(output.improved ?? output.text ?? JSON.stringify(output));
-    } catch {
-      setResult("❌ Failed to optimize. Please try again.");
+    } catch (error) {
+      setResult(error instanceof Error ? error.message : "Failed to optimize. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -36,26 +36,20 @@ export default function OptimizeWithAI() {
         aria-hidden
         className="fixed inset-0 -z-10 dark:hidden"
         style={{
-          backgroundImage: "url('/generated-image.png')",
+          backgroundImage: "url('/art/generated-image.webp')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       <div
         aria-hidden
         className="fixed inset-0 -z-10 hidden dark:block"
         style={{
-          backgroundImage: "url(" + "'/generated-image (1).png'" + ")",
+          backgroundImage: "url(" + "'/art/generated-image-dark.webp'" + ")",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       <h1 className="text-3xl font-bold mb-4 text-orange-400">AI Content Optimizer</h1>
@@ -69,7 +63,8 @@ export default function OptimizeWithAI() {
         placeholder="Paste your text here..."
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        className="w-full max-w-2xl p-4 rounded-lg  focus:ring-2 focus:ring-orange-500 outline-none resize-none"
+        aria-label="Text to optimize"
+        className="w-full max-w-2xl p-4 rounded-lg border border-neutral-300 bg-white/90 text-neutral-900 placeholder-neutral-500 focus:ring-2 focus:ring-orange-500 outline-none resize-none dark:border-neutral-700 dark:bg-neutral-900/80 dark:text-neutral-100"
       />
 
       <button

@@ -1,11 +1,13 @@
+import { requireAdmin } from '@/lib/adminAuth';
 import { NextResponse } from 'next/server';
 import { getAiToolsFromDb } from '@/services/aiToolsDb';
 import { ALL_CATEGORIES } from '@/lib/categories';
 import { getRealActiveVisitors } from '@/lib/visitorTracker';
-import { supabase } from '@/lib/supabase';
 
 export async function GET() {
   try {
+    const denied = await requireAdmin();
+    if (denied) return denied;
     // 1. Fetch real tools directly from Supabase database
     const tools = await getAiToolsFromDb();
 
@@ -45,7 +47,7 @@ export async function GET() {
     };
 
     return NextResponse.json({ success: true, stats });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ success: false, error: 'Request failed.' }, { status: 500 });
   }
 }

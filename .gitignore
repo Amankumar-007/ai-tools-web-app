@@ -33,6 +33,26 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# local development data (growth/credits store)
+/.data/
+
+# temporary test/measurement folders (headless Chrome profiles, scratch builds, test libraries)
+/.tmp-chrome/
+/.tmp-work/
+/.tmp-test-libs/
+/.next-dev/
+
+# Lighthouse reports saved into public/ would be published with the site
+/public/localhost_*.json
+/public/*.report.json
+/public/*.report.html
+
+# logs and local artefacts that must never be committed
+*.log
+api-debug.log
+backend/node_modules/
 
 # vercel
 .vercel

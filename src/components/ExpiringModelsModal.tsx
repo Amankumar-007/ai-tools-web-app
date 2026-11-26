@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { motionPanel, motionReveal } from "@/lib/motion";
 import Link from 'next/link';
 
 const expiringModels = [
@@ -83,7 +84,7 @@ export default function ExpiringModelsModal() {
             initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 16 }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            transition={motionPanel}
             className="relative w-full max-w-[420px] rounded-[32px] shadow-2xl overflow-hidden bg-white dark:bg-[#0A0A0A] border border-black/5 dark:border-white/10"
           >
             {/* Ambient Glows */}
@@ -110,7 +111,7 @@ export default function ExpiringModelsModal() {
                   <motion.div 
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.15 + idx * 0.1, duration: 0.4, ease: "easeOut" }}
+                    transition={{ ...motionReveal, delay: 0.15 + Math.min(idx, 6) * 0.035 }}
                     key={`${model.id}-${idx}`} 
                     className="group relative flex items-center justify-between p-3.5 rounded-2xl bg-slate-50/50 hover:bg-slate-100 dark:bg-white/[0.02] dark:hover:bg-white/[0.04] border border-black/[0.04] dark:border-white/5 transition-all"
                   >

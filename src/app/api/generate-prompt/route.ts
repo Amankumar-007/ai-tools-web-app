@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { openRouterFetch } from '@/lib/ai/openrouter-fetch';
+import { withQuota } from '@/lib/growth/meter';
 
-export async function POST(req: NextRequest) {
+async function handle(req: NextRequest) {
   try {
     const { topic, model } = await req.json();
 
@@ -38,7 +40,7 @@ export async function POST(req: NextRequest) {
     ---
     **Why this works**: [Explanation]`;
 
-    const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    const res = await openRouterFetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
@@ -78,3 +80,6 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+/** Spends one AI tool run from the caller's daily quota; refunded if the request fails. */
+export const POST = withQuota<NextRequest>('tool', handle);

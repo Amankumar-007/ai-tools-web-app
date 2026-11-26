@@ -2,18 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import FlipLink from "@/components/ui/text-effect-flipper";
 import { motion } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 import WrapButton from "@/components/ui/wrap-button";
 import { Globe } from "lucide-react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
-import AiInput from '@/components/ui/ai-input';
 import Categories from "@/components/Categories";
-import { getCurrentUser, signOut } from "@/lib/supabase";
-import Image from "next/image";
-import { Particles } from "@/components/ui/particles";
-import { useTheme } from "next-themes";
 import MainNavbar from "@/components/MainNavbar";
 import AnimatedAiInput from "@/components/ui/animated-ai-input";
 import JsonLd, { faqPageStructuredData } from "@/components/JsonLd";
@@ -25,91 +20,29 @@ import { FAQS } from "@/components/FAQSection";
 // client-side hydration.
 const AIToolsGrid = dynamic(() => import('../components/AIToolsGrid'));
 const ToolMarquee = dynamic(() => import('@/components/ToolMarquee'));
-const WorkflowSection = dynamic(() => import('@/components/WorkflowSection'));
 const TestimonialSection = dynamic(() => import('@/components/clean-testimonial').then(mod => mod.TestimonialSection));
 const AgentManager = dynamic(() => import('@/components/AgentManager'));
 const VeniceSection = dynamic(() => import('@/components/VeniceSection'));
 const FAQSection = dynamic(() => import('@/components/FAQSection'));
 const Footer = dynamic(() => import('@/components/footer'));
 
-// Define types for user and video
+// Define types for the signed-in user
 interface User {
   subscription_tier?: string;
 }
-
-interface Video {
-  title: string;
-  description: string;
-  url: string;
-  thumbnail: string | null;
-}
-
-// Responsive text component that uses FlipLink on desktop and professional text on mobile
-const ResponsiveText: React.FC<{ children: string; href?: string; className?: string }> = ({
-  children,
-  href = "",
-  className = ""
-}) => {
-  return (
-    <>
-      {/* Mobile view - shown via CSS */}
-      <motion.a
-        href={href}
-        target="_blank"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className={`
-          relative
-          inline-block
-          text-4xl
-          font-bold
-          uppercase
-          tracking-tight
-          px-2
-          py-1
-          transition-all duration-300 ease-out
-          group
-          hover:text-blue-600
-          dark:hover:text-blue-400
-          sm:hidden
-          ${className}
-        `}
-        style={{
-          lineHeight: 1.1,
-          WebkitTapHighlightColor: 'transparent',
-          textShadow: '0 1px 2px rgba(0,0,0,0.1)',
-        }}
-      >
-        <span className="relative z-10">{children}</span>
-        <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 transform scale-x-0 transition-transform duration-300 group-hover:scale-x-100"></span>
-      </motion.a>
-
-      {/* Desktop view - shown via CSS */}
-      <div className="hidden sm:block">
-        <FlipLink href={href} className={className}>{children}</FlipLink>
-      </div>
-    </>
-  );
-};
 
 export default function Home() {
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const currentUser = await getCurrentUser();
-      setUser(currentUser);
-    };
-    fetchUser();
+    // The sign-in library is downloaded after the page is shown, not as part of it.
+    let cancelled = false;
+    void import("@/lib/supabase").then(({ getCurrentUser }) => getCurrentUser()).then((currentUser) => {
+      if (!cancelled) setUser(currentUser);
+    }).catch(() => {});
+    return () => { cancelled = true; };
   }, []);
-
-  const { theme } = useTheme()
-  const [, setColor] = useState("#ffffff")
-
-  useEffect(() => {
-    setColor(theme === "dark" ? "#ffffff" : "#000000")
-  }, [theme])
 
 
   const handleProtectedLink = (
@@ -125,6 +58,7 @@ export default function Home() {
   };
 
   const handleSignOut = async () => {
+    const { signOut } = await import("@/lib/supabase");
     await signOut();
     setUser(null);
     router.push("/");
@@ -139,10 +73,7 @@ export default function Home() {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: {
-        duration: 0.5,
-        ease: [0.4, 0, 0.2, 1] // Using a cubic-bezier easing
-      }
+      transition: motionReveal
     }
   } as const;
 
@@ -173,13 +104,10 @@ export default function Home() {
         aria-hidden="true"
         className="fixed inset-0 -z-10 hidden dark:block pointer-events-none"
         style={{
-          backgroundImage: "url('/generated-image (1).png')",
+          backgroundImage: "url('/art/generated-image-dark.webp')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
 
@@ -194,10 +122,10 @@ export default function Home() {
       <section className="relative flex flex-col items-center justify-start pt-30 pb-10 sm:pt-25 md:pt-32 md:pb-14 px-3 sm:px-4 overflow-hidden">
         <div className="relative z-10 text-center px-2 sm:px-4 w-full max-w-4xl mx-auto flex flex-col items-center">
           {/* Main Headline */}
-          <h1 className="text-[2.15rem] xs:text-3xl sm:text-4xl md:text-5xl lg:text-[3.8rem] font-bold tracking-tight mb-3 sm:mb-4 max-w-4xl mx-auto leading-[1.16] sm:leading-[1.15] text-neutral-950 dark:text-white animate-hero opacity-0">
+          <h1 className="text-[2.15rem] xs:text-3xl sm:text-4xl md:text-5xl lg:text-[3.8rem] font-bold tracking-tight mb-3 sm:mb-4 max-w-4xl mx-auto leading-[1.16] sm:leading-[1.15] text-neutral-950 dark:text-white">
             <span className="block sm:inline">Everything AI. </span>
             <span className="inline-block">
-              With<span className="inline-flex items-center justify-center align-middle mx-[0.02em] -translate-y-[0.05em]"><img src="/logo.png" alt="o" className="w-[0.72em] h-[0.72em] object-contain inline-block" /></span>ut the{" "}
+              With<span className="inline-flex items-center justify-center align-middle mx-[0.02em] -translate-y-[0.05em]"><img src="/logo.png" alt="o" width={44} height={44} fetchPriority="high" className="w-[0.72em] h-[0.72em] object-contain inline-block" /></span>ut the{" "}
             </span>{" "}
             <span className="relative inline-block whitespace-nowrap font-serif italic font-normal text-blue-600 dark:text-blue-400 px-1 sm:px-2">
               47 Open Tabs.
@@ -232,12 +160,7 @@ export default function Home() {
           </WrapButton>
 
           {/* AI Search Bar Container */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="relative w-full max-w-3xl mx-auto mt-4 sm:mt-6 z-10"
-          >
+          <div className="relative w-full max-w-3xl mx-auto mt-4 sm:mt-6 z-10">
             <div className="w-full flex justify-center py-2">
               <AnimatedAiInput />
             </div>
@@ -247,67 +170,67 @@ export default function Home() {
               <span className="text-[10px] sm:text-[11px] font-medium text-neutral-500 dark:text-neutral-400">
                 Explore & Chat with Top AI Models
               </span>
-              <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 flex-wrap px-1">
+              <div className="flex items-center justify-center gap-2 sm:gap-2.5 flex-wrap px-1 max-w-[17rem] sm:max-w-none">
                 {[
                   {
                     name: "ChatGPT",
                     query: "ChatGPT",
-                    icon: "https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg",
+                    icon: "/icons/models/chatgpt.svg",
                     color: "hover:border-emerald-500/50 hover:bg-emerald-500/10",
                   },
                   {
                     name: "Claude",
                     query: "Claude",
-                    icon: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/claude-color.svg",
+                    icon: "/icons/models/claude-color.svg",
                     color: "hover:border-amber-500/50 hover:bg-amber-500/10",
                   },
                   {
                     name: "Gemini",
                     query: "Gemini",
-                    icon: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/gemini-color.svg",
+                    icon: "/icons/models/gemini-color.svg",
                     color: "hover:border-blue-500/50 hover:bg-blue-500/10",
                   },
                   {
                     name: "DeepSeek",
                     query: "DeepSeek",
-                    icon: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/deepseek-color.svg",
+                    icon: "/icons/models/deepseek-color.svg",
                     color: "hover:border-cyan-500/50 hover:bg-cyan-500/10",
                   },
                   {
                     name: "Grok",
                     query: "Grok",
-                    icon: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/grok.svg",
+                    icon: "/icons/models/grok.svg",
                     color: "hover:border-neutral-500/50 hover:bg-neutral-500/10",
                   },
                   {
                     name: "Perplexity",
                     query: "Perplexity",
-                    icon: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/perplexity-color.svg",
+                    icon: "/icons/models/perplexity-color.svg",
                     color: "hover:border-teal-500/50 hover:bg-teal-500/10",
                   },
                   {
                     name: "Midjourney",
                     query: "Midjourney",
-                    icon: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/midjourney.svg",
+                    icon: "/icons/models/midjourney.svg",
                     color: "hover:border-indigo-500/50 hover:bg-indigo-500/10",
                   },
                   {
                     name: "Meta Llama",
                     query: "Llama",
-                    icon: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/meta-color.svg",
+                    icon: "/icons/models/meta-color.svg",
                     color: "hover:border-blue-600/50 hover:bg-blue-600/10",
                   },
                   {
                     name: "Mistral",
                     query: "Mistral",
-                    icon: "https://unpkg.com/@lobehub/icons-static-svg@latest/icons/mistral-color.svg",
+                    icon: "/icons/models/mistral-color.svg",
                     color: "hover:border-orange-500/50 hover:bg-orange-500/10",
                   },
                 ].map((model) => (
                   <Link
                     key={model.name}
                     href={`/tomato-ai?q=${encodeURIComponent(model.query)}`}
-                    className={`group relative w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center p-1.5 sm:p-2
+                    className={`group relative w-10 h-10 rounded-lg sm:rounded-xl flex items-center justify-center p-1.5 sm:p-2
                       bg-white/80 dark:bg-neutral-900/80
                       backdrop-blur-md
                       border border-black/[0.08] dark:border-white/[0.12]
@@ -317,11 +240,15 @@ export default function Home() {
                       ${model.color}
                     `}
                     title={model.name}
+                    aria-label={model.name}
                   >
                     <img
                       src={model.icon}
-                      alt={model.name}
-                      className="w-full h-full object-contain dark:brightness-110"
+                      alt=""
+                      width={24}
+                      height={24}
+                      // Single-colour marks are black: flip them to white on the dark theme.
+                      className={`w-full h-full object-contain ${/\/(grok|midjourney)\.svg$/.test(model.icon) ? "dark:invert" : "dark:brightness-110"}`}
                       loading="lazy"
                     />
                     {/* Tooltip */}
@@ -332,7 +259,7 @@ export default function Home() {
                 ))}
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -388,7 +315,7 @@ export default function Home() {
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
+          transition={motionReveal}
           className="fixed bottom-6 right-6"
         >
           {/* <Chatbot /> */}

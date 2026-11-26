@@ -24,8 +24,8 @@
 }
 
 @keyframes comic-zoom {
-  0% { transform: scale(0.8) rotate(-5deg); opacity: 0; }
-  50% { transform: scale(1.1) rotate(2deg); }
+  0% { transform: scale(0.95) rotate(-2deg); opacity: 0; }
+  70% { transform: scale(1.015) rotate(0deg); }
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
@@ -80,7 +80,7 @@
 /* Comic button effects */
 .comic-button {
   position: relative;
-  transition: all 0.2s ease;
+  transition: transform var(--motion-quick) var(--motion-settle);
   animation: comic-bounce 3s infinite;
 }
 
@@ -112,12 +112,12 @@
 
 /* Comic entry animations */
 .comic-enter {
-  animation: comic-zoom 0.5s ease-out;
+  animation: comic-zoom var(--motion-reveal) var(--motion-settle);
 }
 
 /* Comic hover effects */
 .comic-hover:hover {
-  animation: comic-shake 0.3s ease-in-out;
+  animation: comic-shake var(--motion-quick) var(--motion-settle);
   transform: translateY(-2px) rotate(-1deg);
 }
 

@@ -1377,7 +1377,7 @@ export default function AdminDashboardClient({
                   </div>
                   <div className="flex justify-between py-2 border-b border-slate-100">
                     <span className="text-slate-500">Primary Admin</span>
-                    <span className="font-mono text-slate-900 font-medium">admin@tomato.ai</span>
+                    <span className="font-mono text-slate-900 font-medium">{adminUser.email}</span>
                   </div>
                 </div>
 

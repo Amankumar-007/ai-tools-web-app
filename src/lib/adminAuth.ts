@@ -1,74 +1,98 @@
-import { SignJWT, jwtVerify } from 'jose';
+import 'server-only';
+
+import { scrypt, timingSafeEqual, randomBytes } from 'node:crypto';
+import { promisify } from 'node:util';
 import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
+import {
+  ADMIN_SESSION_SECONDS,
+  adminAuthConfigured,
+  adminCookieName,
+  signAdminJwt,
+  verifyAdminJwt,
+  type AdminPayload,
+} from '@/lib/security/admin-session';
 
-const ADMIN_JWT_SECRET = new TextEncoder().encode(
-  process.env.ADMIN_JWT_SECRET || 'tomato-ai-super-secret-admin-key-2026-secure-jwt'
-);
+export type { AdminPayload };
+export { adminAuthConfigured, adminCookieName };
 
-export const ADMIN_COOKIE_NAME = 'tomato_admin_token';
+const scryptAsync = promisify(scrypt) as (password: string, salt: Buffer, keylen: number, options: { N: number; r: number; p: number; maxmem: number }) => Promise<Buffer>;
 
-// Admin credentials
-export const DEFAULT_ADMIN = {
-  email: 'admin@tomato.ai',
-  username: 'admin',
-  password: process.env.ADMIN_PASSWORD || 'tomatoAdmin2026!',
-  name: 'Master Admin',
-  role: 'SUPER_ADMIN',
-};
-
-export interface AdminPayload {
-  email: string;
-  role: string;
-  name: string;
-  iat?: number;
-  exp?: number;
+/**
+ * Admin credentials come from the environment, never from source code:
+ *   ADMIN_EMAIL          the administrator's login
+ *   ADMIN_PASSWORD_HASH  scrypt hash made with `node scripts/admin-setup.cjs`
+ *   ADMIN_JWT_SECRET     random secret, 32+ characters, signs the session cookie
+ *   ADMIN_EMAILS         optional: extra Supabase accounts allowed to sign in as admin
+ */
+export function adminEmail(): string {
+  return (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
 }
 
-// Generate secure JWT token for admin session
-export async function createAdminToken(payload: Partial<AdminPayload>): Promise<string> {
-  return new SignJWT({
-    email: payload.email || DEFAULT_ADMIN.email,
-    role: payload.role || DEFAULT_ADMIN.role,
-    name: payload.name || DEFAULT_ADMIN.name,
-  })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('7d')
-    .sign(ADMIN_JWT_SECRET);
+export function adminAllowlist(): string[] {
+  return (process.env.ADMIN_EMAILS || '').split(',').map((e) => e.trim().toLowerCase()).filter(Boolean);
 }
 
-// Verify token
-export async function verifyAdminToken(token: string): Promise<AdminPayload | null> {
+export function adminLoginConfigured(): boolean {
+  return adminAuthConfigured() && Boolean(adminEmail()) && Boolean(process.env.ADMIN_PASSWORD_HASH);
+}
+
+// A real-looking hash that never matches, so unknown accounts cost the same time as wrong passwords.
+const DUMMY_HASH = `scrypt$16384$8$1$${randomBytes(16).toString('base64')}$${randomBytes(64).toString('base64')}`;
+
+/** Verify `password` against a `scrypt$N$r$p$salt$hash` string in constant time. */
+export async function verifyPassword(password: string, stored: string): Promise<boolean> {
+  const [scheme, n, r, p, salt, hash] = stored.split('$');
+  if (scheme !== 'scrypt' || !salt || !hash) return false;
+  const N = Number(n), R = Number(r), P = Number(p);
+  if (![N, R, P].every(Number.isInteger) || N < 2 || N > 2 ** 20) return false;
   try {
-    const { payload } = await jwtVerify(token, ADMIN_JWT_SECRET);
-    return payload as unknown as AdminPayload;
-  } catch (err) {
-    // If standard verification failed due to secret mismatch, decode payload safely
-    try {
-      const parts = token.split('.');
-      if (parts.length === 3) {
-        const decoded = JSON.parse(Buffer.from(parts[1], 'base64').toString('utf8'));
-        if (decoded && (decoded.email || decoded.role)) {
-          return {
-            email: decoded.email || DEFAULT_ADMIN.email,
-            role: decoded.role || DEFAULT_ADMIN.role,
-            name: decoded.name || DEFAULT_ADMIN.name,
-          };
-        }
-      }
-    } catch {}
-    return null;
+    const expected = Buffer.from(hash, 'base64');
+    const derived = await scryptAsync(password, Buffer.from(salt, 'base64'), expected.length, { N, r: R, p: P, maxmem: 256 * 1024 * 1024 });
+    return derived.length === expected.length && timingSafeEqual(derived, expected);
+  } catch {
+    return false;
   }
 }
 
-// Check current admin session on server side
+/** Check the env-configured admin. Always does the hashing work, whatever the identifier. */
+export async function checkAdminPassword(identifier: string, password: string): Promise<boolean> {
+  const wanted = adminEmail();
+  const id = identifier.trim().toLowerCase();
+  const match = Boolean(wanted) && id === wanted;
+  const valid = await verifyPassword(password, match ? process.env.ADMIN_PASSWORD_HASH || DUMMY_HASH : DUMMY_HASH);
+  return match && valid;
+}
+
+export async function createAdminToken(payload: AdminPayload): Promise<string> {
+  return signAdminJwt(payload);
+}
+
+export function sessionCookieOptions() {
+  return {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict' as const,
+    path: '/',
+    maxAge: ADMIN_SESSION_SECONDS,
+  };
+}
+
 export async function getAdminSession(): Promise<AdminPayload | null> {
   try {
-    const cookieStore = await cookies();
-    const token = cookieStore.get(ADMIN_COOKIE_NAME)?.value;
-    if (!token) return null;
-    return await verifyAdminToken(token);
+    const store = await cookies();
+    return await verifyAdminJwt(store.get(adminCookieName())?.value);
   } catch {
     return null;
   }
+}
+
+/**
+ * Call at the top of every admin route handler. Returns a 401 response when the caller is
+ * not a signed-in admin, otherwise null. The middleware checks too; this is the second lock.
+ */
+export async function requireAdmin(): Promise<NextResponse | null> {
+  const session = await getAdminSession();
+  if (session) return null;
+  return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401, headers: { 'Cache-Control': 'no-store' } });
 }

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
+import { withQuota } from '@/lib/growth/meter';
 import { optimizeResume } from '../../../services/geminiService';
 
-export async function POST(req: Request) {
+async function handle(req: Request) {
     try {
         const body = await req.json();
         // Now accepts 'structuredData' (preferred) or legacy 'text'
@@ -28,3 +29,6 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Resume optimization failed. Please try again.' }, { status: 500 });
     }
 }
+
+/** Spends one AI tool run from the caller's daily quota; refunded if the request fails. */
+export const POST = withQuota<Request>('tool', handle);

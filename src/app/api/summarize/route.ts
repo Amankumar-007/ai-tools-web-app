@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import { openRouterFetch } from '@/lib/ai/openrouter-fetch';
+import { withQuota } from '@/lib/growth/meter';
 
 const OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions";
 
@@ -32,7 +34,7 @@ const getPrompt = (text: string, feature: FeatureType, summaryType?: SummaryType
 
 const MAX_TEXT_LENGTH = 50000;
 
-export async function POST(req: Request) {
+async function handle(req: Request) {
   try {
     const body = await req.json();
     const { text, feature = "summary", summaryType = "general" } = body;
@@ -47,7 +49,7 @@ export async function POST(req: Request) {
 
     const prompt = getPrompt(text, feature, summaryType);
 
-    const response = await fetch(OPENROUTER_URL, {
+    const response = await openRouterFetch(OPENROUTER_URL, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
@@ -85,3 +87,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Summarization failed. Please try again.' }, { status: 500 });
   }
 }
+
+/** Spends one AI tool run from the caller's daily quota; refunded if the request fails. */
+export const POST = withQuota<Request>('tool', handle);

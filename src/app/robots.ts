@@ -1,172 +1,41 @@
 import { MetadataRoute } from 'next'
 import { SITE_URL } from '@/metadata-utils'
 
-export default function robots(): MetadataRoute.Robots {
-  const baseUrl = SITE_URL
+/**
+ * Crawl rules.
+ *
+ * Search engines need `/_next/static/` (the site's CSS and JavaScript) to render a page the way a visitor sees it, so it
+ * is explicitly allowed. Blocking all of `/_next/` (as an older version of this file did) makes Google see an unstyled,
+ * script-less page, which hurts ranking and the "mobile friendly" checks. Only private and API paths are blocked.
+ *
+ * AI search and answer engines (ChatGPT, Claude, Perplexity, Gemini, Apple, Meta...) are welcome: the tool pages are
+ * written to be quoted, and /llms.txt gives them a map. SEO-scraper bots are blocked.
+ */
 
+const PRIVATE_PATHS = [
+  '/api/', '/admin/', '/auth/', '/login', '/signup', '/dashboard', '/profile', '/settings', '/account', '/r/',
+  '/temp/', '/private/', '/*.json$', '/search?q=*', '/filter/*',
+]
+
+const AI_CRAWLERS = [
+  'GPTBot', 'ChatGPT-User', 'OAI-SearchBot', 'Google-Extended', 'GoogleOther', 'anthropic-ai', 'Claude-Web', 'ClaudeBot',
+  'Claude-User', 'Claude-SearchBot', 'PerplexityBot', 'Perplexity-User', 'Applebot', 'Applebot-Extended', 'Meta-ExternalAgent',
+  'Meta-ExternalFetcher', 'Amazonbot', 'DuckAssistBot', 'MistralAI-User', 'cohere-ai', 'CCBot',
+]
+
+const SCRAPERS = ['AhrefsBot', 'MJ12bot', 'DotBot', 'BlexBot', 'BacklinkCrawler', 'SemrushBot', 'SEOkicks-Robot']
+
+export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
-      {
-        userAgent: '*',
-        allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/_next/',
-          '/static/',
-          '/temp/',
-          '/private/',
-          '/auth/',
-          '/login',
-          '/signup',
-          '/dashboard',
-          '/profile',
-          '/settings',
-          '/*.json$',
-          '/search?q=*',
-          '/filter/*',
-        ],
-      },
-      {
-        userAgent: 'Googlebot',
-        allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/_next/',
-          '/static/',
-          '/temp/',
-          '/private/',
-          '/auth/',
-          '/login',
-          '/signup',
-          '/dashboard',
-          '/profile',
-          '/settings',
-        ],
-      },
-      {
-        userAgent: 'Bingbot',
-        allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/_next/',
-          '/static/',
-          '/temp/',
-          '/private/',
-          '/auth/',
-          '/login',
-          '/signup',
-          '/dashboard',
-          '/profile',
-          '/settings',
-        ],
-      },
-      {
-        userAgent: 'Slurp',
-        allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/_next/',
-          '/static/',
-          '/temp/',
-          '/private/',
-          '/auth/',
-          '/login',
-          '/signup',
-          '/dashboard',
-          '/profile',
-          '/settings',
-        ],
-      },
-      {
-        userAgent: 'DuckDuckBot',
-        allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/_next/',
-          '/static/',
-          '/temp/',
-          '/private/',
-          '/auth/',
-          '/login',
-          '/signup',
-          '/dashboard',
-          '/profile',
-          '/settings',
-        ],
-      },
-      {
-        userAgent: 'Baiduspider',
-        allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/_next/',
-          '/static/',
-          '/temp/',
-          '/private/',
-          '/auth/',
-          '/login',
-          '/signup',
-          '/dashboard',
-          '/profile',
-          '/settings',
-        ],
-      },
-      {
-        userAgent: 'YandexBot',
-        allow: '/',
-        disallow: [
-          '/api/',
-          '/admin/',
-          '/_next/',
-          '/static/',
-          '/temp/',
-          '/private/',
-          '/auth/',
-          '/login',
-          '/signup',
-          '/dashboard',
-          '/profile',
-          '/settings',
-        ],
-      },
-      // Block SEO-scraper / backlink-crawling bots (unrelated to AI crawling)
-      {
-        userAgent: [
-          'AhrefsBot',
-          'MJ12bot',
-          'DotBot',
-          'BlexBot',
-          'BacklinkCrawler',
-          'SemrushBot',
-          'SEOkicks-Robot',
-        ],
-        disallow: '/',
-      },
-      // Explicitly welcome AI crawlers/answer engines so TomatoAi content
-      // can be cited by ChatGPT, Claude, Google AI features, etc.
-      {
-        userAgent: [
-          'GPTBot',
-          'ChatGPT-User',
-          'OAI-SearchBot',
-          'Google-Extended',
-          'anthropic-ai',
-          'Claude-Web',
-          'ClaudeBot',
-          'PerplexityBot',
-          'CCBot',
-        ],
-        allow: '/',
-        disallow: ['/api/', '/admin/', '/auth/', '/login', '/signup', '/dashboard', '/profile', '/settings'],
-      },
+      // Everyone else, including Googlebot, Bingbot, DuckDuckBot, YandexBot and Baiduspider.
+      { userAgent: '*', allow: ['/', '/_next/static/', '/_next/image'], disallow: PRIVATE_PATHS },
+      // Answer engines: same rules, plus the plain-text maps written for them.
+      { userAgent: AI_CRAWLERS, allow: ['/', '/llms.txt', '/llms-full.txt', '/_next/static/', '/_next/image'], disallow: PRIVATE_PATHS },
+      // SEO and backlink scrapers add load and no readers.
+      { userAgent: SCRAPERS, disallow: '/' },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-    host: baseUrl,
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   }
 }

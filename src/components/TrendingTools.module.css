@@ -35,7 +35,7 @@
   justify-content: center;
   cursor: pointer;
   font-size: 1.2rem;
-  transition: all 0.3s ease;
+  transition: background-color var(--motion-quick) var(--motion-fade);
 }
 
 .arrowButton:hover {
@@ -55,7 +55,7 @@
   border: none;
   cursor: pointer;
   padding: 0;
-  transition: all 0.3s ease;
+  transition: background-color var(--motion-quick) var(--motion-fade), transform var(--motion-quick) var(--motion-settle);
 }
 
 .activeDot {
@@ -71,7 +71,7 @@
 
 .cardsWrapper {
   display: flex;
-  transition: transform 0.5s ease-in-out;
+  transition: transform var(--motion-reveal) var(--motion-settle);
 }
 
 .card {
@@ -81,7 +81,7 @@
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   margin: 0 0.5rem;
-  transition: all 0.3s ease;
+  transition: transform var(--motion-reveal) var(--motion-settle), box-shadow var(--motion-quick) var(--motion-fade);
   min-height: 350px;
   display: flex;
   flex-direction: column;
@@ -192,7 +192,7 @@
   border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
-  transition: all 0.3s ease;
+  transition: background-color var(--motion-quick) var(--motion-fade);
 }
 
 .visitButton:hover {

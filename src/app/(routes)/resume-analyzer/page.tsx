@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
@@ -212,11 +213,10 @@ export default function ResumeAnalyzer() {
         aria-hidden
         className="fixed inset-0 -z-10 hidden dark:block"
         style={{
-          backgroundImage: "url('/generated-image (1).png')",
+          backgroundImage: "url('/art/generated-image-dark.webp')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
           opacity: 0.4
         }}
       />
@@ -227,7 +227,7 @@ export default function ResumeAnalyzer() {
           }`}
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={motionReveal}
       >
         <div className="flex items-center justify-between px-4 md:px-6 relative max-w-7xl mx-auto w-full">
           {/* Logo */}
@@ -379,7 +379,7 @@ export default function ResumeAnalyzer() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={motionReveal}
               className="text-center mb-8 md:mb-16"
             >
               <span className="inline-block py-1 px-3 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-300 text-[10px] md:text-xs font-bold uppercase tracking-wider mb-4 border border-orange-200 dark:border-orange-800">
@@ -396,7 +396,7 @@ export default function ResumeAnalyzer() {
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              transition={{ ...motionReveal, delay: 0.2 }}
               className="space-y-4 md:space-y-6"
             >
               <div className="bg-white dark:bg-slate-900/50 rounded-2xl md:rounded-3xl p-4 md:p-6 shadow-2xl shadow-orange-500/10 border border-slate-100 dark:border-slate-800 backdrop-blur-sm">
@@ -459,7 +459,7 @@ export default function ResumeAnalyzer() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+                  transition={{ ...motionReveal, delay: Math.min(i, 6) * 0.035 }}
                   className="p-5 md:p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-800 transition-colors shadow-lg shadow-gray-100/50 dark:shadow-none"
                 >
                   <div className="w-10 h-10 md:w-12 md:h-12 bg-orange-50 dark:bg-orange-900/20 rounded-xl flex items-center justify-center mb-4">
@@ -475,7 +475,7 @@ export default function ResumeAnalyzer() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
+            transition={motionReveal}
             className="max-w-6xl mx-auto"
           >
             <div className="flex flex-col md:flex-row gap-4 md:justify-between md:items-center mb-6 md:mb-8">

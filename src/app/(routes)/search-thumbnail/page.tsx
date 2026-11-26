@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
+import { motionFade, motionReveal } from "@/lib/motion";
 
 export default function SearchThumbnailPage() {
   const [query, setQuery] = useState('')
@@ -38,34 +39,28 @@ export default function SearchThumbnailPage() {
         aria-hidden
         className="fixed inset-0 -z-10 dark:hidden"
         style={{
-          backgroundImage: "url('/generated-image.png')",
+          backgroundImage: "url('/art/generated-image.webp')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       <div
         aria-hidden
         className="fixed inset-0 -z-10 hidden dark:block"
         style={{
-          backgroundImage: "url(" + "'/generated-image (1).png'" + ")",
+          backgroundImage: "url(" + "'/art/generated-image-dark.webp'" + ")",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          backgroundAttachment: 'fixed',
-          filter: 'blur(2px)',
-          transform: 'scale(1.03)'
         }}
       />
       <div className="max-w-4xl mx-auto">
         <motion.h1
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-3xl font-bold text-center text-gray-800 mb-8"
+          transition={motionReveal}
+          className="text-3xl font-bold text-center text-gray-800 dark:text-white mb-8"
         >
           Thumbnail Search 🔍
         </motion.h1>
@@ -123,7 +118,7 @@ export default function SearchThumbnailPage() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.3 }}
+                transition={motionFade}
                 className="group block bg-white rounded-xl overflow-hidden shadow hover:shadow-md transition"
               >
                 <Image

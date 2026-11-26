@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 import {
     Rocket,
     BarChart3,
@@ -159,7 +160,7 @@ export default function WorkflowSection() {
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: 0.1 }}
+                        transition={{ ...motionReveal, delay: 0.1 }}
                         className="text-4xl md:text-5xl font-medium tracking-tight text-black dark:text-white leading-[1.1] mb-6 text-balance"
                     >
                         One platform. <br className="hidden md:block" />
@@ -169,7 +170,7 @@ export default function WorkflowSection() {
                         initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ delay: 0.2 }}
+                        transition={{ ...motionReveal, delay: 0.2 }}
                         className="text-lg text-black/60 dark:text-white/60 leading-relaxed max-w-xl"
                     >
                         Switch contexts effortlessly. Lorka provides specialized AI environments that adapt to your specific workflows, curating the right models and tools for the task at hand.
@@ -277,7 +278,7 @@ export default function WorkflowSection() {
                                         initial={{ opacity: 0, y: 15, filter: 'blur(4px)' }}
                                         animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                                         exit={{ opacity: 0, y: -15, filter: 'blur(4px)' }}
-                                        transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                                        transition={motionReveal}
                                         className="h-full flex flex-col justify-between"
                                     >
                                         <div>

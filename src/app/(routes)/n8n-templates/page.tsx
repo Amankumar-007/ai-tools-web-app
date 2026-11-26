@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Copy, Download, ExternalLink, Play, Check, Search, Bot, Mail, MessageCircle, Database, FileText, Users, Calendar, Settings, Globe, Brain, Code, Folder, Send } from "lucide-react";
-import { getAllTemplates, ParsedTemplate } from "@/lib/n8n-templates";
+import { getAllTemplates, getTemplateContent, ParsedTemplate } from "@/lib/n8n-templates";
 
 
 const categories = [
@@ -96,9 +97,13 @@ export default function N8nTemplatesPage() {
 
   const handleCopyTemplate = async (template: ParsedTemplate) => {
     try {
-      // Use the actual JSON content from the template
-      const content = template.content;
-      await navigator.clipboard.writeText(content);
+      const text = getTemplateContent(template);
+      // Safari only allows copying inside the tap itself, so hand the clipboard a promise instead of waiting first.
+      if (typeof ClipboardItem !== 'undefined' && navigator.clipboard.write) {
+        await navigator.clipboard.write([new ClipboardItem({ 'text/plain': text.then((value) => new Blob([value], { type: 'text/plain' })) })]);
+      } else {
+        await navigator.clipboard.writeText(await text);
+      }
       setCopiedTemplate(template.id);
       alert('Template copied to clipboard!');
 
@@ -109,9 +114,15 @@ export default function N8nTemplatesPage() {
     }
   };
 
-  const handleDownloadTemplate = (template: ParsedTemplate) => {
-    // Use the actual JSON content from the template
-    const content = template.content;
+  const handleDownloadTemplate = async (template: ParsedTemplate) => {
+    let content: string;
+    try {
+      content = await getTemplateContent(template);
+    } catch (error) {
+      console.error('Error downloading template:', error);
+      alert('Failed to download template');
+      return;
+    }
 
     const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -138,7 +149,7 @@ export default function N8nTemplatesPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={motionReveal}
           >
             <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
               n8n AI Automation Templates
@@ -153,7 +164,7 @@ export default function N8nTemplatesPage() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ ...motionReveal, delay: 0.2 }}
             className="mt-16"
           >
             <h2 className="text-2xl font-bold mb-8">How to Use n8n Templates</h2>
@@ -252,7 +263,7 @@ export default function N8nTemplatesPage() {
                 key={template.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
+                transition={{ ...motionReveal, delay: Math.min(index, 6) * 0.035 }}
               >
                 <Card className="h-full flex flex-col hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-0 bg-gradient-to-br from-background to-muted/20">
                   <CardHeader className="pb-3">
@@ -316,7 +327,7 @@ export default function N8nTemplatesPage() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => window.open(template.videoUrl, '_blank')}
+                          onClick={() => window.open(template.videoUrl, '_blank', 'noopener,noreferrer')}
                           className="hover:bg-muted/50 transition-all duration-200"
                         >
                           <Play className="w-4 h-4" />

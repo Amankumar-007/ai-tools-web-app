@@ -1,6 +1,7 @@
 "use client";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { motionReveal } from "@/lib/motion";
 import React, { useRef, useState, useEffect } from "react";
 
 export const BackgroundBeamsWithCollision = ({
@@ -253,14 +254,14 @@ const Explosion = ({ ...props }: React.HTMLProps<HTMLDivElement>) => {
         initial={{ opacity: 0, scale: 0.5 }}
         animate={{ opacity: 1, scale: 1.5 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
+        transition={{ ...motionReveal, duration: 0.8 }}
         className="absolute -inset-x-20 top-0 m-auto h-3 w-16 rounded-full bg-gradient-to-r from-transparent via-indigo-500 to-transparent blur-md pointer-events-none"
       />
       <motion.div
         initial={{ opacity: 0, scale: 0.3 }}
         animate={{ opacity: 1, scale: 1.8 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut", delay: 0.05 }}
+        transition={{ ...motionReveal, duration: 0.6, delay: 0.05 }}
         className="absolute -inset-x-16 top-0 m-auto h-2 w-12 rounded-full bg-gradient-to-r from-transparent via-pink-500 to-transparent blur-sm pointer-events-none"
       />
       {spans.map((span) => (

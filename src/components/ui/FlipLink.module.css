@@ -33,7 +33,7 @@
   background-color: currentColor;
   transform: scaleX(0);
   transform-origin: right;
-  transition: transform 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transition: transform var(--motion-reveal) var(--motion-settle);
 }
 
 .link:hover::after {
@@ -64,13 +64,13 @@
 .topLayer,
 .bottomLayer {
   display: inline-block;
-  transition: all 0.4s cubic-bezier(0.645, 0.045, 0.355, 1);
+  transition: color var(--motion-quick) var(--motion-fade);
 }
 
 @media (hover: none) {
   .link {
     /* Optional: Add touch-specific styles */
-    transition: transform 0.2s ease;
+    transition: transform var(--motion-quick) var(--motion-settle);
   }
 }
 

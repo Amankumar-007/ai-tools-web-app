@@ -14,7 +14,8 @@ export async function POST(req) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Gemini 2.5 "thinks" by default and the thinking eats the output budget, truncating short answers; these helpers want direct output.
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash", generationConfig: { thinkingConfig: { thinkingBudget: 0 } } });
 
     const prompt = history
       .map(m => `${m.role === "user" ? "User" : "Bot"}: ${m.text}`)

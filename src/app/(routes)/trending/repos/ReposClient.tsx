@@ -33,6 +33,9 @@ function formatCount(n: number): string {
 export default function ReposClient({ repos, lastUpdated }: ReposClientProps) {
   const [activeLanguage, setActiveLanguage] = useState('All');
   const [user, setUser] = useState<User | null>(null);
+  // Local date and time are only known in the browser: render them after the page is live (avoids a server/browser mismatch).
+  const [updated, setUpdated] = useState(lastUpdated.slice(0, 10));
+  useEffect(() => { setUpdated(new Date(lastUpdated).toLocaleString()); }, [lastUpdated]);
   const router = useRouter();
 
   useEffect(() => {
@@ -72,10 +75,10 @@ export default function ReposClient({ repos, lastUpdated }: ReposClientProps) {
           <Link href="/trending" className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors mb-6">
             <ArrowLeft size={14} /> Back to Trending
           </Link>
-          <div className="inline-flex items-center gap-2 text-xs font-mono text-slate-500 mb-6 uppercase tracking-wider">
+          <div className="flex flex-wrap items-center gap-2 text-xs font-mono text-slate-500 mb-6 uppercase tracking-wider">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             Live Market Data
-            <span className="normal-case text-slate-400">&middot; Updated {new Date(lastUpdated).toLocaleString()}</span>
+            <span className="normal-case text-slate-400">&middot; Updated {updated}</span>
           </div>
           <h1 className="text-4xl sm:text-6xl font-medium tracking-tight mb-6">
             Trending on <span className="text-slate-400">GitHub.</span>

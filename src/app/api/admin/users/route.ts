@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { getRealActiveVisitors } from '@/lib/visitorTracker';
-import { DEFAULT_ADMIN } from '@/lib/adminAuth';
+import { adminEmail, requireAdmin } from '@/lib/adminAuth';
 
 export interface RealAdminUser {
   id: string;
@@ -20,6 +20,8 @@ export interface RealAdminUser {
 
 export async function GET() {
   try {
+    const denied = await requireAdmin();
+    if (denied) return denied;
     const realUsers: RealAdminUser[] = [];
     const seenEmails = new Set<string>();
 
@@ -42,7 +44,7 @@ export async function GET() {
               last_sign_in_at: u.last_sign_in_at || u.created_at,
               subscription_tier: u.subscription_tier || 'FREE',
               subscription_status: u.subscription_status || 'active',
-              role: u.role || (u.email === DEFAULT_ADMIN.email ? 'SUPER_ADMIN' : 'user'),
+              role: u.role || (u.email === adminEmail() ? 'SUPER_ADMIN' : 'user'),
               is_online: true,
               location: u.country || 'Connected User',
               ip: u.last_ip || '127.0.0.1',
@@ -80,7 +82,7 @@ export async function GET() {
                 last_sign_in_at: u.last_sign_in_at || u.created_at,
                 subscription_tier: u.user_metadata?.subscription_tier || 'FREE',
                 subscription_status: u.user_metadata?.subscription_status || 'active',
-                role: u.user_metadata?.role || (u.email === DEFAULT_ADMIN.email ? 'SUPER_ADMIN' : 'user'),
+                role: u.user_metadata?.role || (u.email === adminEmail() ? 'SUPER_ADMIN' : 'user'),
                 is_online: true, // We assume online if they are in the list for now, or you can cross-check with live tracker
                 location: 'Supabase Auth User',
                 ip: '127.0.0.1',
@@ -94,16 +96,16 @@ export async function GET() {
     }
 
     // 3. Always include the master admin account if not already in the list
-    if (!seenEmails.has(DEFAULT_ADMIN.email.toLowerCase())) {
+    if (adminEmail() && !seenEmails.has(adminEmail())) {
       realUsers.unshift({
         id: 'usr_master_admin',
-        email: DEFAULT_ADMIN.email,
-        name: DEFAULT_ADMIN.name,
+        email: adminEmail(),
+        name: 'Administrator',
         created_at: new Date().toISOString(),
         last_sign_in_at: new Date().toISOString(),
         subscription_tier: 'PREMIUM',
         subscription_status: 'active',
-        role: DEFAULT_ADMIN.role,
+        role: 'SUPER_ADMIN',
         is_online: true,
         location: 'Master Administrator',
         ip: '127.0.0.1 (Localhost)',
@@ -129,7 +131,7 @@ export async function GET() {
           lastActive: 'Active now',
           lastActiveTimestamp: Date.now(),
           isRegisteredUser: true,
-          userEmail: DEFAULT_ADMIN.email,
+          userEmail: adminEmail(),
         },
       ];
     }
@@ -141,7 +143,7 @@ export async function GET() {
       users: realUsers,
       liveSessions,
     });
-  } catch (error: any) {
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  } catch {
+    return NextResponse.json({ success: false, error: 'Request failed.' }, { status: 500 });
   }
 }

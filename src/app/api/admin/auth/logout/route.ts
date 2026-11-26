@@ -1,14 +1,8 @@
 import { NextResponse } from 'next/server';
-import { ADMIN_COOKIE_NAME } from '@/lib/adminAuth';
+import { adminCookieName, sessionCookieOptions } from '@/lib/adminAuth';
 
 export async function POST() {
-  const response = NextResponse.json({ success: true, message: 'Logged out successfully' });
-  response.cookies.set({
-    name: ADMIN_COOKIE_NAME,
-    value: '',
-    httpOnly: true,
-    expires: new Date(0),
-    path: '/',
-  });
+  const response = NextResponse.json({ success: true }, { headers: { 'Cache-Control': 'no-store' } });
+  response.cookies.set({ name: adminCookieName(), value: '', ...sessionCookieOptions(), maxAge: 0, expires: new Date(0) });
   return response;
 }
